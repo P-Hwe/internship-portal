@@ -1,5 +1,5 @@
 <?php
-// Só para desenvolvimento:  php -S localhost:8000 router.php   (em produção o .htaccess faz esse papel)
+
 $p = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 if (preg_match('#^/(app|Controllers|Models|Views|database|cron|storage|tests|docs)(/|$)|^/\.env|/router\.php$#', $p)) { http_response_code(403); exit('Acesso negado'); }
 if (preg_match('#^/vaga/(\d+)/?$#', $p, $m)) { $_GET['p'] = 'vaga'; $_GET['id'] = $m[1]; require __DIR__ . '/index.php'; return; }
