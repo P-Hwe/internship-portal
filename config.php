@@ -80,15 +80,16 @@ function redirect(string $pagina, array $params = []): void { header('Location: 
 
 function data_br(?string $iso): string { return $iso ? date('d/m/Y', strtotime($iso)) : ''; }
 
-function dias_restantes(string $limite): int
+function remaining_days(string $limite): int
 {
     return (int) floor((strtotime($limite . ' 23:59:59') - time()) / 86400);
 }
 
-function dinheiro($v): string { return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.'); }
+function money($v): string { return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.'); }
 
 
-function parse_dinheiro(string $s): ?float
+
+function parse_money(string $s): ?float
 {
     $s = trim(str_replace(['R$', ' '], '', $s));
     if ($s === '') return null;
@@ -105,7 +106,7 @@ function fone_fmt(string $d): string
     return $d;
 }
 
-function resumo_da_descricao(string $desc, int $linhas = 3, int $max = 220): string
+function description_resume(string $desc, int $linhas = 3, int $max = 220): string
 {
     $partes = array_values(array_filter(array_map('trim', preg_split('/\R/u', $desc)), 'strlen'));
     $txt = implode(' ', array_slice($partes, 0, $linhas));
@@ -115,7 +116,7 @@ function resumo_da_descricao(string $desc, int $linhas = 3, int $max = 220): str
     return rtrim(mb_substr($corte, 0, $esp ?: $max), " ,.;:") . '…';
 }
 
-function vaga_imagem(array $v, string $classe = ''): string
+function job_image(array $v, string $classe = ''): string
 {
     $emp = $v['empresa']['nome'] ?? 'Empresa';
     if (!empty($v['imagem'])) {
@@ -124,22 +125,22 @@ function vaga_imagem(array $v, string $classe = ''): string
     return '<div class="vg-fallback vg-fb-' . ((int) ($v['empresa_id'] ?? 0) % 6) . ' ' . e($classe) . '" role="img" aria-label="Vaga ' . e($v['titulo']) . ' - ' . e($emp) . '"><span>' . e(iniciais($emp)) . '</span><small>' . e($emp) . '</small></div>';
 }
 
-function iniciais(string $nome): string
+function initials(string $nome): string
 {
     $i = '';
     foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $p) { if (preg_match('/./u', $p, $m)) $i .= mb_strtoupper($m[0]); }
     return $i;
 }
 
-function selo_prazo(array $v): array
+function stamp_deadline(array $v): array
 {
-    $d = dias_restantes($v['data_limite']);
+    $d = remaining_days($v['data_limite']);
     if ($d <= 0) return ['Encerra hoje', 'vg-badge-warn'];
     if ($d <= DIAS_VAGA_VENCENDO) return ['Encerra em ' . $d . ($d === 1 ? ' dia' : ' dias'), 'vg-badge-warn'];
     return ['Até ' . date('d/m', strtotime($v['data_limite'])), 'vg-badge-soft'];
 }
 
-function vaga_e_nova(array $v): bool { return (time() - strtotime($v['data_publicacao'])) <= DIAS_VAGA_NOVA * 86400; }
+function job_is_new(array $v): bool { return (time() - strtotime($v['data_publicacao'])) <= DIAS_VAGA_NOVA * 86400; }
 
 
 function icon(string $nome, int $tam = 18): string
@@ -202,20 +203,20 @@ function render(string $nome, array $dados, string $layout): void
     require ROOT_PATH . "/Views/layouts/$layout.php";
 }
 
-function url_vaga(int $id): string { return env('PRETTY_URLS') && env('PRETTY_URLS') !== '0' ? BASE_URL . 'vaga/' . $id : url('vaga', ['id' => $id]); }
-function url_vaga_abs(int $id): string
+function url_job(int $id): string { return env('PRETTY_URLS') && env('PRETTY_URLS') !== '0' ? BASE_URL . 'vaga/' . $id : url('vaga', ['id' => $id]); }
+function url_job_abs(int $id): string
 {
     $base = rtrim((string) env('APP_URL', ''), '/');
     if (!$base) { $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'; $base = ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost'); }
     return $base . url_vaga($id);
 }
 
-function limpar_post(array $p): array
+function clean_post(array $p): array
 {
     $o = [];
     foreach ($p as $k => $v) $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
     return $o;
 }
-function dias_txt(int $d): string { return $d < 0 ? 'Encerrada há ' . abs($d) . ($d === -1 ? ' dia' : ' dias') : ($d === 0 ? 'Último dia' : $d . ($d === 1 ? ' dia restante' : ' dias restantes')); }
+function days_txt(int $d): string { return $d < 0 ? 'Encerrada há ' . abs($d) . ($d === -1 ? ' dia' : ' dias') : ($d === 0 ? 'Último dia' : $d . ($d === 1 ? ' dia restante' : ' dias restantes')); }
 
 ?>
