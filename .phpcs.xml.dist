@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="Internship Portal">
+    <description>Regras de estilo para o projeto Internship Portal</description>
+
+    <rule ref="PSR12">
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+    </rule>
+</ruleset>
