@@ -17,8 +17,14 @@ class Estado
         self::E_BLOQUEADA => [self::E_APROVADA],
         self::E_REPROVADA => [self::E_PENDENTE],
     ];
-    public static function vagaPode(string $de, string $para): bool { return in_array($para, self::TV[$de] ?? [], true); }
-    public static function empresaPode(string $de, string $para): bool { return in_array($para, self::TE[$de] ?? [], true); }
+    public static function vagaPode(string $de, string $para): bool
+    {
+        return in_array($para, self::TV[$de] ?? [], true);
+    }
+    public static function empresaPode(string $de, string $para): bool
+    {
+        return in_array($para, self::TE[$de] ?? [], true);
+    }
 
     public const SITUACOES = ['aguardando', 'agendada', 'publicada', 'expirada', 'encerrada', 'rejeitada'];
     private const ROTULO = ['aguardando' => 'Em análise', 'agendada' => 'Agendada', 'publicada' => 'Publicada', 'expirada' => 'Expirada', 'encerrada' => 'Encerrada', 'rejeitada' => 'Rejeitada'];
@@ -28,28 +34,47 @@ class Estado
     {
         $hoje = $hoje ?? date('Y-m-d');
         switch ($v['status']) {
-            case self::V_AGUARDANDO: return 'aguardando';
-            case self::V_REJEITADA:  return 'rejeitada';
-            case self::V_ENCERRADA:  return 'encerrada';
+            case self::V_AGUARDANDO:
+                return 'aguardando';
+            case self::V_REJEITADA:
+                return 'rejeitada';
+            case self::V_ENCERRADA:
+                return 'encerrada';
         }
-        if ($hoje < $v['data_publicacao']) return 'agendada';
-        if ($hoje > $v['data_limite']) return 'expirada';
+        if ($hoje < $v['data_publicacao']) {
+            return 'agendada';
+        }
+        if ($hoje > $v['data_limite']) {
+            return 'expirada';
+        }
         return 'publicada';
     }
-    public static function rotuloSituacao(string $s): string { return self::ROTULO[$s] ?? $s; }
-    public static function tomSituacao(string $s): string { return self::TOM[$s] ?? 'mute'; }
+    public static function rotuloSituacao(string $s): string
+    {
+        return self::ROTULO[$s] ?? $s;
+    }
+    public static function tomSituacao(string $s): string
+    {
+        return self::TOM[$s] ?? 'mute';
+    }
 
     /** Condição SQL equivalente a situacaoVaga(), para filtrar/contar no banco. @return array [sql, params] */
     public static function sqlSituacao(string $sit, string $v = 'v'): array
     {
         $h = ['hoje' => date('Y-m-d')];
         switch ($sit) {
-            case 'aguardando': return ["$v.status = '" . self::V_AGUARDANDO . "'", []];
-            case 'rejeitada':  return ["$v.status = '" . self::V_REJEITADA . "'", []];
-            case 'encerrada':  return ["$v.status = '" . self::V_ENCERRADA . "'", []];
-            case 'agendada':   return ["($v.status = '" . self::V_APROVADA . "' AND $v.data_publicacao > :hoje)", $h];
-            case 'expirada':   return ["($v.status = '" . self::V_APROVADA . "' AND $v.data_limite < :hoje)", $h];
-            case 'publicada':  return ["($v.status = '" . self::V_APROVADA . "' AND $v.data_publicacao <= :hoje AND $v.data_limite >= :hoje)", $h];
+            case 'aguardando':
+                return ["$v.status = '" . self::V_AGUARDANDO . "'", []];
+            case 'rejeitada':
+                return ["$v.status = '" . self::V_REJEITADA . "'", []];
+            case 'encerrada':
+                return ["$v.status = '" . self::V_ENCERRADA . "'", []];
+            case 'agendada':
+                return ["($v.status = '" . self::V_APROVADA . "' AND $v.data_publicacao > :hoje)", $h];
+            case 'expirada':
+                return ["($v.status = '" . self::V_APROVADA . "' AND $v.data_limite < :hoje)", $h];
+            case 'publicada':
+                return ["($v.status = '" . self::V_APROVADA . "' AND $v.data_publicacao <= :hoje AND $v.data_limite >= :hoje)", $h];
         }
         return ['1 = 1', []];
     }

@@ -1,9 +1,10 @@
 <?php
+
 class Csrf
 {
     public static function token(): string
     {
-        return $_SESSION['_csrf'] ??= bin2hex(random_bytes(32));
+        return $_SESSION['_csrf'] ??= bin2hex(random_bytes(32)); // @phpstan-ignore return.type
     }
     /** Exige token válido em todo POST. */
     public static function exigir(): void
