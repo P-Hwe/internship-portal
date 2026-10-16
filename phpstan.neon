@@ -1,0 +1,13 @@
+includes:
+    - phpstan-bootstrap.neon
+
+parameters:
+    level: max
+    paths:
+        - app
+        - public
+        - index.php
+        - router.php
+        - config.php
+    excludePaths:
+        - vendor

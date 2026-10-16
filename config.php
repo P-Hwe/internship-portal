@@ -55,7 +55,6 @@ if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// ---------- Helpers ----------
 function e($v): string { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
 
 function url(string $pagina = 'home', array $params = []): string
@@ -66,14 +65,19 @@ function url(string $pagina = 'home', array $params = []): string
 }
 
 
-function url_abs(string $pagina = 'home', array $params = []): string
+function get_base_url(): string
 {
     $base = rtrim((string) env('APP_URL', ''), '/');
     if (!$base) {
         $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-        $base = ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        return ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
     }
-    return $base . url($pagina, $params);
+    return $base;
+}
+
+function url_abs(string $pagina = 'home', array $params = []): string
+{
+    return get_base_url() . url($pagina, $params);
 }
 
 function redirect(string $pagina, array $params = []): void { header('Location: ' . url($pagina, $params)); exit; }
@@ -206,9 +210,7 @@ function render(string $nome, array $dados, string $layout): void
 function url_job(int $id): string { return env('PRETTY_URLS') && env('PRETTY_URLS') !== '0' ? BASE_URL . 'vaga/' . $id : url('vaga', ['id' => $id]); }
 function url_job_abs(int $id): string
 {
-    $base = rtrim((string) env('APP_URL', ''), '/');
-    if (!$base) { $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'; $base = ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost'); }
-    return $base . url_vaga($id);
+    return get_base_url() . url_vaga($id);
 }
 
 function clean_post(array $p): array

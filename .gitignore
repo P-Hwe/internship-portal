@@ -1,9 +1,30 @@
+# Configurações e dependências
 .env
+vendor/
+.idea/
+
+# Banco de dados em memória
 storage/database.sqlite
+
+# Arquivos de email
 storage/mail/*
 !storage/mail/.gitkeep
+
+# Termos de uso
 storage/termos/*
 !storage/termos/.gitkeep
+
+# Uploads
 public/uploads/banners/*
 !public/uploads/banners/.htaccess
 !public/uploads/banners/vaa-0*.jpg
+
+# IDE e editores
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
