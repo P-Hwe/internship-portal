@@ -1,4 +1,3 @@
-```php
 <?php
 
 class Database
@@ -59,4 +58,3 @@ class Database
 
     public static function agora(): string { return date('Y-m-d H:i:s'); }
 }
-```
