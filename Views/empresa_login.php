@@ -1,4 +1,3 @@
-```php
 <?php $larga = false; ?>
 <div class="auth-card">
   <span class="auth-env"><?= icon('building', 14) ?> Ambiente da empresa</span>
@@ -15,4 +14,3 @@
     <span>Ainda não é parceira? <a href="<?= url('empresa-cadastro') ?>">Cadastrar empresa</a></span>
   </div>
 </div>
-```
