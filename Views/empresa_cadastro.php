@@ -1,4 +1,3 @@
-```php
 <?php
 $larga = true; $modo = 'cadastro'; $old = $old + ['logo' => null, 'cnpj' => '', 'nome' => ''];
 $etapaDe = ['cnpj' => 0, 'razao_social' => 0, 'nome' => 0, 'descricao' => 0, 'segmento' => 0, 'porte' => 0, 'site' => 0, 'linkedin' => 0, 'logo' => 0,
@@ -50,4 +49,3 @@ $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros)
     </div>
   </form>
 </div>
-```
