@@ -1,4 +1,3 @@
-```php
 <?php $modo = 'perfil'; $logoPrev = $old; ?>
 <div class="ui-grid-2" style="grid-template-columns:minmax(0,1fr) 300px;align-items:start">
   <div>
@@ -21,4 +20,3 @@
     <div class="ui-card" style="margin-top:14px"><h2>Situação <?= Ui::statusEmpresa($emp['status']) ?></h2><dl class="ui-kv" style="grid-template-columns:100px 1fr"><dt>CNPJ</dt><dd><?= e(Cnpj::formatar($emp['cnpj'])) ?></dd><dt>E-mail de acesso</dt><dd><?= e($emp['email']) ?></dd><dt>Cadastro</dt><dd><?= data_br(substr($emp['criado_em'], 0, 10)) ?></dd></dl></div>
   </aside>
 </div>
-```
