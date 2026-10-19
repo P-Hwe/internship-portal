@@ -1,5 +1,3 @@
-
-```php
 <?php
 /** Etapas 1 a 3 (dados, endereço, contato). Usadas no cadastro e na edição do perfil. Espera $old, $erros, $modo ('cadastro'|'perfil'). */
 $c = fn(array $o) => Ui::campo($o, $old, $erros);
@@ -66,4 +64,3 @@ $logoAtual = $old['logo'] ?? null;
   </div>
   <?= $c(['name' => 'email_contato', 'label' => 'E-mail de contato da empresa', 'type' => 'email', 'hint' => 'Opcional. Aparece no perfil da empresa. Se vazio, usamos o e-mail de acesso.', 'attrs' => ['maxlength' => 120]]) ?>
 </fieldset>
-```
