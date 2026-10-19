@@ -1,4 +1,3 @@
-```php
 <?php
 $abas = ['todas' => ['Todas', $cont['todas'] ?? 0], 'aguardando' => ['Em análise', $cont['aguardando'] ?? 0], 'publicada' => ['Publicadas', $cont['publicada'] ?? 0]];
 if (!empty($cont['agendada'])) $abas['agendada'] = ['Agendadas', $cont['agendada']];
@@ -12,4 +11,3 @@ $abas += ['destaque' => ['Em destaque', $cont['destaque'] ?? 0], 'expirada' => [
 <?php if (!$lista): echo Ui::vazio($q ? 'Nada encontrado' : 'Nenhuma vaga nesta categoria', $q ? 'Tente outro termo ou limpe a busca.' : '', $aba === 'todas' && $emp['status'] === 'aprovada' ? ['Publicar vaga', url('vaga-cadastro')] : null);
 else: ?><div class="ui-grid"><?php foreach ($lista as $v) { $ctx = 'empresa'; require __DIR__ . '/partials/vaga_card_app.php'; } ?></div>
 <?= Ui::paginacao($pg, $paginas, 'empresa-vagas', ['aba' => $aba, 'q' => $q]) ?><?php endif; ?>
-```
