@@ -1,4 +1,3 @@
-```php
 <?php $larga = true; ?>
 <div class="auth-card" style="text-align:center">
   <span class="auth-env"><?= icon('check', 14) ?> Etapa final</span>
@@ -13,4 +12,3 @@
     <li>Depois da aprovação, você poderá publicar vagas.</li></ul></div>
   <a class="ui-btn ui-btn-primary ui-btn-lg" href="<?= url('painel') ?>">Ir para a área da empresa</a>
 </div>
-```
