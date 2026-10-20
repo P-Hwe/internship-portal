@@ -30,7 +30,7 @@ $logoAtual = $old['logo'] ?? null;
     </div><small class="ui-hint">Se o escolhido estiver vazio, usamos o outro. O estudante é avisado de que está saindo do sistema.</small></div>
   <div class="ui-field"><label for="logo">Logo da empresa</label>
     <div class="ui-logo-pick">
-      <?php if ($logoAtual): ?><img class="ui-logo" data-logo-prev width="64" height="64" src="<?= e(BASE_URL . $logoAtual) ?>" alt="Logo atual"><?php else: ?><span class="ui-logo ui-logo-ini" data-logo-prev style="width:64px;height:64px"><?= e(iniciais($old['nome'] ?: 'Empresa')) ?></span><?php endif; ?>
+      <?php if ($logoAtual): ?><img class="ui-logo" data-logo-prev width="64" height="64" src="<?= e(BASE_URL . $logoAtual) ?>" alt="Logo atual"><?php else: ?><span class="ui-logo ui-logo-ini" data-logo-prev style="width:64px;height:64px"><?= e(initials($old['nome'] ?: 'Empresa')) ?></span><?php endif; ?>
       <div><input id="logo" name="logo" type="file" accept=".jpg,.jpeg,.png" data-file data-max="2" data-img-only data-logo-pick><small class="ui-hint">JPG ou PNG, até 2 MB. Quadrado fica melhor.</small></div></div>
     <small class="ui-err" data-err><?= e($erros['logo'] ?? '') ?></small></div>
 </fieldset>
