@@ -1,18 +1,17 @@
 <?php
-
 class Auth
 {
     private const MAX_TENTATIVAS = 5;
     private const JANELA_MIN = 15;
     private static function ocioso(string $perfil): int { return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200); }   // segundos sem atividade
-    private const ABSOLUTO = 43200;                                 // 12 h desde o login, mesmo com atividade
+    private const ABSOLUTO = 43200;
 
     public static function log(string $perfil, ?int $uid, ?string $email, string $evento): void
     {
         try {
             Database::insert('acessos_log', ['perfil' => $perfil, 'usuario_id' => $uid, 'email' => $email ? mb_substr($email, 0, 120) : null, 'evento' => $evento,
                 'ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'cli'), 0, 45), 'agente' => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 160), 'criado_em' => Database::agora()]);
-        } catch (Throwable $t) { /* log nunca derruba a requisição */ }
+        } catch (Throwable $t) {  }
     }
 
     public static function empresa(): ?array
@@ -20,7 +19,7 @@ class Auth
         $id = (int) ($_SESSION['empresa_id'] ?? 0);
         if (!$id) return null;
         $e = Empresa::porId($id);
-        if (!$e || $e['status'] === Estado::E_BLOQUEADA) { unset($_SESSION['empresa_id']); return null; }   // bloqueada no meio da sessão: cai na hora
+        if (!$e || $e['status'] === Estado::E_BLOQUEADA) { unset($_SESSION['empresa_id']); return null; }
         return $e;
     }
     public static function admin(): ?array
@@ -67,11 +66,12 @@ class Auth
         if (!$e) { flash('info', 'Entre com a conta da empresa para continuar.'); redirect('empresa-login', ['next' => $_GET['p'] ?? 'painel']); }
         return $e;
     }
-    public static function exigirAdmin(): array
+    public static function exigirAdmin(bool $paginaDeTroca = false): array
     {
         self::bloquearSeOutroPerfil('admin');
         $a = self::admin();
         if (!$a) { flash('info', 'Acesso restrito à Coordenação/Secretaria.'); redirect('admin-login'); }
+        if ((int) ($a['trocar_senha'] ?? 0) && !$paginaDeTroca) redirect('admin-senha');
         return $a;
     }
     public static function recusar(string $motivo = 'recurso'): void
@@ -95,7 +95,7 @@ class Auth
             return [null, 'Muitas tentativas. Aguarde ' . self::JANELA_MIN . ' minutos e tente de novo.'];
         }
         $u = $perfil === 'admin' ? Admin::porEmail($email) : Empresa::porEmail($email);
-        $hash = $u['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';   // tempo constante
+        $hash = $u['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';
         if (!$u || !password_verify($senha, $hash)) {
             Database::insert('login_tentativas', ['chave' => $chave, 'criado_em' => Database::agora()]);
             self::log($perfil, $u ? (int) $u['id'] : null, $email, 'login_falha');
