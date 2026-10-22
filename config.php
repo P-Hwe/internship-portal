@@ -21,12 +21,11 @@ function env(string $k, $padrao = null)
 $dir = PHP_SAPI === 'cli' ? rtrim((string) env('APP_BASE_PATH', ''), '/') : rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
 define('BASE_URL', $dir . '/');
 
-// Regras de negócio 
-define('CARROSSEL_MAX', 5);       // vagas no banner grande de destaques
-define('DIAS_VAGA_NOVA', 7);      // selo "Nova"
-define('DIAS_VAGA_VENCENDO', 7);  // selo "Encerra em X dias"
-define('AREA_MIN_VAGAS', 3);      // área criada por empresa só vira filtro se tiver ao menos N vagas; senão entra em "Outras"
-define('DIAS_RECRUTADOR_ATIVO', 7); // empresa que acessou o painel nos últimos N dias
+define('CARROSSEL_MAX', 5);
+define('DIAS_VAGA_NOVA', 7);
+define('DIAS_VAGA_VENCENDO', 7);
+define('AREA_MIN_VAGAS', 3);
+define('DIAS_RECRUTADOR_ATIVO', 7);
 define('UPLOAD_MAX_MB', 5);
 define('TIPOS_VAGA', ['Estágio', 'Trainee', 'Jovem Aprendiz', 'Jovem Profissional']);
 define('MODALIDADES', ['Presencial', 'Híbrido', 'Remoto']);
@@ -36,7 +35,7 @@ define('PORTES', ['MEI', 'Microempresa', 'Pequena empresa', 'Média empresa', 'G
 define('TURNOS', ['manha' => 'Manhã', 'tarde' => 'Tarde', 'noite' => 'Noite', 'integral' => 'Integral', 'flexivel' => 'Horário flexível']);
 define('DIAS_SEMANA', ['seg' => 'Seg', 'ter' => 'Ter', 'qua' => 'Qua', 'qui' => 'Qui', 'sex' => 'Sex', 'sab' => 'Sáb']);
 define('POR_PAGINA', 9);
-define('UFS', ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO']);
+define('UFS', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);
 
 date_default_timezone_set('America/Sao_Paulo');
 mb_internal_encoding('UTF-8');
@@ -44,7 +43,10 @@ mb_internal_encoding('UTF-8');
 spl_autoload_register(function ($c) {
     foreach (['app', 'Models', 'Controllers'] as $d) {
         $f = ROOT_PATH . "/$d/$c.php";
-        if (is_file($f)) { require_once $f; return; }
+        if (is_file($f)) {
+            require_once $f;
+            return;
+        }
     }
 });
 
@@ -55,12 +57,17 @@ if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function e($v): string { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
+function e(mixed $v): string
+{
+    return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+}
 
 function url(string $pagina = 'home', array $params = []): string
 {
     $params = array_merge(['p' => $pagina], $params);
-    if ($pagina === 'home') { unset($params['p']); }
+    if ($pagina === 'home') {
+        unset($params['p']);
+    }
     return BASE_URL . ($params ? '?' . http_build_query($params) : '');
 }
 
@@ -80,16 +87,26 @@ function url_abs(string $pagina = 'home', array $params = []): string
     return get_base_url() . url($pagina, $params);
 }
 
-function redirect(string $pagina, array $params = []): void { header('Location: ' . url($pagina, $params)); exit; }
+function redirect(string $pagina, array $params = []): void
+{
+    header('Location: ' . url($pagina, $params));
+    exit;
+}
 
-function data_br(?string $iso): string { return $iso ? date('d/m/Y', strtotime($iso)) : ''; }
+function data_br(?string $iso): string
+{
+    return $iso ? date('d/m/Y', strtotime($iso)) : '';
+}
 
 function remaining_days(string $limite): int
 {
     return (int) floor((strtotime($limite . ' 23:59:59') - time()) / 86400);
 }
 
-function money($v): string { return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.'); }
+function money(mixed $v): string
+{
+    return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.');
+}
 
 
 
@@ -126,13 +143,15 @@ function job_image(array $v, string $classe = ''): string
     if (!empty($v['imagem'])) {
         return '<img class="' . e($classe) . '" src="' . e(BASE_URL . $v['imagem']) . '" alt="Banner da vaga ' . e($v['titulo']) . ' - ' . e($emp) . '" loading="lazy">';
     }
-    return '<div class="vg-fallback vg-fb-' . ((int) ($v['empresa_id'] ?? 0) % 6) . ' ' . e($classe) . '" role="img" aria-label="Vaga ' . e($v['titulo']) . ' - ' . e($emp) . '"><span>' . e(iniciais($emp)) . '</span><small>' . e($emp) . '</small></div>';
+    return '<div class="vg-fallback vg-fb-' . ((int) ($v['empresa_id'] ?? 0) % 6) . ' ' . e($classe) . '" role="img" aria-label="Vaga ' . e($v['titulo']) . ' - ' . e($emp) . '"><span>' . e(initials($emp)) . '</span><small>' . e($emp) . '</small></div>';
 }
 
 function initials(string $nome): string
 {
     $i = '';
-    foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $p) { if (preg_match('/./u', $p, $m)) $i .= mb_strtoupper($m[0]); }
+    foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $p) {
+        if (preg_match('/./u', $p, $m)) $i .= mb_strtoupper($m[0]);
+    }
     return $i;
 }
 
@@ -144,14 +163,19 @@ function stamp_deadline(array $v): array
     return ['Até ' . date('d/m', strtotime($v['data_limite'])), 'vg-badge-soft'];
 }
 
-function job_is_new(array $v): bool { return (time() - strtotime($v['data_publicacao'])) <= DIAS_VAGA_NOVA * 86400; }
+function job_is_new(array $v): bool
+{
+    return (time() - strtotime($v['data_publicacao'])) <= DIAS_VAGA_NOVA * 86400;
+}
 
 
 function icon(string $nome, int $tam = 18): string
 {
     static $p = [
-        'chevron-left' => '<path d="M15 18l-6-6 6-6"/>', 'chevron-right' => '<path d="M9 18l6-6-6-6"/>',
-        'arrow-right' => '<path d="M5 12h14M12 5l7 7-7 7"/>', 'arrow-left' => '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+        'chevron-left' => '<path d="M15 18l-6-6 6-6"/>',
+        'chevron-right' => '<path d="M9 18l6-6-6-6"/>',
+        'arrow-right' => '<path d="M5 12h14M12 5l7 7-7 7"/>',
+        'arrow-left' => '<path d="M19 12H5M12 19l-7-7 7-7"/>',
         'briefcase' => '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
         'building' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
         'plus' => '<circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>',
@@ -178,7 +202,9 @@ function icon(string $nome, int $tam = 18): string
         'eye' => '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
         'chart' => '<path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/>',
         'settings' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
-        'x' => '<path d="M18 6 6 18M6 6l12 12"/>', 'check-s' => '<path d="m5 12 5 5 9-10"/>', 'menu' => '<path d="M3 6h18M3 12h18M3 18h18"/>',
+        'x' => '<path d="M18 6 6 18M6 6l12 12"/>',
+        'check-s' => '<path d="m5 12 5 5 9-10"/>',
+        'menu' => '<path d="M3 6h18M3 12h18M3 18h18"/>',
         'inbox' => '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.1z"/>',
         'search' => '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
         'file' => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>',
@@ -189,9 +215,15 @@ function icon(string $nome, int $tam = 18): string
     return '<svg class="vg-ico" width="' . $tam . '" height="' . $tam . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . ($p[$nome] ?? '') . '</svg>';
 }
 
-function csrf_field(): string { return '<input type="hidden" name="_csrf" value="' . e(Csrf::token()) . '">'; }
+function csrf_field(): string
+{
+    return '<input type="hidden" name="_csrf" value="' . e(Csrf::token()) . '">';
+}
 
-function flash(string $tipo, string $msg): void { $_SESSION['flash'][] = [$tipo, $msg]; }
+function flash(string $tipo, string $msg): void
+{
+    $_SESSION['flash'][] = [$tipo, $msg];
+}
 
 
 function view(string $nome, array $dados = []): void
@@ -203,14 +235,19 @@ function view(string $nome, array $dados = []): void
 function render(string $nome, array $dados, string $layout): void
 {
     extract($dados, EXTR_SKIP);
-    ob_start(); require ROOT_PATH . "/Views/$nome.php"; $conteudo = ob_get_clean();
+    ob_start();
+    require ROOT_PATH . "/Views/$nome.php";
+    $conteudo = ob_get_clean();
     require ROOT_PATH . "/Views/layouts/$layout.php";
 }
 
-function url_job(int $id): string { return env('PRETTY_URLS') && env('PRETTY_URLS') !== '0' ? BASE_URL . 'vaga/' . $id : url('vaga', ['id' => $id]); }
+function url_job(int $id): string
+{
+    return env('PRETTY_URLS') && env('PRETTY_URLS') !== '0' ? BASE_URL . 'vaga/' . $id : url('vaga', ['id' => $id]);
+}
 function url_job_abs(int $id): string
 {
-    return get_base_url() . url_vaga($id);
+    return get_base_url() . url_job($id);
 }
 
 function clean_post(array $p): array
@@ -219,6 +256,7 @@ function clean_post(array $p): array
     foreach ($p as $k => $v) $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
     return $o;
 }
-function days_txt(int $d): string { return $d < 0 ? 'Encerrada há ' . abs($d) . ($d === -1 ? ' dia' : ' dias') : ($d === 0 ? 'Último dia' : $d . ($d === 1 ? ' dia restante' : ' dias restantes')); }
-
-?>
+function days_txt(int $d): string
+{
+    return $d < 0 ? 'Encerrada há ' . abs($d) . ($d === -1 ? ' dia' : ' dias') : ($d === 0 ? 'Último dia' : $d . ($d === 1 ? ' dia restante' : ' dias restantes'));
+}
