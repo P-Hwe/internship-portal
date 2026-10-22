@@ -1,6 +1,11 @@
-
-
 <?php
+/**
+ * @var string|null $erro
+ * @var string $email
+ */
+?>
+
+
 <div class="auth-card">
   <span class="auth-env"><?= icon('lock', 14) ?> Ambiente administrativo</span>
   <h1>Entrar na administração</h1><p class="lead">Acesso restrito à Coordenação e à Secretaria.</p>
