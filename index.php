@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 
-Auth::normalize();
+Auth::normalizar();
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
@@ -52,13 +52,13 @@ if (isset($_GET['id']) && !is_scalar($_GET['id'])) { unset($_GET['id']); }
 if (!is_string($pagina) || !isset($rotas[$pagina])) { http_response_code(404); $pagina = 'home'; }
 
 try {
-    Bootstrap::ensure();
+    Bootstrap::garantir();
     [$classe, $metodo] = $rotas[$pagina];
     (new $classe())->$metodo(); // @phpstan-ignore class.notFound
 } catch (Throwable $t) {
     error_log($t);
     @file_put_contents(ROOT_PATH . '/storage/erro.log', date('c') . ' ' . $t . "\n\n", FILE_APPEND);
     http_response_code(500);
-    $dica = Bootstrap::tip($t); // @phpstan-ignore class.notFound
+    $dica = Bootstrap::dica($t); // @phpstan-ignore class.notFound
     echo env('APP_DEBUG') ? '<pre>' . e((string) $t) . '</pre>' : 'Erro interno. ' . ($dica ?: 'Detalhes em storage/erro.log.'); // @phpstan-ignore binaryOp.invalid
 }
