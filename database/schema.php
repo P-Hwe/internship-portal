@@ -57,21 +57,37 @@ const AREAS_PADRAO = ['Administração', 'Engenharia', 'Logística', 'Marketing'
 
 function tabela_existe(string $t): bool
 {
-    try { Database::pdo()->query("SELECT 1 FROM $t WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
+    try {
+        Database::pdo()->query("SELECT 1 FROM $t WHERE 1 = 0");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
 }
 function coluna_existe(string $t, string $c): bool
 {
-    try { Database::pdo()->query("SELECT $c FROM $t WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
+    try {
+        Database::pdo()->query("SELECT $c FROM $t WHERE 1 = 0");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
 }
 function add_coluna(string $t, string $c, string $def): void
 {
-    if (!coluna_existe($t, $c)) Database::pdo()->exec("ALTER TABLE $t ADD COLUMN $c $def");
+    if (!coluna_existe($t, $c)) {
+        Database::pdo()->exec("ALTER TABLE $t ADD COLUMN $c $def");
+    }
 }
 
 function migrations(): array
 {
     $l = [];
-    foreach (glob(__DIR__ . '/migrations/*.php') as $f) { $m = require $f; $m['nome'] = basename($f, '.php'); $l[] = $m; }
+    foreach (glob(__DIR__ . '/migrations/*.php') as $f) {
+        $m = require $f;
+        $m['nome'] = basename($f, '.php');
+        $l[] = $m;
+    }
     usort($l, fn($a, $b) => strcmp($a['nome'], $b['nome']));
     return $l;
 }
@@ -93,7 +109,9 @@ function migrar(): array
         if (stripos($sql, 'CREATE INDEX') === 0) { try { $pdo->exec($sql); } catch (PDOException $e) { /* já existe */ } }
     }
     foreach (AREAS_PADRAO as $a) {
-        if (!Database::val('SELECT 1 FROM areas WHERE nome = :n', ['n' => $a])) Database::insert('areas', ['nome' => $a, 'padrao' => 1]);
+        if (!Database::val('SELECT 1 FROM areas WHERE nome = :n', ['n' => $a])) {
+            Database::insert('areas', ['nome' => $a, 'padrao' => 1]);
+        }
     }
     return $feitas;
 }
@@ -101,7 +119,9 @@ function migrar(): array
 function desfazer_ultima(): ?string
 {
     $u = Database::one('SELECT * FROM migracoes ORDER BY id DESC LIMIT 1');
-    if (!$u) return null;
+    if (!$u) {
+        return null;
+    }
     foreach (migrations() as $m) {
         if ($m['nome'] !== $u['nome']) continue;
         if (empty($m['down'])) throw new RuntimeException("A migration {$m['nome']} não possui rollback.");

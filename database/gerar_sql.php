@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/schema.php';
 echo "-- Vagas de Estágio - IFSP Guarulhos | esquema MySQL/MariaDB\n-- Importe no phpMyAdmin (aba Importar) com o banco já selecionado.\n";
