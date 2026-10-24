@@ -19,34 +19,20 @@ class Stats
         }
         return $b;
     }
-    public static function acessosResumo(int $dias = 7): array
+    public static function pessoasAcessaram(int $dias = 7): int
     {
-        $d = date('Y-m-d H:i:s', time() - $dias * 86400); $o = ['login_ok' => 0, 'login_falha' => 0, 'negado' => 0, 'bloqueado' => 0, 'timeout' => 0, 'logout' => 0];
-        foreach (Database::all('SELECT evento, COUNT(*) AS n FROM acessos_log WHERE criado_em >= :d GROUP BY evento', ['d' => $d]) as $r) $o[$r['evento']] = (int) $r['n'];
-        return $o;
+        $d = date('Y-m-d H:i:s', time() - $dias * 86400);
+        return (int) Database::val("SELECT COUNT(*) FROM (SELECT DISTINCT perfil, usuario_id FROM acessos_log WHERE evento = 'login_ok' AND usuario_id IS NOT NULL AND criado_em >= :d) t", ['d' => $d]);
     }
-    public static function loginsPorDia(int $dias = 7): array
+    public static function pessoasPorDia(int $dias = 7): array
     {
-        $b = []; for ($i = $dias - 1; $i >= 0; $i--) $b[date('Y-m-d', time() - $i * 86400)] = ['rot' => date('d/m', time() - $i * 86400), 'ok' => 0, 'falha' => 0];
-        foreach (Database::all("SELECT evento, criado_em FROM acessos_log WHERE evento IN ('login_ok','login_falha') AND criado_em >= :d", ['d' => date('Y-m-d 00:00:00', time() - ($dias - 1) * 86400)]) as $r) {
-            $k = substr($r['criado_em'], 0, 10); if (isset($b[$k])) $b[$k][$r['evento'] === 'login_ok' ? 'ok' : 'falha']++;
+        $b = []; for ($i = $dias - 1; $i >= 0; $i--) $b[date('Y-m-d', time() - $i * 86400)] = ['rot' => date('d/m', time() - $i * 86400), 'pessoas' => 0, 'vistos' => []];
+        foreach (Database::all("SELECT perfil, usuario_id, criado_em FROM acessos_log WHERE evento = 'login_ok' AND usuario_id IS NOT NULL AND criado_em >= :d", ['d' => date('Y-m-d 00:00:00', time() - ($dias - 1) * 86400)]) as $r) {
+            $k = substr($r['criado_em'], 0, 10); if (!isset($b[$k])) continue;
+            $b[$k]['vistos'][$r['perfil'] . ':' . $r['usuario_id']] = true;
         }
+        foreach ($b as &$x) { $x['pessoas'] = count($x['vistos']); unset($x['vistos']); }
         return array_values($b);
-    }
-    public static function eventosRecentes(int $n = 15, bool $soSuspeitos = false): array
-    {
-        $w = $soSuspeitos ? "WHERE evento IN ('login_falha','negado','bloqueado')" : '';
-        return Database::all("SELECT * FROM acessos_log $w ORDER BY id DESC LIMIT " . (int) $n);
-    }
-    public static function ultimosAcessos(string $perfil, int $n = 8): array
-    {
-        $t = $perfil === 'admin' ? 'admins' : 'empresas';
-        return Database::all("SELECT id, nome, email, ultimo_acesso FROM $t WHERE ultimo_acesso IS NOT NULL ORDER BY ultimo_acesso DESC LIMIT " . (int) $n);
-    }
-    public static function bloqueiosAtivos(): int
-    {
-        $d = date('Y-m-d H:i:s', time() - 15 * 60);
-        return (int) Database::val('SELECT COUNT(*) FROM (SELECT chave FROM login_tentativas WHERE criado_em >= :d GROUP BY chave HAVING COUNT(*) >= 5) t', ['d' => $d]);
     }
     public static function contasRestritas(): array
     {
