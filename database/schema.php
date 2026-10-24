@@ -1,4 +1,5 @@
 <?php
+
 function schema_sql(string $driver): array
 {
     $pk  = ['sqlite' => 'INTEGER PRIMARY KEY AUTOINCREMENT', 'mysql' => 'INT AUTO_INCREMENT PRIMARY KEY', 'pgsql' => 'SERIAL PRIMARY KEY'][$driver];
@@ -46,7 +47,9 @@ function schema_sql(string $driver): array
     foreach ([
         'idx_vagas_status ON vagas (status, data_limite)', 'idx_vagas_empresa ON vagas (empresa_id)', 'idx_login_chave ON login_tentativas (chave)',
         'idx_hist_ent ON historico (entidade, entidade_id)', 'idx_acessos_data ON acessos_log (criado_em)', 'idx_empresas_status ON empresas (status)',
-    ] as $ix) $t[] = "CREATE INDEX $ix";
+    ] as $ix) {
+        $t[] = "CREATE INDEX $ix";
+    }
     return $t;
 }
 
@@ -54,44 +57,80 @@ const AREAS_PADRAO = ['Administração', 'Engenharia', 'Logística', 'Marketing'
 
 function tabela_existe(string $t): bool
 {
-    try { Database::pdo()->query("SELECT 1 FROM $t WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
+    try {
+        Database::pdo()->query("SELECT 1 FROM $t WHERE 1 = 0");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
 }
 function coluna_existe(string $t, string $c): bool
 {
-    try { Database::pdo()->query("SELECT $c FROM $t WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
+    try {
+        Database::pdo()->query("SELECT $c FROM $t WHERE 1 = 0");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
 }
 function add_coluna(string $t, string $c, string $def): void
 {
-    if (!coluna_existe($t, $c)) Database::pdo()->exec("ALTER TABLE $t ADD COLUMN $c $def");
+    if (!coluna_existe($t, $c)) {
+        Database::pdo()->exec("ALTER TABLE $t ADD COLUMN $c $def");
+    }
 }
 
 function migrations(): array
 {
     $l = [];
-    foreach (glob(__DIR__ . '/migrations/*.php') as $f) { $m = require $f; $m['nome'] = basename($f, '.php'); $l[] = $m; }
+    foreach (glob(__DIR__ . '/migrations/*.php') as $f) {
+        $m = require $f;
+        $m['nome'] = basename($f, '.php');
+        $l[] = $m;
+    }
     usort($l, fn($a, $b) => strcmp($a['nome'], $b['nome']));
     return $l;
 }
 
 function migrar(): array
 {
-    $pdo = Database::pdo(); $driver = Database::driver(); $feitas = [];
+    $pdo = Database::pdo();
+    $driver = Database::driver();
+    $feitas = [];
     $novo = !tabela_existe('empresas');
     foreach (schema_sql($driver) as $sql) {
-        try { $pdo->exec($sql); } catch (PDOException $e) { if (stripos($sql, 'CREATE INDEX') !== 0) throw $e; }
+        try {
+            $pdo->exec($sql);
+        } catch (PDOException $e) {
+            if (stripos($sql, 'CREATE INDEX') !== 0) {
+                throw $e;
+            }
+        }
     }
     $aplicadas = tabela_existe('migracoes') ? array_column(Database::all('SELECT nome FROM migracoes'), 'nome') : [];
     foreach (migrations() as $m) {
-        if (in_array($m['nome'], $aplicadas, true)) continue;
-        if (!$novo) { ($m['up'])($pdo, $driver); $feitas[] = $m['nome']; }   // banco antigo: executa a migration
+        if (in_array($m['nome'], $aplicadas, true)) {
+            continue;
+        }
+        if (!$novo) {
+            ($m['up'])($pdo, $driver);
+            $feitas[] = $m['nome'];
+        }   // banco antigo: executa a migration
         Database::insert('migracoes', ['nome' => $m['nome'], 'aplicada_em' => Database::agora()]);   // banco novo: esquema final já contempla
     }
     // índices que dependem de colunas criadas por migrations
     foreach (schema_sql($driver) as $sql) {
-        if (stripos($sql, 'CREATE INDEX') === 0) { try { $pdo->exec($sql); } catch (PDOException $e) { /* já existe */ } }
+        if (stripos($sql, 'CREATE INDEX') === 0) {
+            try {
+                $pdo->exec($sql);
+            } catch (PDOException $e) { /* já existe */
+            }
+        }
     }
     foreach (AREAS_PADRAO as $a) {
-        if (!Database::val('SELECT 1 FROM areas WHERE nome = :n', ['n' => $a])) Database::insert('areas', ['nome' => $a, 'padrao' => 1]);
+        if (!Database::val('SELECT 1 FROM areas WHERE nome = :n', ['n' => $a])) {
+            Database::insert('areas', ['nome' => $a, 'padrao' => 1]);
+        }
     }
     return $feitas;
 }
@@ -99,10 +138,16 @@ function migrar(): array
 function desfazer_ultima(): ?string
 {
     $u = Database::one('SELECT * FROM migracoes ORDER BY id DESC LIMIT 1');
-    if (!$u) return null;
+    if (!$u) {
+        return null;
+    }
     foreach (migrations() as $m) {
-        if ($m['nome'] !== $u['nome']) continue;
-        if (empty($m['down'])) throw new RuntimeException("A migration {$m['nome']} não possui rollback.");
+        if ($m['nome'] !== $u['nome']) {
+            continue;
+        }
+        if (empty($m['down'])) {
+            throw new RuntimeException("A migration {$m['nome']} não possui rollback.");
+        }
         ($m['down'])(Database::pdo(), Database::driver());
         Database::run('DELETE FROM migracoes WHERE id = :i', ['i' => $u['id']]);
         return $m['nome'];
