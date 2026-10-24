@@ -189,7 +189,6 @@
     });
   });
 
-  /* ---------- QR Code por vaga (Modo TV): fundo branco, quiet zone e contraste máximo ---------- */
   $$("[data-qr]").forEach(function (el) {
     try {
       var q = window.qrcode(0, "M");
@@ -238,7 +237,7 @@
         location.reload();
       },
       30 * 60 * 1000,
-    );
+    ); // recarrega a cada 30 min p/ refletir vagas novas/vencidas
   }
 })();
 

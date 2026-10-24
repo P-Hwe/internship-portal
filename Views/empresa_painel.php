@@ -4,7 +4,7 @@ $checks = [
     ['Descrição completa', mb_strlen((string) $emp['descricao']) >= 30],
     ['Site ou LinkedIn', !empty($emp['site']) || !empty($emp['linkedin'])],
     ['Segmento e porte', !empty($emp['segmento']) && !empty($emp['porte'])],
-    ['Celular de contato', !empty($emp['celular'])]
+    ['Celular de contato', !empty($emp['celular'])],
 ];
 $feitos = count(array_filter($checks, fn($c) => $c[1]));
 $pct = (int) round($feitos / count($checks) * 100);
@@ -65,9 +65,9 @@ $pct = (int) round($feitos / count($checks) * 100);
         </div>
         <?php if (!$recentes): echo Ui::vazio('Nenhuma vaga ainda', $emp['status'] === 'aprovada' ? 'Publique a primeira vaga da sua empresa.' : 'Você poderá publicar vagas depois que a Coordenação aprovar o cadastro.', $emp['status'] === 'aprovada' ? ['Publicar vaga', url('vaga-cadastro')] : null);
         else: ?><div class="ui-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"><?php foreach ($recentes as $v) {
-                                                                                                            $ctx = 'empresa';
-                                                                                                            require __DIR__ . '/partials/vaga_card_app.php';
-                                                                                                        } ?></div>
+            $ctx = 'empresa';
+            require __DIR__ . '/partials/vaga_card_app.php';
+        } ?></div>
         <?php endif; ?>
     </section>
     <aside class="ui-card">
