@@ -8,5 +8,5 @@ if ($cmd === 'status') {
 } elseif ($cmd === 'down') {
     $n = desfazer_ultima(); echo $n ? "Desfeita: $n\n" : "Nada para desfazer.\n";
 } else {
-    $f = migrar(); echo $f ? "Migrations aplicadas: " . implode(', ', $f) . "\n" : "Banco atualizado (" . Database::driver() . ").\n";
+    $f = migrar(); echo $f ? "Migrations aplicadas: " . implode(', ', $f) . "\n" : "Banco atualizado.\n";
 }
