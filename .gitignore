@@ -1,6 +1,6 @@
 # Configurações e dependências
 .env
-vendor/
+/vendor/
 .idea/
 
 # Banco de dados em memória
