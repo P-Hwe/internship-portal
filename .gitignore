@@ -23,21 +23,11 @@ public/uploads/capas/*
 /storage/mail/*
 /storage/termos/*
 
-# Banners enviados
-/public/uploads/banners/*
-!public/uploads/banners/.htaccess
-!public/uploads/banners/vaa-0*.jpg
-!public/uploads/banners/vaga-01.jpg
-!public/uploads/banners/vaga-02.jpg
-!public/uploads/banners/vaga-03.jpg
-!public/uploads/banners/vaga-04.jpg
-!public/uploads/banners/vaga-05.jpg
-!public/uploads/banners/vaga-06.jpg
-!public/uploads/banners/vaga-07.jpg
-
-# Logos e capas enviados
-/public/uploads/logos/*
-/public/uploads/capas/*
+storage/mail/*
+storage/termos/*
+public/uploads/banners/*
+public/uploads/logos/*
+public/uploads/capas/*
 
 # Logs
 /logs/
