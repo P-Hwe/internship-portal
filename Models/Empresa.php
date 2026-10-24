@@ -29,7 +29,7 @@ class Empresa
     {
         $id = Database::insert('empresas', self::campos($d) + [
             'cnpj' => Cnpj::limpar($d['cnpj']), 'email' => mb_strtolower($d['email']), 'senha_hash' => Auth::hash($d['senha']),
-            'logo' => $d['logo'] ?? null, 'termo_arquivo' => $d['termo_arquivo'], 'termos_aceitos_em' => Database::agora(),
+            'logo' => $d['logo'] ?? null, 'banner' => $d['banner'] ?? null, 'termo_arquivo' => $d['termo_arquivo'], 'termos_aceitos_em' => Database::agora(),
             'status' => Estado::E_PENDENTE, 'criado_em' => Database::agora(),
         ]);
         Historico::registrar('empresa', $id, 'cadastro', null, Estado::E_PENDENTE, 'empresa', $id);
@@ -40,6 +40,7 @@ class Empresa
     {
         $dados = self::campos($d);
         if (array_key_exists('logo', $d)) $dados['logo'] = $d['logo'];
+        if (array_key_exists('banner', $d)) $dados['banner'] = $d['banner'];
         Database::update('empresas', $id, $dados);
         Historico::registrar('empresa', $id, 'perfil', null, null, 'empresa', $id);
     }
@@ -58,7 +59,6 @@ class Empresa
     }
     public static function dispensarAviso(int $id): void { Database::update('empresas', $id, ['aprovacao_vista' => 1]); }
 
-    /** O aviso "empresa aprovada" aparece enquanto: aprovada, não dispensado, sem vagas publicadas ainda e há menos de 7 dias. */
     public static function mostrarAvisoAprovacao(array $e): bool
     {
         if ($e['status'] !== Estado::E_APROVADA || (int) $e['aprovacao_vista'] || !$e['avaliado_em']) return false;
@@ -82,7 +82,6 @@ class Empresa
             'bloqueadas' => ['Bloqueadas', $q("status = 'bloqueada'")], 'reprovadas' => ['Reprovadas', $q("status = 'reprovada'")], 'todas' => ['Todas', $q('1 = 1')],
         ];
     }
-    /** @return array [linhas, total] */
     public static function listarAdmin(string $aba, string $busca, int $pg, int $por = POR_PAGINA): array
     {
         $w = ['1 = 1']; $p = ['hoje' => date('Y-m-d')];

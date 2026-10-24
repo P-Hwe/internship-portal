@@ -10,7 +10,6 @@
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- modo noturno (tokens: só troca data-theme) ---------- */
   function tema(t) {
     document.documentElement.setAttribute("data-theme", t);
     try {
@@ -35,7 +34,6 @@
   });
   tema(document.documentElement.getAttribute("data-theme") || "light");
 
-  /* ---------- menu lateral (mobile) ---------- */
   var side = $(".app-side"),
     scrim = $(".app-scrim");
   function menu(a) {
@@ -56,12 +54,10 @@
     if (e.key === "Escape") menu(false);
   });
 
-  /* ---------- modais de confirmação (no lugar do alert/confirm do navegador) ---------- */
   var dlg = $("#ui-dialog");
   function dialogo(o) {
     return new Promise(function (resolve) {
       if (!dlg || !dlg.showModal) {
-        // navegador sem <dialog>: cai no confirm/prompt nativo
         if (o.motivo) {
           var m = window.prompt(
             o.titulo + "\n\nInforme o motivo (mínimo 5 caracteres):",
@@ -149,14 +145,12 @@
     true,
   );
 
-  /* ---------- fechar popovers ao clicar fora ---------- */
   document.addEventListener("click", function (e) {
     $$("details.ui-bell[open]").forEach(function (d) {
       if (!d.contains(e.target)) d.open = false;
     });
   });
 
-  /* ---------- copiar ---------- */
   $$("[data-copy]").forEach(function (b) {
     b.addEventListener("click", function () {
       var t = b.dataset.copy,
@@ -172,9 +166,7 @@
     });
   });
 
-  /* ---------- máscaras ---------- */
   function maskCnpj(v) {
-    // CNPJ alfanumérico (IN RFB 2.229/2024): 12 primeiros letras/números, 2 últimos dígitos
     v = v.replace(/[^0-9A-Za-z]/g, "").toUpperCase();
     var base = "";
     for (var k = 0; k < v.length && base.length < 14; k++) {
@@ -271,7 +263,6 @@
     return s.length >= 8 && /[A-Za-z]/.test(s) && /\d/.test(s);
   };
 
-  /* ---------- validação ---------- */
   function wrapErr(c) {
     var b = c.closest(".ui-field") || c.parentNode;
     return { box: b, err: b && b.querySelector("[data-err]") };
@@ -325,7 +316,6 @@
     if (c.type === "email" && v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v))
       return erro(c, "E-mail inválido.");
     if (c.hasAttribute("data-url") && v) {
-      // domínio exigido: fixo (data-host) ou pela plataforma escolhida (data-host-from)
       var plat = c.dataset.hostFrom
         ? ($("[name=" + c.dataset.hostFrom + "]", c.form) || {}).value
         : "";
@@ -418,7 +408,7 @@
             c.closest(".ui-field").querySelector(".is-invalid"))
         )
           valida(c);
-      }); // erro some enquanto digita (sem mudar o layout no clique)
+      });
       c.addEventListener("change", function () {
         if (
           c.classList.contains("is-invalid") ||
@@ -448,265 +438,554 @@
       }
     });
   });
-/* ---------- ViaCEP ---------- */
-var cep = $("[data-viacep]");
-if (cep) {
-  var st = $("[data-cep-status]"),
-    box = cep.closest(".ui-field"),
-    ult = "",
-    rid = 0;
-  var msg = function (t, c) {
-    st.textContent = t;
-    st.className = "ui-hint" + (c ? " " + c : "");
-  };
-  var busca = function () {
-    var d = cep.value.replace(/\D/g, "");
-    if (d.length !== 8) {
-      ult = "";
-      return;
-    }
-    if (d === ult) return;
-    ult = d;
-    var meu = ++rid,
-      ctl = window.AbortController ? new AbortController() : null,
-      t = setTimeout(function () {
-        if (ctl) ctl.abort();
-      }, 7000);
-    msg("Buscando endereço...");
-    fetch(
-      "https://viacep.com.br/ws/" + d + "/json/",
-      ctl ? { signal: ctl.signal } : undefined,
-    )
-      .then(function (r) {
-        if (!r.ok) throw new Error("http");
-        return r.json();
-      })
-      .then(function (j) {
-        if (meu !== rid) return;
-        clearTimeout(t);
-        if (j.erro) {
+
+  var cep = $("[data-viacep]");
+  if (cep) {
+    var st = $("[data-cep-status]"),
+      box = cep.closest(".ui-field"),
+      ult = "",
+      rid = 0;
+    var msg = function (t, c) {
+      st.textContent = t;
+      st.className = "ui-hint" + (c ? " " + c : "");
+    };
+    var busca = function () {
+      var d = cep.value.replace(/\D/g, "");
+      if (d.length !== 8) {
+        ult = "";
+        return;
+      }
+      if (d === ult) return;
+      ult = d;
+      var meu = ++rid,
+        ctl = window.AbortController ? new AbortController() : null,
+        t = setTimeout(function () {
+          if (ctl) ctl.abort();
+        }, 7000);
+      msg("Buscando endereço...");
+      fetch(
+        "https://viacep.com.br/ws/" + d + "/json/",
+        ctl ? { signal: ctl.signal } : undefined,
+      )
+        .then(function (r) {
+          if (!r.ok) throw new Error("http");
+          return r.json();
+        })
+        .then(function (j) {
+          if (meu !== rid) return;
+          clearTimeout(t);
+          if (j.erro) {
+            msg(
+              "CEP não encontrado. Confira o número ou preencha o endereço manualmente.",
+              "is-warn",
+            );
+            return;
+          }
+          var m = {
+            logradouro: j.logradouro,
+            bairro: j.bairro,
+            cidade: j.localidade,
+            uf: j.uf,
+          };
+          Object.keys(m).forEach(function (k) {
+            var el = $("[data-cep-fill=" + k + "]");
+            if (el && m[k]) {
+              el.value = m[k];
+              el.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+          });
+          msg("Endereço encontrado. Confira e informe o número.", "is-ok");
+          var a = document.activeElement,
+            n = $("#numero");
+          if (n && (a === cep || a === document.body)) n.focus();
+        })
+        .catch(function () {
+          if (meu !== rid) return;
+          clearTimeout(t);
           msg(
-            "CEP não encontrado. Confira o número ou preencha o endereço manualmente.",
+            "Não foi possível buscar o CEP agora. Preencha o endereço manualmente.",
             "is-warn",
+          );
+        });
+    };
+    cep.addEventListener("input", busca);
+    cep.addEventListener("blur", busca);
+  }
+
+  var wiz = $("[data-wiz]");
+  if (wiz) {
+    wiz.classList.add("ui-wiz-on");
+    var panels = $$(".ui-step", wiz),
+      ult2 = panels.length - 1,
+      atual = -1,
+      alcance = 0;
+    var ol = document.createElement("ol");
+    ol.className = "ui-stepper" + (panels.length > 5 ? " is-many" : "");
+    ol.setAttribute("aria-label", "Etapas");
+    panels.forEach(function (p, i) {
+      var li = document.createElement("li"),
+        b = document.createElement("button");
+      b.type = "button";
+      b.innerHTML =
+        '<span class="n">' + (i + 1) + '</span><span class="t"></span>';
+      $(".t", b).textContent = p.dataset.title;
+      b.setAttribute(
+        "aria-label",
+        "Etapa " + (i + 1) + " de " + panels.length + ": " + p.dataset.title,
+      );
+      b.addEventListener("click", function () {
+        if (i <= alcance) ir(i, true);
+      });
+      li.appendChild(b);
+      ol.appendChild(li);
+    });
+    var barra = document.createElement("div");
+    barra.className = "ui-progress";
+    barra.innerHTML = "<i></i>";
+    var alvo = $("[data-stepper]", wiz) || wiz.firstElementChild;
+    alvo.parentNode.insertBefore(ol, alvo);
+    alvo.parentNode.insertBefore(barra, alvo);
+    var lis = $$("li", ol),
+      bVolta = $("[data-prev]", wiz),
+      bProx = $("[data-next]", wiz),
+      bEnvia = $("[data-submit]", wiz);
+    var live = document.createElement("p");
+    live.className = "ui-sr";
+    live.setAttribute("aria-live", "polite");
+    wiz.appendChild(live);
+    function rotulo(c) {
+      if (c.tagName === "SELECT")
+        return c.selectedIndex > 0 || c.value
+          ? c.options[c.selectedIndex].text
+          : "";
+      if (c.type === "date")
+        return c.value ? c.value.split("-").reverse().join("/") : "";
+      if (c.type === "file") return c.files[0] ? c.files[0].name : "";
+      if (c.tagName === "TEXTAREA")
+        return c.value.trim().split(/\n/).filter(Boolean).join(" • ");
+      if (c.type === "password") return c.value ? "••••••••" : "";
+      return c.value.trim();
+    }
+    function resumo() {
+      var box = $("[data-review]", wiz);
+      if (!box) return;
+      var dl = $("dl", box);
+      dl.innerHTML = "";
+      var linha = function (k, v) {
+        if (!v) return;
+        var d = document.createElement("div"),
+          dt = document.createElement("dt"),
+          dd = document.createElement("dd");
+        dt.textContent = k;
+        dd.textContent = v;
+        d.appendChild(dt);
+        d.appendChild(dd);
+        dl.appendChild(d);
+      };
+      $$("[data-rev]", wiz).forEach(function (c) {
+        if (c.closest("[hidden]")) return;
+        if (c.type === "radio") {
+          if (c.checked)
+            linha(c.dataset.rev, (c.closest("label") || c).textContent.trim());
+          return;
+        }
+        if (c.hasAttribute("data-rev-group")) {
+          linha(
+            c.dataset.rev,
+            $$("input:checked", c)
+              .map(function (i) {
+                return i.closest("label").textContent.trim();
+              })
+              .join(", "),
           );
           return;
         }
-        var m = {
-          logradouro: j.logradouro,
-          bairro: j.bairro,
-          cidade: j.localidade,
-          uf: j.uf,
-        };
-        Object.keys(m).forEach(function (k) {
-          var el = $("[data-cep-fill=" + k + "]");
-          if (el && m[k]) {
-            el.value = m[k];
-            el.dispatchEvent(new Event("change", { bubbles: true }));
-          }
+        var v = rotulo(c);
+        if (c.dataset.prefix && v) v = c.dataset.prefix + v;
+        if (c.dataset.suffix && v) v += c.dataset.suffix;
+        linha(c.dataset.rev, v);
+      });
+      box.hidden = false;
+    }
+    function erros() {
+      lis.forEach(function (li, i) {
+        li.classList.toggle(
+          "has-error",
+          !!$(".is-invalid", panels[i]) ||
+            !!$$("[data-err]", panels[i]).some(function (e) {
+              return e.textContent;
+            }),
+        );
+      });
+    }
+    function ir(i, foco) {
+      i = Math.max(0, Math.min(ult2, i));
+      var mudou = i !== atual;
+      atual = i;
+      alcance = Math.max(alcance, i);
+      panels.forEach(function (p, k) {
+        p.classList.toggle("is-active", k === i);
+      });
+      lis.forEach(function (li, k) {
+        li.classList.toggle("is-current", k === i);
+        li.classList.toggle("is-done", k !== i && k < alcance);
+        var b = $("button", li);
+        b.disabled = k > alcance;
+        if (k === i) b.setAttribute("aria-current", "step");
+        else b.removeAttribute("aria-current");
+      });
+      $("i", barra).style.width = ((i + 1) / panels.length) * 100 + "%";
+      bVolta.hidden = i === 0;
+      bProx.hidden = i === ult2;
+      bEnvia.hidden = i !== ult2;
+      if (i === ult2) resumo();
+      live.textContent =
+        "Etapa " +
+        (i + 1) +
+        " de " +
+        panels.length +
+        ": " +
+        panels[i].dataset.title;
+      erros();
+      if (foco && mudou) {
+        ol.scrollIntoView({
+          behavior: reduz ? "auto" : "smooth",
+          block: "start",
         });
-        msg("Endereço encontrado. Confira e informe o número.", "is-ok");
-        var a = document.activeElement,
-          n = $("#numero");
-        if (n && (a === cep || a === document.body)) n.focus();
-      })
-      .catch(function () {
-        if (meu !== rid) return;
-        clearTimeout(t);
-        msg(
-          "Não foi possível buscar o CEP agora. Preencha o endereço manualmente.",
-          "is-warn",
-        );
+        var p = camposDe(panels[i])[0];
+        if (p) p.focus({ preventScroll: true });
+      }
+    }
+    function painelOk(i) {
+      var primeiro = null;
+      camposDe(panels[i]).forEach(function (c) {
+        if (!valida(c) && !primeiro) primeiro = c;
       });
-  };
-  cep.addEventListener("input", busca);
-  cep.addEventListener("blur", busca);
-}
-
-/* ---------- assistente em etapas (cadastro de empresa e de vaga) ---------- */
-var wiz = $("[data-wiz]");
-if (wiz) {
-  wiz.classList.add("ui-wiz-on");
-  var panels = $$(".ui-step", wiz),
-    ult2 = panels.length - 1,
-    atual = -1,
-    alcance = 0;
-  var ol = document.createElement("ol");
-  ol.className = "ui-stepper" + (panels.length > 5 ? " is-many" : "");
-  ol.setAttribute("aria-label", "Etapas");
-  panels.forEach(function (p, i) {
-    var li = document.createElement("li"),
-      b = document.createElement("button");
-    b.type = "button";
-    b.innerHTML =
-      '<span class="n">' + (i + 1) + '</span><span class="t"></span>';
-    $(".t", b).textContent = p.dataset.title;
-    b.setAttribute(
-      "aria-label",
-      "Etapa " + (i + 1) + " de " + panels.length + ": " + p.dataset.title,
-    );
-    b.addEventListener("click", function () {
-      if (i <= alcance) ir(i, true);
+      if (!validaGrupos(panels[i]) && !primeiro)
+        primeiro = $("[data-need-one] input", panels[i]);
+      erros();
+      if (primeiro) foca(primeiro);
+      return !primeiro;
+    }
+    function proximo() {
+      if (painelOk(atual)) ir(atual + 1, true);
+    }
+    bProx.addEventListener("click", proximo);
+    bVolta.addEventListener("click", function () {
+      ir(atual - 1, true);
     });
-    li.appendChild(b);
-    ol.appendChild(li);
-  });
-  var barra = document.createElement("div");
-  barra.className = "ui-progress";
-  barra.innerHTML = "<i></i>";
-  var alvo = $("[data-stepper]", wiz) || wiz.firstElementChild;
-  alvo.parentNode.insertBefore(ol, alvo);
-  alvo.parentNode.insertBefore(barra, alvo);
-  var lis = $$("li", ol),
-    bVolta = $("[data-prev]", wiz),
-    bProx = $("[data-next]", wiz),
-    bEnvia = $("[data-submit]", wiz);
-  var live = document.createElement("p");
-  live.className = "ui-sr";
-  live.setAttribute("aria-live", "polite");
-  wiz.appendChild(live);
-  function rotulo(c) {
-    if (c.tagName === "SELECT")
-      return c.selectedIndex > 0 || c.value
-        ? c.options[c.selectedIndex].text
-        : "";
-    if (c.type === "date")
-      return c.value ? c.value.split("-").reverse().join("/") : "";
-    if (c.type === "file") return c.files[0] ? c.files[0].name : "";
-    if (c.tagName === "TEXTAREA")
-      return c.value.trim().split(/\n/).filter(Boolean).join(" • ");
-    if (c.type === "password") return c.value ? "••••••••" : "";
-    return c.value.trim();
-  }
-  function resumo() {
-    var box = $("[data-review]", wiz);
-    if (!box) return;
-    var dl = $("dl", box);
-    dl.innerHTML = "";
-    var linha = function (k, v) {
-      if (!v) return;
-      var d = document.createElement("div"),
-        dt = document.createElement("dt"),
-        dd = document.createElement("dd");
-      dt.textContent = k;
-      dd.textContent = v;
-      d.appendChild(dt);
-      d.appendChild(dd);
-      dl.appendChild(d);
+    wiz.addEventListener("keydown", function (e) {
+      if (
+        e.key === "Enter" &&
+        e.target.tagName === "INPUT" &&
+        e.target.type !== "file" &&
+        e.target.type !== "checkbox" &&
+        !e.target.closest(".ui-chips") &&
+        atual < ult2
+      ) {
+        e.preventDefault();
+        proximo();
+      }
+    });
+    wiz._wizGo = function (campo) {
+      var p = campo.closest(".ui-step");
+      alcance = ult2;
+      ir(+p.dataset.step, false);
+      erros();
+      foca(campo);
     };
-    $$("[data-rev]", wiz).forEach(function (c) {
-      if (c.closest("[hidden]")) return;
-      if (c.type === "radio") {
-        if (c.checked)
-          linha(c.dataset.rev, (c.closest("label") || c).textContent.trim());
-        return;
-      }
-      if (c.hasAttribute("data-rev-group")) {
-        linha(
-          c.dataset.rev,
-          $$("input:checked", c)
-            .map(function (i) {
-              return i.closest("label").textContent.trim();
-            })
-            .join(", "),
-        );
-        return;
-      }
-      var v = rotulo(c);
-      if (c.dataset.prefix && v) v = c.dataset.prefix + v;
-      if (c.dataset.suffix && v) v += c.dataset.suffix;
-      linha(c.dataset.rev, v);
-    });
-    box.hidden = false;
+    if (wiz.hasAttribute("data-free") || $(".ui-alert-danger", wiz))
+      alcance = ult2;
+    ir(+wiz.dataset.start || 0, false);
   }
-  function erros() {
-    lis.forEach(function (li, i) {
-      li.classList.toggle(
-        "has-error",
-        !!$(".is-invalid", panels[i]) ||
-          !!$$("[data-err]", panels[i]).some(function (e) {
-            return e.textContent;
-          }),
-      );
-    });
-  }
-  function ir(i, foco) {
-    i = Math.max(0, Math.min(ult2, i));
-    var mudou = i !== atual;
-    atual = i;
-    alcance = Math.max(alcance, i);
-    panels.forEach(function (p, k) {
-      p.classList.toggle("is-active", k === i);
-    });
-    lis.forEach(function (li, k) {
-      li.classList.toggle("is-current", k === i);
-      li.classList.toggle("is-done", k !== i && k < alcance);
-      var b = $("button", li);
-      b.disabled = k > alcance;
-      if (k === i) b.setAttribute("aria-current", "step");
-      else b.removeAttribute("aria-current");
-    });
-    $("i", barra).style.width = ((i + 1) / panels.length) * 100 + "%";
-    bVolta.hidden = i === 0;
-    bProx.hidden = i === ult2;
-    bEnvia.hidden = i !== ult2;
-    if (i === ult2) resumo();
-    live.textContent =
-      "Etapa " +
-      (i + 1) +
-      " de " +
-      panels.length +
-      ": " +
-      panels[i].dataset.title;
-    erros();
-    if (foco && mudou) {
-      ol.scrollIntoView({
-        behavior: reduz ? "auto" : "smooth",
-        block: "start",
+
+  $$("[data-chips]").forEach(function (w) {
+    var ta = $("textarea", w),
+      lista = $(".ui-chips", w),
+      inp = $("input", lista),
+      max = +w.dataset.chips || 20,
+      itens = [];
+    var le = function () {
+      itens = ta.value
+        .split(/\r?\n/)
+        .map(function (s) {
+          return s.trim();
+        })
+        .filter(Boolean);
+    };
+    var desenha = function () {
+      $$(".ui-chip", lista).forEach(function (c) {
+        c.remove();
       });
-      var p = camposDe(panels[i])[0];
-      if (p) p.focus({ preventScroll: true });
-    }
-  }
-  function painelOk(i) {
-    var primeiro = null;
-    camposDe(panels[i]).forEach(function (c) {
-      if (!valida(c) && !primeiro) primeiro = c;
+      itens.forEach(function (t, i) {
+        var s = document.createElement("span");
+        s.className = "ui-chip";
+        s.appendChild(document.createTextNode(t));
+        var b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("aria-label", "Remover " + t);
+        b.innerHTML = "&times;";
+        b.addEventListener("click", function () {
+          itens.splice(i, 1);
+          sync();
+          inp.focus();
+        });
+        s.appendChild(b);
+        lista.insertBefore(s, inp);
+      });
+    };
+    var sync = function () {
+      ta.value = itens.join("\n");
+      desenha();
+      ta.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+    var add = function (t) {
+      t = t
+        .replace(/[,;]+$/, "")
+        .trim()
+        .slice(0, 120);
+      if (!t || itens.length >= max) return;
+      if (
+        itens.some(function (x) {
+          return x.toLowerCase() === t.toLowerCase();
+        })
+      )
+        return;
+      itens.push(t);
+      sync();
+    };
+    w.classList.add("is-enhanced");
+    le();
+    desenha();
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === ",") {
+        e.preventDefault();
+        add(inp.value);
+        inp.value = "";
+      } else if (e.key === "Backspace" && !inp.value && itens.length) {
+        itens.pop();
+        sync();
+      }
     });
-    if (!validaGrupos(panels[i]) && !primeiro)
-      primeiro = $("[data-need-one] input", panels[i]);
-    erros();
-    if (primeiro) foca(primeiro);
-    return !primeiro;
-  }
-  function proximo() {
-    if (painelOk(atual)) ir(atual + 1, true);
-  }
-  bProx.addEventListener("click", proximo);
-  bVolta.addEventListener("click", function () {
-    ir(atual - 1, true);
+    inp.addEventListener("blur", function () {
+      if (inp.value.trim()) {
+        add(inp.value);
+        inp.value = "";
+      }
+    });
+    inp.addEventListener("paste", function (e) {
+      var t = (e.clipboardData || window.clipboardData).getData("text");
+      if (/[\n,;]/.test(t)) {
+        e.preventDefault();
+        t.split(/[\n,;]+/).forEach(add);
+      }
+    });
+    $$("[data-quick] button", w).forEach(function (b) {
+      b.addEventListener("click", function () {
+        add(b.textContent);
+      });
+    });
+    lista.addEventListener("click", function (e) {
+      if (e.target === lista) inp.focus();
+    });
   });
-  wiz.addEventListener("keydown", function (e) {
-    if (
-      e.key === "Enter" &&
-      e.target.tagName === "INPUT" &&
-      e.target.type !== "file" &&
-      e.target.type !== "checkbox" &&
-      !e.target.closest(".ui-chips") &&
-      atual < ult2
-    ) {
-      e.preventDefault();
-      proximo();
+
+  $$("[data-when]").forEach(function (el) {
+    var p = el.dataset.when.split("="),
+      form = el.closest("form");
+    var f = function () {
+      var r =
+        $("[name=" + p[0] + "]:checked", form) ||
+        $("[name=" + p[0] + "]", form);
+      el.hidden = !r || r.value !== p[1];
+    };
+    $$("[name=" + p[0] + "]", form).forEach(function (i) {
+      i.addEventListener("change", f);
+    });
+    f();
+  });
+  var sel = $("[data-area-select]");
+  if (sel) {
+    var outra = $("[data-area-outra]");
+    var al = function () {
+      outra.hidden = sel.value !== "__outra__";
+    };
+    sel.addEventListener("change", al);
+    al();
+  }
+  $$("[data-pwd-rules]").forEach(function (ul) {
+    var i = $("[name=senha]", ul.closest("form")),
+      r = $$("li", ul);
+    var f = function () {
+      var v = i.value,
+        ok = [v.length >= 8, /[A-Za-z]/.test(v), /\d/.test(v)];
+      r.forEach(function (li, k) {
+        li.classList.toggle("is-ok", ok[k]);
+      });
+    };
+    i.addEventListener("input", f);
+    f();
+  });
+  $$("[data-logo-pick]").forEach(function (inp) {
+    inp.addEventListener("change", function () {
+      var f = inp.files[0],
+        prev = $("[data-logo-prev]");
+      if (!f || !prev || f.type.indexOf("image/") !== 0 || f.size > 2 * 1048576)
+        return;
+      var img = document.createElement("img");
+      img.className = "ui-logo";
+      img.alt = "Pré-visualização do logo";
+      img.src = URL.createObjectURL(f);
+      img.setAttribute("data-logo-prev", "");
+      img.width = img.height = 64;
+      prev.replaceWith(img);
+    });
+  });
+  var ini = $("[name=data_publicacao]"),
+    fim = $("[name=data_limite]"),
+    resumoP = $("[data-period]");
+  function periodo() {
+    if (!ini || !fim || !resumoP) return;
+    var a = ini.value,
+      b = fim.value;
+    if (!a || !b || b <= a) {
+      resumoP.hidden = true;
+      return;
     }
-  });
-  wiz._wizGo = function (campo) {
-    var p = campo.closest(".ui-step");
-    alcance = ult2;
-    ir(+p.dataset.step, false);
-    erros();
-    foca(campo);
-  };
-  if (wiz.hasAttribute("data-free") || $(".ui-alert-danger", wiz))
-    alcance = ult2;
-  ir(+wiz.dataset.start || 0, false);
-}
+    var d = Math.round((new Date(b) - new Date(a)) / 86400000),
+      br = function (s) {
+        return s.split("-").reverse().join("/");
+      };
+    resumoP.hidden = false;
+    $("[data-period-txt]", resumoP).textContent =
+      "Fica no ar por " +
+      d +
+      (d === 1 ? " dia" : " dias") +
+      ", de " +
+      br(a) +
+      " até " +
+      br(b) +
+      ".";
+    $("[data-period-bar]", resumoP).style.width =
+      Math.min(100, (d / 90) * 100) + "%";
+  }
+  if (ini && fim) {
+    ini.addEventListener("input", periodo);
+    fim.addEventListener("input", periodo);
+    periodo();
+  }
 })();
+
+(function () {
+  "use strict";
+  function abrir(id) {
+    var d = document.getElementById(id);
+    if (!d) return;
+    document.querySelectorAll("dialog.ui-modal[open]").forEach(function (o) {
+      if (o !== d) o.close();
+    });
+    if (d.showModal) {
+      if (!d.open) d.showModal();
+    } else d.setAttribute("open", "");
+    var cs = d.querySelectorAll("input:not([type=hidden])"),
+      c = null;
+    cs.forEach(function (i) {
+      if (!c && !i.value) c = i;
+    });
+    if (!c) c = cs[0];
+    if (c) c.focus();
+  }
+  document.addEventListener("click", function (ev) {
+    var t = ev.target.closest ? ev.target : ev.target.parentNode;
+    var a = t.closest("[data-abrir-modal]");
+    if (a) {
+      ev.preventDefault();
+      abrir(a.getAttribute("data-abrir-modal"));
+      return;
+    }
+    var tr = t.closest("[data-trocar-modal]");
+    if (tr) {
+      ev.preventDefault();
+      abrir(tr.getAttribute("data-trocar-modal"));
+      return;
+    }
+    var f = t.closest("[data-fechar-modal]");
+    if (f) {
+      ev.preventDefault();
+      var d = f.closest("dialog");
+      if (d) d.close();
+      return;
+    }
+    if (t.tagName === "DIALOG" && t.classList.contains("ui-modal")) t.close();
+  });
+  var auto = document.querySelector("dialog.ui-modal[data-abrir]");
+  if (auto) abrir(auto.id);
+})();
+```
+
+### Passo 191 — Validação da capa
+
+#### Arquivo: `app/EmpresaForm.php` — SUBSTITUIR
+
+Substitua **todo o conteúdo** do arquivo pelo código abaixo. Validação e upload da capa (banner) da empresa.
+
+```php
+<?php
+class EmpresaForm
+{
+    public static function senhaForte(string $s): bool { return strlen($s) >= 8 && preg_match('/[A-Za-z]/', $s) && preg_match('/\d/', $s); }
+
+    public static function validar(array $d, array $files, string $modo, ?array $atual = null): array
+    {
+        $e = [];
+        $d['site'] = Link::normalizar($d['site'] ?? ''); $d['linkedin'] = Link::normalizar($d['linkedin'] ?? '');
+        $len = fn($k) => mb_strlen($d[$k] ?? '');
+        if ($modo === 'cadastro') {
+            if (!Cnpj::valido($d['cnpj'] ?? '')) $e['cnpj'] = 'CNPJ inválido. Confira os 14 caracteres (letras e números).';
+            elseif (Empresa::porCnpj($d['cnpj'])) $e['cnpj'] = 'Este CNPJ já está cadastrado. Entre na área da empresa.';
+        }
+        if ($len('razao_social') < 3 || $len('razao_social') > 150) $e['razao_social'] = 'Informe a razão social.';
+        if ($len('nome') < 2 || $len('nome') > 120) $e['nome'] = 'Informe o nome fantasia.';
+        if ($len('descricao') < 30 || $len('descricao') > 600) $e['descricao'] = 'Descreva a empresa em 30 a 600 caracteres: é o que o estudante vê.';
+        if (!in_array($d['segmento'] ?? '', SEGMENTOS, true)) $e['segmento'] = 'Escolha o segmento.';
+        if (!in_array($d['porte'] ?? '', PORTES, true)) $e['porte'] = 'Escolha o porte.';
+        if ($d['site'] && !Link::valido($d['site'])) $e['site'] = 'Endereço inválido. Exemplo: https://www.suaempresa.com.br';
+        if ($d['linkedin'] && !Link::valido($d['linkedin'], 'linkedin')) $e['linkedin'] = 'Use o endereço do LinkedIn da empresa (linkedin.com/company/...).';
+        $d['link_principal'] = ($d['link_principal'] ?? 'site') === 'linkedin' ? 'linkedin' : 'site';
+        if ($d['link_principal'] === 'linkedin' && !$d['linkedin']) $d['link_principal'] = 'site';
+        if (strlen(preg_replace('/\D/', '', $d['cep'] ?? '')) !== 8) $e['cep'] = 'CEP inválido. Informe os 8 números.';
+        foreach (['logradouro' => [3, 120], 'bairro' => [2, 60], 'cidade' => [2, 60]] as $c => [$min, $max]) if ($len($c) < $min || $len($c) > $max) $e[$c] = 'Preencha este campo corretamente.';
+        $n = $len('numero'); if ($n < 1 || $n > 10) $e['numero'] = 'Informe o número (ou S/N).';
+        if ($len('complemento') > 60) $e['complemento'] = 'Máximo de 60 caracteres.';
+        if (!in_array(strtoupper($d['uf'] ?? ''), UFS, true)) $e['uf'] = 'Escolha o estado.';
+        if ($len('responsavel') < 3 || $len('responsavel') > 100) $e['responsavel'] = 'Informe o nome do responsável.';
+        if ($len('cargo') < 2 || $len('cargo') > 60) $e['cargo'] = 'Informe o cargo ou função.';
+        $f = strlen(preg_replace('/\D/', '', $d['telefone'] ?? '')); if ($f < 10 || $f > 11) $e['telefone'] = 'Telefone incompleto.';
+        if (($d['celular'] ?? '') !== '') { $c = strlen(preg_replace('/\D/', '', $d['celular'])); if ($c < 10 || $c > 11) $e['celular'] = 'Celular incompleto.'; }
+        if (($d['email_contato'] ?? '') !== '' && !filter_var($d['email_contato'], FILTER_VALIDATE_EMAIL)) $e['email_contato'] = 'E-mail inválido.';
+
+        [$logo, $eLogo] = Upload::salvar($files['logo'] ?? null, ['image/jpeg', 'image/png'], ROOT_PATH . '/public/uploads/logos', false, 2);
+        if ($eLogo) $e['logo'] = $eLogo; elseif ($logo) $d['logo'] = 'public/uploads/logos/' . $logo;
+        [$ban, $eBan] = Upload::salvar($files['banner'] ?? null, ['image/jpeg', 'image/png'], ROOT_PATH . '/public/uploads/capas', false);
+        if ($eBan) $e['banner'] = $eBan; elseif ($ban) $d['banner'] = 'public/uploads/capas/' . $ban;
+
+        if ($modo === 'cadastro') {
+            if (!filter_var($d['email'] ?? '', FILTER_VALIDATE_EMAIL) || mb_strlen($d['email']) > 120) $e['email'] = 'E-mail inválido.';
+            elseif (Empresa::porEmail($d['email'])) $e['email'] = 'Este e-mail já tem cadastro. Entre na área da empresa.';
+            $s = $_POST['senha'] ?? '';
+            if (!self::senhaForte($s)) $e['senha'] = 'A senha precisa ter 8 ou mais caracteres, com letras e números.';
+            elseif ($s !== ($_POST['senha2'] ?? '')) $e['senha2'] = 'As senhas não conferem.';
+            $d['senha'] = $s;
+            [$arq, $eArq] = Upload::salvar($files['termo'] ?? null, ['application/pdf', 'image/jpeg', 'image/png'], ROOT_PATH . '/storage/termos', true);
+            if ($eArq) $e['termo'] = $eArq; else $d['termo_arquivo'] = $arq;
+            if (empty($d['aceite_termos'])) $e['aceite_termos'] = 'É preciso aceitar os termos de uso.';
+            if (empty($d['aceite_privacidade'])) $e['aceite_privacidade'] = 'É preciso confirmar a política de privacidade.';
+        }
+        if ($e) {
+            if (!empty($d['logo']) && (!$atual || $d['logo'] !== $atual['logo'])) @unlink(ROOT_PATH . '/' . $d['logo']);
+            if (!empty($d['banner']) && (!$atual || $d['banner'] !== ($atual['banner'] ?? null))) @unlink(ROOT_PATH . '/' . $d['banner']);
+            if (!empty($d['termo_arquivo'])) @unlink(ROOT_PATH . '/storage/termos/' . $d['termo_arquivo']);
+        }
+        return [$d, $e];
+    }
+}
