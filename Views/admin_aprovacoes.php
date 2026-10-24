@@ -38,8 +38,8 @@ endif; ?>
     <h2>Vagas aguardando aprovação <?= Ui::badge((string) count($vagasPend), 'warn') ?></h2>
     <div class="ui-grid">
       <?php foreach ($vagasPend as $v) {
-        $ctx = 'admin';
-        require __DIR__ . '/partials/vaga_card_app.php';
+          $ctx = 'admin';
+          require __DIR__ . '/partials/vaga_card_app.php';
       } ?></div>
   </section><?php endif; ?>
 ?>
