@@ -1,8 +1,18 @@
 <?php
 require_once __DIR__ . '/../config.php';
+
+// Carrega os helpers/bootstrap caso a função app_env() não esteja no config.php
+if (file_exists(__DIR__ . '/../app/helpers.php')) {
+    require_once __DIR__ . '/../app/helpers.php';
+} elseif (file_exists(__DIR__ . '/../app/bootstrap.php')) {
+    require_once __DIR__ . '/../app/bootstrap.php';
+}
+
 require_once __DIR__ . '/schema.php';
 
-if (app_env() === 'prod' && !in_array('--forcar-producao', $argv ?? [], true)) {
+$env = function_exists('app_env') ? app_env() : ($_ENV['APP_ENV'] ?? 'dev');
+
+if ($env === 'prod' && !in_array('--forcar-producao', $argv ?? [], true)) {
     fwrite(STDERR, "Recusado: APP_ENV=prod. Dados fictícios são só para dev/hml (use --forcar-producao se tiver certeza).\n");
     exit(1);
 }
@@ -52,8 +62,8 @@ if (!Database::val('SELECT 1 FROM admins LIMIT 1')) {
 
 mt_srand(20261015);
 $hoje = strtotime('today');
-$dia = fn(int $n): string => date('Y-m-d', $hoje + $n * 86400);
-$quando = fn(int $dias, int $hora = 10, int $min = 0): string => date('Y-m-d H:i:s', $hoje + $dias * 86400 + $hora * 3600 + $min * 60);
+$dia = fn(int $n): string => date('Y-m-d', $hoje + ($n * 86400));
+$quando = fn(int $dias, int $hora = 10, int $min = 0): string => date('Y-m-d H:i:s', $hoje + ($dias * 86400) + ($hora * 3600) + ($min * 60));
 $raiz = (int) Database::val("SELECT id FROM admins WHERE papel = 'raiz' ORDER BY id LIMIT 1") ?: (int) Database::val('SELECT MIN(id) FROM admins');
 $origem = __DIR__ . '/demo/img';
 
@@ -99,13 +109,14 @@ $ruas = ['Avenida Tiradentes', 'Rua Sete de Setembro', 'Avenida Monteiro Lobato'
 foreach ($E as $i => [$nome, $razao, $base, $seg, $porte, $resp, $cargo, $slug, $capa, $st, $criada, $cidade, $bairro, $desc]) {
     $log = $slug ? demo_img("logo-$slug.png", 'logos', 'l') : null;
     $cap = $capa ? demo_img($capa, 'capas', 'c') : null;
-    $rua = $ruas[$i % count($ruas)]; $num = (string) (100 + $i * 37);
+    $rua = $ruas[$i % count($ruas)]; 
+    $num = (string) (100 + ($i * 37));
     $primeiro = strtolower(preg_replace('/[^a-z]/i', '', iconv('UTF-8', 'ASCII//TRANSLIT', explode(' ', $resp)[0] === 'Dra.' || explode(' ', $resp)[0] === 'Eng.' ? explode(' ', $resp)[1] : explode(' ', $resp)[0])));
     $slugEmail = $slug ?: 'empresa' . $i;
     $id = Database::insert('empresas', [
         'cnpj' => Cnpj::completar($base), 'razao_social' => $razao, 'nome' => $nome, 'descricao' => $desc, 'segmento' => $seg, 'porte' => $porte,
         'endereco' => "$rua, $num - $bairro, $cidade/SP - CEP 07011-000", 'cep' => '07011000', 'logradouro' => $rua, 'numero' => $num, 'complemento' => $i % 3 === 0 ? 'Sala ' . (10 + $i) : null, 'bairro' => $bairro, 'cidade' => $cidade, 'uf' => 'SP',
-        'responsavel' => $resp, 'cargo' => $cargo, 'telefone' => '1121' . str_pad((string) (3000 + $i * 111), 4, '0'), 'celular' => '119' . str_pad((string) (87000000 + $i * 12345), 8, '0', STR_PAD_LEFT),
+        'responsavel' => $resp, 'cargo' => $cargo, 'telefone' => '1121' . str_pad((string) (3000 + ($i * 111)), 4, '0'), 'celular' => '119' . str_pad((string) (87000000 + ($i * 12345)), 8, '0', STR_PAD_LEFT),
         'email' => "$primeiro.$slugEmail" . DEMO_DOMINIO, 'email_contato' => "rh.$slugEmail" . DEMO_DOMINIO,
         'site' => "https://www.$slugEmail.example", 'linkedin' => "https://www.linkedin.com/company/$slugEmail", 'link_principal' => $i % 2 ? 'linkedin' : 'site',
         'logo' => $log, 'banner' => $cap, 'senha_hash' => Auth::hash(DEMO_SENHA), 'termos_aceitos_em' => $quando(-$criada), 'status' => $st,
@@ -118,7 +129,7 @@ foreach ($E as $i => [$nome, $razao, $base, $seg, $porte, $resp, $cargo, $slug, 
     if ($st === 'aprovada') $hist('empresa', $id, 'aprovada', 'pendente', 'aprovada', 'admin', $raiz, null, $quando(-$criada + 1, 11, 5));
     if ($st === 'reprovada') $hist('empresa', $id, 'reprovada', 'pendente', 'reprovada', 'admin', $sec, 'O termo de cooperação enviado está ilegível.', $quando(-$criada + 1, 16, 40));
     if ($st === 'bloqueada') { $hist('empresa', $id, 'aprovada', 'pendente', 'aprovada', 'admin', $raiz, null, $quando(-$criada + 1, 10, 0)); $hist('empresa', $id, 'bloqueada', 'aprovada', 'bloqueada', 'admin', $raiz, 'Vaga divulgada sem relação com estágio.', $quando(-9, 13, 10)); }
-    if ($st === 'aprovada' && $i % 3 === 1) $hist('empresa', $id, 'perfil', null, null, 'empresa', $id, null, $quando(-($criada / 2), 14, 0));
+    if ($st === 'aprovada' && $i % 3 === 1) $hist('empresa', $id, 'perfil', null, null, 'empresa', $id, null, $quando(-((int)($criada / 2)), 14, 0));
     if ($st === 'pendente') Database::insert('notificacoes', ['tipo' => 'empresa', 'referencia_id' => $id, 'mensagem' => "Nova empresa para aprovar: $nome", 'lida' => 0, 'criado_em' => $quando(-$criada, 9, 16)]);
     elseif ($criada < 40) Database::insert('notificacoes', ['tipo' => 'empresa', 'referencia_id' => $id, 'mensagem' => "Nova empresa para aprovar: $nome", 'lida' => 1, 'criado_em' => $quando(-$criada, 9, 16)]);
 }
@@ -198,14 +209,14 @@ foreach ($V as $n => [$ie, $titulo, $tipo, $area, $mod, $bolsa, $st, $criada, $p
         $hist('vaga', $id, 'aprovada', 'aguardando_aprovacao', 'aprovada', 'admin', $n % 3 === 0 ? $sec : $raiz, null, $aval);
         if ($dest) $hist('vaga', $id, 'destaque', null, null, 'admin', $raiz, null, $quando(-$criada + 2, 9, 0));
     }
-    if ($st === 'encerrada') $hist('vaga', $id, 'encerrada', 'aprovada', 'encerrada', 'empresa', $eid, null, $quando(-4 - $n % 5, 17, 0));
+    if ($st === 'encerrada') $hist('vaga', $id, 'encerrada', 'aprovada', 'encerrada', 'empresa', $eid, null, $quando(-4 - ($n % 5), 17, 0));
     if ($st === 'rejeitada') $hist('vaga', $id, 'rejeitada', 'aguardando_aprovacao', 'rejeitada', 'admin', $sec, $motivo, $aval);
     if ($st === 'aprovada' && $lim < 0) $hist('vaga', $id, 'expirada', 'aprovada', null, 'sistema', null, null, $quando($lim, 0, 5));
     Database::insert('notificacoes', ['tipo' => 'vaga', 'referencia_id' => $id, 'mensagem' => 'Nova vaga para aprovar: ' . mb_substr($titulo, 0, 60), 'lida' => $st === 'aguardando_aprovacao' ? 0 : 1, 'criado_em' => $quando(-$criada, 9 + $n % 6, 11 + $n)]);
 }
 
 $peso = [];
-foreach ($vagas as $n => $v) if ($v['st'] === 'aprovada' && $v['pub'] <= 0 && $v['lim'] >= 0) $peso[$n] = 2 + ($v['dest'] ? 6 : 0) + (($n * 7) % 5);
+foreach ($vagas as $n => $v) if ($v['st'] === 'aprovada' && $v['pub'] <= 0 && $v['lim'] >= 0) $peso[$n] = 2 + ($v['dest'] ? 6 : 0) + (($n + 7) % 5);
 $pesoTotal = array_sum($peso); $vagasPesadas = []; foreach ($peso as $n => $p) for ($k = 0; $k < $p; $k++) $vagasPesadas[] = $n;
 $visitantes = []; for ($k = 0; $k < 90; $k++) $visitantes[] = 'de000' . substr(md5("v$k"), 0, 19);
 $rows = [];
@@ -237,8 +248,8 @@ foreach ($ativas as $k => $ie) {
 echo "\nDados de teste criados.\n";
 echo '  Empresas: ' . count($emp) . ' | Vagas: ' . count($vagas) . ' | Visitas: ' . count($rows) . "\n";
 echo '  Senha das contas de teste: ' . DEMO_SENHA . "\n";
-echo "  Admin comum:  secretaria" . DEMO_DOMINIO . "  (só o administrador principal cria/desativa admins)\n";
-echo "  1º acesso:    novoadmin" . DEMO_DOMINIO . "  (será obrigado a trocar a senha ao entrar)\n";
+echo "  Admin comum:    secretaria" . DEMO_DOMINIO . "  (só o administrador principal cria/desativa admins)\n";
+echo "  1º acesso:      novoadmin" . DEMO_DOMINIO . "  (será obrigado a trocar a senha ao entrar)\n";
 echo "  Empresa aprovada (com vagas): " . Database::val('SELECT email FROM empresas WHERE id = :i', ['i' => $emp[0]]) . "\n";
 echo "  Empresa pendente:  " . Database::val('SELECT email FROM empresas WHERE id = :i', ['i' => $emp[10]]) . "\n";
 echo "  Empresa reprovada: " . Database::val('SELECT email FROM empresas WHERE id = :i', ['i' => $emp[12]]) . "\n";
