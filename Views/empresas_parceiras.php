@@ -18,7 +18,9 @@ require __DIR__ . '/partials/nav.php'; ?>
                     data-rail-next aria-label="Avançar"><?= icon('chevron-right', 20) ?></button></div>
         </div>
         <div class="vg-rail-track" data-rail-track tabindex="0">
-            <?php foreach ($t['itens'] as $e) require __DIR__ . '/partials/card_empresa_publico.php'; ?></div>
+            <?php foreach ($t['itens'] as $e) {
+                require __DIR__ . '/partials/card_empresa_publico.php';
+            } ?></div>
     </section>
 <?php endforeach; ?>
 <section aria-labelledby="todas-emp">
@@ -26,7 +28,9 @@ require __DIR__ . '/partials/nav.php'; ?>
         <h2 id="todas-emp">Todas as empresas <span class="vg-count"><?= count($todas) ?></span></h2>
     </div>
     <?php if (!$todas): ?><p class="vg-empty">Ainda não há empresas parceiras aprovadas.</p><?php else: ?>
-        <div class="vg-grid"><?php foreach ($todas as $e) require __DIR__ . '/partials/card_empresa_publico.php'; ?></div>
+        <div class="vg-grid"><?php foreach ($todas as $e) {
+            require __DIR__ . '/partials/card_empresa_publico.php';
+        } ?></div>
     <?php endif; ?>
 </section>
 </div>

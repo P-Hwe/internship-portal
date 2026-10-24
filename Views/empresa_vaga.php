@@ -8,7 +8,9 @@
                 target="_blank" rel="noopener"><?= icon('external', 15) ?> Ver no site</a><?php endif; ?>
         <?php if ($v['status'] !== 'encerrada'): ?><a class="ui-btn ui-btn-sm"
                 href="<?= url('vaga-editar', ['id' => $v['id']]) ?>"><?= icon('edit', 15) ?> Editar</a><?php endif; ?>
-        <?php if ($v['status'] === 'aprovada') echo Ui::formConfirmar(url('vaga-encerrar'), ['id' => $v['id']], 'Encerrar vaga', 'Encerrar esta vaga?', 'A vaga "' . $v['titulo'] . '" deixa de aparecer para os estudantes imediatamente. Ela continua guardada no histórico e não será excluída.', 'danger', 'ui-btn ui-btn-sm ui-btn-danger-o'); ?>
+        <?php if ($v['status'] === 'aprovada') {
+            echo Ui::formConfirmar(url('vaga-encerrar'), ['id' => $v['id']], 'Encerrar vaga', 'Encerrar esta vaga?', 'A vaga "' . $v['titulo'] . '" deixa de aparecer para os estudantes imediatamente. Ela continua guardada no histórico e não será excluída.', 'danger', 'ui-btn ui-btn-sm ui-btn-danger-o');
+        } ?>
     </div>
 </div>
 <h2 style="font-size:22px;margin-bottom:14px"><?= e($v['titulo']) ?></h2>
