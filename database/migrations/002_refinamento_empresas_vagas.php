@@ -1,9 +1,9 @@
 <?php
 return [
-    'up' => function (PDO $pdo, string $driver) {
-        $dt = $driver === 'pgsql' ? 'TIMESTAMP' : 'DATETIME';
-        $pk = ['sqlite' => 'INTEGER PRIMARY KEY AUTOINCREMENT', 'mysql' => 'INT AUTO_INCREMENT PRIMARY KEY', 'pgsql' => 'SERIAL PRIMARY KEY'][$driver];
-        $fim = $driver === 'mysql' ? ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci' : '';
+    'up' => function (PDO $pdo) {
+        $dt = 'DATETIME';
+        $pk = 'INT AUTO_INCREMENT PRIMARY KEY';
+        $fim = ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
         foreach ([
             'razao_social' => 'VARCHAR(150) NULL', 'descricao' => 'TEXT NULL', 'segmento' => 'VARCHAR(60) NULL', 'porte' => 'VARCHAR(20) NULL',
             'cargo' => 'VARCHAR(60) NULL', 'celular' => 'VARCHAR(20) NULL', 'email_contato' => 'VARCHAR(120) NULL', 'linkedin' => 'VARCHAR(200) NULL',
@@ -24,7 +24,7 @@ return [
         $pdo->exec("UPDATE empresas SET aprovacao_vista = 1 WHERE status = 'aprovada'");
         $pdo->exec("UPDATE empresas SET razao_social = nome WHERE razao_social IS NULL");
     },
-    'down' => function (PDO $pdo, string $driver) {
+    'down' => function (PDO $pdo) {
         $pdo->exec("UPDATE vagas SET status = 'pendente' WHERE status = 'aguardando_aprovacao'");
         $pdo->exec("UPDATE vagas SET status = 'reprovada' WHERE status = 'rejeitada'");
         $pdo->exec('DROP TABLE IF EXISTS historico'); $pdo->exec('DROP TABLE IF EXISTS acessos_log');

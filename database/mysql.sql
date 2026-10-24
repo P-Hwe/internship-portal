@@ -1,14 +1,10 @@
--- Vagas de Estágio - IFSP Guarulhos | esquema para MYSQL
--- Importe no phpMyAdmin (aba Importar) com o banco já selecionado.
--- O administrador é criado no primeiro acesso ao site, a partir de ADMIN_EMAIL/ADMIN_PASSWORD do .env.
-
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS migracoes (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(80) NOT NULL UNIQUE, aplicada_em DATETIME NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS admins ( id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(100) NOT NULL, email VARCHAR(120) NOT NULL UNIQUE, senha_hash VARCHAR(255) NOT NULL, papel VARCHAR(20) NOT NULL DEFAULT 'admin', ativo SMALLINT NOT NULL DEFAULT 1, criado_em DATETIME NOT NULL, ultimo_acesso DATETIME NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS empresas ( id INT AUTO_INCREMENT PRIMARY KEY, cnpj VARCHAR(14) NOT NULL UNIQUE, razao_social VARCHAR(150) NULL, nome VARCHAR(120) NOT NULL, descricao TEXT NULL, segmento VARCHAR(60) NULL, porte VARCHAR(20) NULL, endereco VARCHAR(200) NOT NULL, cep VARCHAR(8) NULL, logradouro VARCHAR(120) NULL, numero VARCHAR(10) NULL, complemento VARCHAR(60) NULL, bairro VARCHAR(60) NULL, cidade VARCHAR(60) NULL, uf VARCHAR(2) NULL, responsavel VARCHAR(100) NOT NULL, cargo VARCHAR(60) NULL, telefone VARCHAR(20) NOT NULL, celular VARCHAR(20) NULL, email VARCHAR(120) NOT NULL UNIQUE, email_contato VARCHAR(120) NULL, site VARCHAR(200) NULL, linkedin VARCHAR(200) NULL, link_principal VARCHAR(10) NOT NULL DEFAULT 'site', logo VARCHAR(200) NULL, senha_hash VARCHAR(255) NOT NULL, termo_arquivo VARCHAR(80) NULL, termos_aceitos_em DATETIME NULL, status VARCHAR(12) NOT NULL DEFAULT 'pendente', motivo TEXT NULL, aprovacao_vista SMALLINT NOT NULL DEFAULT 0, criado_em DATETIME NOT NULL, avaliado_em DATETIME NULL, ultimo_acesso DATETIME NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS empresas ( id INT AUTO_INCREMENT PRIMARY KEY, cnpj VARCHAR(14) NOT NULL UNIQUE, razao_social VARCHAR(150) NULL, nome VARCHAR(120) NOT NULL, descricao TEXT NULL, segmento VARCHAR(60) NULL, porte VARCHAR(20) NULL, endereco VARCHAR(200) NOT NULL, cep VARCHAR(8) NULL, logradouro VARCHAR(120) NULL, numero VARCHAR(10) NULL, complemento VARCHAR(60) NULL, bairro VARCHAR(60) NULL, cidade VARCHAR(60) NULL, uf VARCHAR(2) NULL, responsavel VARCHAR(100) NOT NULL, cargo VARCHAR(60) NULL, telefone VARCHAR(20) NOT NULL, celular VARCHAR(20) NULL, email VARCHAR(120) NOT NULL UNIQUE, email_contato VARCHAR(120) NULL, site VARCHAR(200) NULL, linkedin VARCHAR(200) NULL, link_principal VARCHAR(10) NOT NULL DEFAULT 'site', logo VARCHAR(200) NULL, banner VARCHAR(200) NULL, senha_hash VARCHAR(255) NOT NULL, termo_arquivo VARCHAR(80) NULL, termos_aceitos_em DATETIME NULL, status VARCHAR(12) NOT NULL DEFAULT 'pendente', motivo TEXT NULL, aprovacao_vista SMALLINT NOT NULL DEFAULT 0, criado_em DATETIME NOT NULL, avaliado_em DATETIME NULL, ultimo_acesso DATETIME NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS areas (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(60) NOT NULL UNIQUE, padrao SMALLINT NOT NULL DEFAULT 1) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -22,6 +18,8 @@ CREATE TABLE IF NOT EXISTS notificacoes (id INT AUTO_INCREMENT PRIMARY KEY, tipo
 
 CREATE TABLE IF NOT EXISTS emails_log (id INT AUTO_INCREMENT PRIMARY KEY, destinatario VARCHAR(120) NOT NULL, assunto VARCHAR(200) NOT NULL, status VARCHAR(10) NOT NULL, erro VARCHAR(255) NULL, criado_em DATETIME NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS visitas ( id INT AUTO_INCREMENT PRIMARY KEY, tipo VARCHAR(10) NOT NULL, ref_id INT NULL, visitante CHAR(24) NOT NULL, criado_em DATETIME NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS login_tentativas (id INT AUTO_INCREMENT PRIMARY KEY, chave VARCHAR(64) NOT NULL, criado_em DATETIME NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX idx_vagas_status ON vagas (status, data_limite);
@@ -32,14 +30,18 @@ CREATE INDEX idx_login_chave ON login_tentativas (chave);
 
 CREATE INDEX idx_hist_ent ON historico (entidade, entidade_id);
 
+CREATE INDEX idx_visitas_data ON visitas (criado_em);
+
+CREATE INDEX idx_visitas_ref ON visitas (tipo, ref_id, criado_em);
+
 CREATE INDEX idx_acessos_data ON acessos_log (criado_em);
 
 CREATE INDEX idx_empresas_status ON empresas (status);
 
--- Registra as migrations já contempladas por este esquema (assim o sistema não tenta reaplicá-las)
 INSERT INTO migracoes (nome, aplicada_em) VALUES
   ('001_endereco_estruturado', CURRENT_TIMESTAMP),
-  ('002_refinamento_empresas_vagas', CURRENT_TIMESTAMP);
+  ('002_refinamento_empresas_vagas', CURRENT_TIMESTAMP),
+  ('003_banner_empresa_e_visitas', CURRENT_TIMESTAMP);
 
 INSERT INTO areas (nome, padrao) VALUES
   ('Administração', 1),
