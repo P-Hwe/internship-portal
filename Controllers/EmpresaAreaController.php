@@ -16,7 +16,7 @@ class EmpresaAreaController
         $cont = Vaga::contagens((int) $emp['id']);
         [$recentes] = Vaga::listar((int) $emp['id'], 'todas', '', '', 'recentes', 1, 3);
         $vencendo = array_values(array_filter(Vaga::todasDaEmpresa((int) $emp['id']), fn($v) => $v['situacao'] === 'publicada' && $v['dias'] <= DIAS_VAGA_VENCENDO));
-        $this->pagina('empresa_painel', ['emp' => $emp, 'cont' => $cont, 'recentes' => $recentes, 'vencendo' => $vencendo, 'aviso' => Empresa::mostrarAvisoAprovacao($emp)], 'painel', 'Visão geral');
+        $this->pagina('empresa_painel', ['emp' => $emp, 'cont' => $cont, 'recentes' => $recentes, 'vencendo' => $vencendo, 'aviso' => Empresa::mostrarAvisoAprovacao($emp), 'lead' => saudacao() . ', ' . primeiro_nome((string) $emp['responsavel']) . '. ' . ((int) ($cont['publicada'] ?? 0) ? 'Você tem ' . (int) $cont['publicada'] . ' vaga(s) no ar.' : 'Sua empresa ainda não tem vagas no ar.')], 'painel', 'Visão geral');
     }
 
     public function dispensarAviso(): void
@@ -52,18 +52,20 @@ class EmpresaAreaController
         $erros = []; $old = $emp;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Csrf::exigir();
-            if (($_POST['acao'] ?? '') === 'reenviar') {   // empresa reprovada corrige o perfil e pede nova análise
+            if (($_POST['acao'] ?? '') === 'reenviar') {
                 if (Empresa::mudarStatus((int) $emp['id'], Estado::E_PENDENTE, null, 'empresa', (int) $emp['id'])) {
                     Notificador::empresaCadastrada(Empresa::porId((int) $emp['id']));
                     flash('ok', 'Cadastro reenviado para análise.');
                 }
                 redirect('painel');
             }
-            $old = clean_post($_POST) + ['logo' => $emp['logo']];
+            $old = limpar_post($_POST) + ['logo' => $emp['logo'], 'banner' => $emp['banner']];
             [$dados, $erros] = EmpresaForm::validar($old, $_FILES, 'perfil', $emp);
             if (!$erros) {
                 if (empty($dados['logo'])) $dados['logo'] = $emp['logo'];
                 elseif ($emp['logo'] && $dados['logo'] !== $emp['logo']) @unlink(ROOT_PATH . '/' . $emp['logo']);
+                if (empty($dados['banner'])) $dados['banner'] = $emp['banner'];
+                elseif ($emp['banner'] && $dados['banner'] !== $emp['banner']) @unlink(ROOT_PATH . '/' . $emp['banner']);
                 Empresa::atualizarPerfil((int) $emp['id'], $dados);
                 flash('ok', 'Perfil atualizado.');
                 redirect('empresa-perfil');
@@ -84,7 +86,7 @@ class EmpresaAreaController
         $erros = []; $old = $atual ? VagaForm::paraFormulario($atual) : ['remuneracao_tipo' => 'valor', 'data_publicacao' => date('Y-m-d'), 'contato' => $emp['email_contato'] ?: $emp['email'], 'dias' => ['seg', 'ter', 'qua', 'qui', 'sex']];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Csrf::exigir();
-            $old = clean_post($_POST);
+            $old = limpar_post($_POST);
             [$dados, $erros] = VagaForm::validar($old, $_FILES, $atual);
             if (!$erros) {
                 if ($atual) {
