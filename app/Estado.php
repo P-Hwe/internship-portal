@@ -2,8 +2,14 @@
 
 class Estado
 {
-    public const V_AGUARDANDO = 'aguardando_aprovacao', V_APROVADA = 'aprovada', V_REJEITADA = 'rejeitada', V_ENCERRADA = 'encerrada';
-    public const E_PENDENTE = 'pendente', E_APROVADA = 'aprovada', E_REPROVADA = 'reprovada', E_BLOQUEADA = 'bloqueada';
+    public const V_AGUARDANDO = 'aguardando_aprovacao';
+    public const V_APROVADA = 'aprovada';
+    public const V_REJEITADA = 'rejeitada';
+    public const V_ENCERRADA = 'encerrada';
+    public const E_PENDENTE = 'pendente';
+    public const E_APROVADA = 'aprovada';
+    public const E_REPROVADA = 'reprovada';
+    public const E_BLOQUEADA = 'bloqueada';
 
     private const TV = [
         self::V_AGUARDANDO => [self::V_APROVADA, self::V_REJEITADA],
