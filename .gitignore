@@ -33,6 +33,14 @@
 /logs/
 *.log
 
-# PHP CS Fixer
+# Arquivos de teste e desenvolvimento (não para produção)
+tests/
+docs/
+scripts/
+seed/
+scripts/check-quality.sh
+scripts/fix-style.sh
+
+# PHP CS Fixer configuration
 /.php-cs-fixer.cache
 /.php-cs-fixer.php
