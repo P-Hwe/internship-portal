@@ -1,6 +1,6 @@
 # Configurações e dependências
 .env
-vendor/
+/vendor/
 .idea/
 
 # Banco de dados em memória
@@ -18,6 +18,13 @@ storage/termos/*
 public/uploads/banners/*
 !public/uploads/banners/.htaccess
 !public/uploads/banners/vaa-0*.jpg
+!public/uploads/banners/vaga-01.jpg
+!public/uploads/banners/vaga-02.jpg
+!public/uploads/banners/vaga-03.jpg
+!public/uploads/banners/vaga-04.jpg
+!public/uploads/banners/vaga-05.jpg
+!public/uploads/banners/vaga-06.jpg
+!public/uploads/banners/vaga-07.jpg
 
 # IDE e editores
 .vscode/
