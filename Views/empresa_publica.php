@@ -51,10 +51,10 @@ $ext = Empresa::linkExterno($e); ?>
     </div>
     <?php if (!$vagas): ?><p class="vg-empty">Nenhuma vaga aberta no momento.</p><?php else: ?><div class="vg-grid">
             <?php foreach ($vagas as $v) {
-                                                                                        $trilho = false;
-                                                                                        $chave = null;
-                                                                                        require __DIR__ . '/partials/card_vaga.php';
-                                                                                    } ?>
+                $trilho = false;
+                $chave = null;
+                require __DIR__ . '/partials/card_vaga.php';
+            } ?>
         </div><?php endif; ?>
 </section>
 <p><a class="vg-back" href="<?= url('empresas') ?>"><?= icon('arrow-left', 16) ?> Voltar para empresas parceiras</a></p>

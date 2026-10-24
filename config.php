@@ -3,9 +3,13 @@
 define('ROOT_PATH', __DIR__);
 (function () {
     $f = ROOT_PATH . '/.env';
-    if (!is_file($f)) return;
+    if (!is_file($f)) {
+        return;
+    }
     foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
-        if ($l[0] === '#' || strpos($l, '=') === false) continue;
+        if ($l[0] === '#' || strpos($l, '=') === false) {
+            continue;
+        }
         [$k, $v] = explode('=', $l, 2);
         $_ENV[trim($k)] = trim($v, " \t\"'");
     }
@@ -14,7 +18,9 @@ define('ROOT_PATH', __DIR__);
 function env(string $k, $padrao = null)
 {
     $v = getenv($k);
-    if ($v !== false && $v !== '') return $v;
+    if ($v !== false && $v !== '') {
+        return $v;
+    }
     return $_ENV[$k] ?? $padrao;
 }
 
@@ -113,7 +119,9 @@ function money(mixed $v): string
 function parse_money(string $s): ?float
 {
     $s = trim(str_replace(['R$', ' '], '', $s));
-    if ($s === '') return null;
+    if ($s === '') {
+        return null;
+    }
     $s = str_contains($s, ',') ? str_replace(['.', ','], ['', '.'], $s) : $s;
     return is_numeric($s) && $s >= 0 ? round((float) $s, 2) : null;
 }
@@ -122,8 +130,12 @@ function parse_money(string $s): ?float
 function fone_fmt(string $d): string
 {
     $d = preg_replace('/\D/', '', $d);
-    if (strlen($d) === 11) return substr($d, 0, 2) . ' ' . substr($d, 2, 5) . '-' . substr($d, 7);
-    if (strlen($d) === 10) return substr($d, 0, 2) . ' ' . substr($d, 2, 4) . '-' . substr($d, 6);
+    if (strlen($d) === 11) {
+        return substr($d, 0, 2) . ' ' . substr($d, 2, 5) . '-' . substr($d, 7);
+    }
+    if (strlen($d) === 10) {
+        return substr($d, 0, 2) . ' ' . substr($d, 2, 4) . '-' . substr($d, 6);
+    }
     return $d;
 }
 
@@ -131,7 +143,9 @@ function description_resume(string $desc, int $linhas = 3, int $max = 220): stri
 {
     $partes = array_values(array_filter(array_map('trim', preg_split('/\R/u', $desc)), 'strlen'));
     $txt = implode(' ', array_slice($partes, 0, $linhas));
-    if (mb_strlen($txt) <= $max) return $txt;
+    if (mb_strlen($txt) <= $max) {
+        return $txt;
+    }
     $corte = mb_substr($txt, 0, $max);
     $esp = mb_strrpos($corte, ' ');
     return rtrim(mb_substr($corte, 0, $esp ?: $max), " ,.;:") . '…';
@@ -150,7 +164,9 @@ function initials(string $nome): string
 {
     $i = '';
     foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $p) {
-        if (preg_match('/./u', $p, $m)) $i .= mb_strtoupper($m[0]);
+        if (preg_match('/./u', $p, $m)) {
+            $i .= mb_strtoupper($m[0]);
+        }
     }
     return $i;
 }
@@ -158,8 +174,12 @@ function initials(string $nome): string
 function stamp_deadline(array $v): array
 {
     $d = remaining_days($v['data_limite']);
-    if ($d <= 0) return ['Encerra hoje', 'vg-badge-warn'];
-    if ($d <= DIAS_VAGA_VENCENDO) return ['Encerra em ' . $d . ($d === 1 ? ' dia' : ' dias'), 'vg-badge-warn'];
+    if ($d <= 0) {
+        return ['Encerra hoje', 'vg-badge-warn'];
+    }
+    if ($d <= DIAS_VAGA_VENCENDO) {
+        return ['Encerra em ' . $d . ($d === 1 ? ' dia' : ' dias'), 'vg-badge-warn'];
+    }
     return ['Até ' . date('d/m', strtotime($v['data_limite'])), 'vg-badge-soft'];
 }
 
@@ -253,7 +273,9 @@ function url_job_abs(int $id): string
 function clean_post(array $p): array
 {
     $o = [];
-    foreach ($p as $k => $v) $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
+    foreach ($p as $k => $v) {
+        $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
+    }
     return $o;
 }
 function days_txt(int $d): string

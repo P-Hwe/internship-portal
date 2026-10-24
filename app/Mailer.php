@@ -57,7 +57,7 @@ class Mailer
             Database::insert('emails_log', ['destinatario' => $para, 'assunto' => $assunto,
                 'status' => $ok ? ($driver === 'log' ? 'simulado' : 'enviado') : 'falha', 'erro' => $erro ? mb_substr($erro, 0, 250) : null, 'criado_em' => Database::agora()]);
         } catch (Throwable $t) {
-/* log é best-effort */
+            /* log é best-effort */
         }
         return $ok;
     }
