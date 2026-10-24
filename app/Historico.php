@@ -17,7 +17,7 @@ class Historico
                 'ator_id' => $atorId,
                 'detalhe' => $detalhe !== null ? mb_substr($detalhe, 0, 300) : null,
                 'criado_em' => Database::agora(),
-            ]
+            ],
         );
     }
 
@@ -26,7 +26,7 @@ class Historico
     {
         return Database::all(
             'SELECT * FROM historico WHERE entidade = :e AND entidade_id = :i ORDER BY id DESC LIMIT :limit',
-            ['e' => $entidade, 'i' => $id, 'limit' => (int) $n]
+            ['e' => $entidade, 'i' => $id, 'limit' => (int) $n],
         );
     }
 
@@ -38,7 +38,7 @@ class Historico
             LEFT JOIN vagas v ON (h.entidade = 'vaga' AND v.id = h.entidade_id)
             LEFT JOIN empresas e ON (h.entidade = 'empresa' AND e.id = h.entidade_id)
             ORDER BY h.id DESC LIMIT :limit",
-            ['limit' => (int) $n]
+            ['limit' => (int) $n],
         );
     }
 

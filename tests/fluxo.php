@@ -38,17 +38,19 @@ class Cli
 {
     public $jar;
     public $base;
-    function __construct($base)
+    public function __construct($base)
     {
         $this->base = $base;
         $this->jar = tempnam(sys_get_temp_dir(), 'cj');
     }
-    function req(string $url, $post = null, bool $follow = true): array
+    public function req(string $url, $post = null, bool $follow = true): array
     {
         $ch = curl_init($this->base . $url);
         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_COOKIEJAR => $this->jar, CURLOPT_COOKIEFILE => $this->jar, CURLOPT_FOLLOWLOCATION => $follow, CURLOPT_HEADER => false, CURLOPT_USERAGENT => 'teste-fluxo']);
         if ($post !== null) {
-            if (is_array($post) && !array_filter($post, fn($v) => $v instanceof CURLFile)) $post = http_build_query($post);
+            if (is_array($post) && !array_filter($post, fn($v) => $v instanceof CURLFile)) {
+                $post = http_build_query($post);
+            }
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         }
@@ -59,13 +61,13 @@ class Cli
         curl_close($ch);
         return [$code, (string) $body, $loc, $url2];
     }
-    function csrf(string $url = '/?p=empresa-login'): string
+    public function csrf(string $url = '/?p=empresa-login'): string
     {
         [, $b] = $this->req($url);
         preg_match('/name="_csrf" value="([a-f0-9]+)"/', $b, $m);
         return $m[1] ?? '';
     }
-    function post(string $url, array $d, string $paginaToken = '/?p=empresa-login', bool $follow = true): array
+    public function post(string $url, array $d, string $paginaToken = '/?p=empresa-login', bool $follow = true): array
     {
         return $this->req($url, ['_csrf' => $this->csrf($paginaToken)] + $d, $follow);
     }
@@ -115,7 +117,9 @@ $B = new Cli($base);
 $adm = new Cli($base);
 
 secao('Estudante: páginas públicas');
-foreach (['/', '/?p=empresas', '/?p=encerradas', '/?p=tv'] as $u) t("público abre $u", $visitante->req($u)[0] === 200);
+foreach (['/', '/?p=empresas', '/?p=encerradas', '/?p=tv'] as $u) {
+    t("público abre $u", $visitante->req($u)[0] === 200);
+}
 [, $h] = $visitante->req('/');
 t('menu público sem links de admin e com "Empresas parceiras"', !str_contains($h, 'p=admin') && str_contains($h, 'Empresas parceiras') && str_contains($h, 'Sou empresa'));
 [$c] = $visitante->req('/storage/database.sqlite');
@@ -178,7 +182,7 @@ $dadosA = [
     'senha' => 'senha-forte-1',
     'senha2' => 'senha-forte-1',
     'aceite_termos' => '1',
-    'aceite_privacidade' => '1'
+    'aceite_privacidade' => '1',
 ];
 $envia = function (Cli $c, array $d, $arq = null) use ($pdf) {
     $tok = $c->csrf('/?p=empresa-cadastro');
@@ -264,7 +268,7 @@ $vagaPost = [
     'link_candidatura' => 'https://verdeagil.gupy.io/jobs/1',
     'link_site' => '',
     'link_linkedin' => '',
-    'contato' => ''
+    'contato' => '',
 ];
 $enviaVaga = fn(Cli $c, array $d, string $url = '/?p=vaga-cadastro') => $c->req($url, ['_csrf' => $c->csrf('/?p=painel')] + $d);
 [, $r] = $enviaVaga($A, array_merge($vagaPost, ['requisitos' => '']));
@@ -302,7 +306,9 @@ t('vaga aprovada vira "publicada" (situação pelas datas)', q('SELECT status FR
 $mailAprov = false;
 foreach (glob(ROOT_PATH . '/storage/mail/*.html') as $f) {
     $h = file_get_contents($f);
-    if (str_contains($h, 'Vaga aprovada') && str_contains($h, data_br($lim))) $mailAprov = true;
+    if (str_contains($h, 'Vaga aprovada') && str_contains($h, data_br($lim))) {
+        $mailAprov = true;
+    }
 }
 t('e-mail de vaga aprovada informa até quando fica no ar', $mailAprov);
 [, $home] = $visitante->req('/');
@@ -431,7 +437,9 @@ t('desbloquear restaura: vaga volta ao site', str_contains($visitante->req('/')[
 
 secao('Força bruta e controle de acesso');
 $bf = new Cli($base);
-for ($i = 0; $i < 5; $i++) loginEmpresa($bf, 'rh@beta.example', 'errada-' . $i);
+for ($i = 0; $i < 5; $i++) {
+    loginEmpresa($bf, 'rh@beta.example', 'errada-' . $i);
+}
 [, $r] = loginEmpresa($bf, 'rh@beta.example', 'senha-forte-1');
 t('após 5 falhas o login é travado, mesmo com a senha certa', str_contains($r, 'Muitas tentativas'));
 t('eventos de login (ok/falha/bloqueio) registrados', (int) q("SELECT COUNT(*) FROM acessos_log WHERE evento='login_falha'") >= 5 && (int) q("SELECT COUNT(*) FROM acessos_log WHERE evento='login_ok'") >= 3 && (int) q("SELECT COUNT(*) FROM acessos_log WHERE evento='bloqueado'") >= 1);
@@ -464,7 +472,9 @@ t('TV: um QR por vaga publicada', substr_count($tv, 'data-qr=') === count($publi
 $todosOk = true;
 foreach ($publicas as $v) {
     $esperado = rtrim((string) env('APP_URL'), '/') . (env('PRETTY_URLS') ? '/vaga/' . $v['id'] : '/?p=vaga&amp;id=' . $v['id']);
-    if (!str_contains($tv, 'data-qr="' . $esperado . '"')) $todosOk = false;
+    if (!str_contains($tv, 'data-qr="' . $esperado . '"')) {
+        $todosOk = false;
+    }
 }
 t('TV: cada QR aponta para o link da PRÓPRIA vaga', $todosOk);
 t('TV: biblioteca de QR local (sem CDN) e fallback com URL em texto', str_contains($tv, 'vendor/qrcode.js') && str_contains($tv, 'vg-tv-qr') && !str_contains($tv, 'cdn'));

@@ -21,7 +21,7 @@ $etapaDe = [
     'link_plataforma' => 6,
     'link_candidatura' => 6,
     'contato' => 6,
-    'banner' => 6
+    'banner' => 6,
 ];
 $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros))) : 0;
 $areaSel = $old['area'] ?? '';
