@@ -1,0 +1,78 @@
+<?php
+/**
+ * @var string $mailModo
+ * @var array|null $adm
+ * @var array $emails
+ */
+?>
+<section class="ui-section" id="emails"><h2>Diagnóstico de e-mail</h2>
+  <?php if ($mailModo === 'log'): ?><div class="ui-alert ui-alert-warn"><?= icon('mail', 22) ?><div><strong>Modo de
+            teste: nenhum e-mail é enviado de verdade</strong>
+        <p>O <code class="ui-code">.env</code> está com <code class="ui-code">MAIL_DRIVER=log</code>: as mensagens só
+            são gravadas em <code class="ui-code">storage/mail/</code>. Para enviar de verdade, use <code
+                class="ui-code">MAIL_DRIVER=smtp</code> e preencha <code class="ui-code">SMTP_*</code> (veja o README).
+        </p>
+    </div>
+</div>
+<?php else: ?><p class="ui-sub">Envio por <strong><?= e($mailModo) ?></strong>. Remetente:
+    <?= e((string) env('MAIL_FROM', 'vagas@localhost')) ?>. Avisos de novas empresas e vagas vão para:
+    <?= e((string) (env('ADMIN_NOTIFY_EMAIL') ?: $adm['email'])) ?>.</p><?php endif; ?>
+<?= Ui::formConfirmar(url('admin-acao'), ['tipo' => 'email-teste', 'ret' => 'admin-config'], 'Enviar e-mail de teste para ' . $adm['email'], 'Enviar e-mail de teste?', 'Uma mensagem de teste será enviada para ' . $adm['email'] . '.', 'primary', 'ui-btn') ?>
+<div class="ui-table-wrap" style="margin-top:14px">
+    <table class="ui-table">
+        <thead>
+            <tr>
+                <th>Quando</th>
+                <th>Para</th>
+                <th>Assunto</th>
+                <th>Resultado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($emails as $m): ?><tr>
+                <td><?= e(date('d/m H:i', strtotime($m['criado_em']))) ?></td>
+                <td><?= e($m['destinatario']) ?></td>
+                <td><?= e($m['assunto']) ?></td>
+                <td><?= Ui::badge($m['status'] === 'enviado' ? 'Enviado' : ($m['status'] === 'falha' ? 'Falhou' : 'Só gravado'), $m['status'] === 'enviado' ? 'ok' : ($m['status'] === 'falha' ? 'danger' : 'warn')) ?><?= $m['erro'] ? '<br><small>' . e($m['erro']) . '</small>' : '' ?>
+                </td>
+            </tr><?php endforeach; ?></tbody>
+    </table>
+</div>
+<?php if (!$emails): echo Ui::vazio('Nenhum e-mail registrado ainda'); endif; ?></section>
+<section class="ui-section">
+    <h2>Regras de negócio (somente leitura)</h2>
+    <div class="ui-card">
+        <dl class="ui-kv" style="grid-template-columns:260px 1fr">
+            <dt>Vagas no banner de destaque</dt>
+            <dd><?= (int) CARROSSEL_MAX ?></dd>
+            <dt>Selo "Nova"</dt>
+            <dd>até <?= (int) DIAS_VAGA_NOVA ?> dias após a publicação</dd>
+            <dt>Selo "Encerra em breve"</dt>
+            <dd>últimos <?= (int) DIAS_VAGA_VENCENDO ?> dias</dd>
+            <dt>Área nova vira filtro com</dt>
+            <dd><?= (int) AREA_MIN_VAGAS ?> vagas no ar (senão entra em "Outras")</dd>
+            <dt>"Recrutador ativo"</dt>
+            <dd>empresa que acessou nos últimos <?= (int) DIAS_RECRUTADOR_ATIVO ?> dias</dd>
+            <dt>Upload máximo</dt>
+            <dd><?= (int) UPLOAD_MAX_MB ?> MB</dd>
+        </dl>
+        <p class="ui-sub" style="margin:10px 0 0">Para alterar, edite <code class="ui-code">config.php</code>.</p>
+    </div>
+</section>
+<section class="ui-section">
+    <h2>Sistema</h2>
+    <div class="ui-card">
+        <dl class="ui-kv" style="grid-template-columns:260px 1fr">
+            <dt>PHP</dt>
+            <dd><?= e(PHP_VERSION) ?></dd>
+            <dt>Banco de dados</dt>
+            <dd><?= e(Database::driver()) ?></dd>
+            <dt>Migrations aplicadas</dt>
+            <dd><?= e(implode(', ', array_column(Database::all('SELECT nome FROM migracoes ORDER BY id'), 'nome')) ?: '-') ?>
+            </dd>
+            <dt>Links curtos de vaga (PRETTY_URLS)</dt>
+            <dd><?= env('PRETTY_URLS') && env('PRETTY_URLS') !== '0' ? 'ligado' : 'desligado' ?></dd>
+        </dl>
+    </div>
+</section>
+?>

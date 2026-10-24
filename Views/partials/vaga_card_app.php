@@ -1,6 +1,8 @@
 <?php
 /** Card de vaga na área logada. Espera $v e $ctx ('empresa'|'admin'); admin: $ret (rota de retorno das ações). */
-$ctx = $ctx ?? 'empresa'; $ret = $ret ?? 'admin-vagas'; $sit = $v['situacao'];
+$ctx = $ctx ?? 'empresa';
+$ret = $ret ?? 'admin-vagas';
+$sit = $v['situacao'];
 $ver = $ctx === 'admin' ? url('admin-vaga', ['id' => $v['id']]) : url('empresa-vaga', ['id' => $v['id']]);
 $cls = $sit === 'publicada' ? ($v['dias'] <= DIAS_VAGA_VENCENDO ? 'is-warn' : '') : 'is-off';
 ?>
