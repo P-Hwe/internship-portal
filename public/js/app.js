@@ -58,6 +58,7 @@
   function dialogo(o) {
     return new Promise(function (resolve) {
       if (!dlg || !dlg.showModal) {
+        // navegador sem <dialog>: cai no confirm/prompt nativo
         if (o.motivo) {
           var m = window.prompt(
             o.titulo + "\n\nInforme o motivo (mínimo 5 caracteres):",
@@ -316,6 +317,7 @@
     if (c.type === "email" && v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v))
       return erro(c, "E-mail inválido.");
     if (c.hasAttribute("data-url") && v) {
+      // domínio exigido: fixo (data-host) ou pela plataforma escolhida (data-host-from)
       var plat = c.dataset.hostFrom
         ? ($("[name=" + c.dataset.hostFrom + "]", c.form) || {}).value
         : "";
