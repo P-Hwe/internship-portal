@@ -76,9 +76,9 @@
   <?php if (!$vagas): echo Ui::vazio('Esta empresa ainda não enviou vagas');
   else: ?><div class="ui-grid">
       <?php foreach ($vagas as $v) {
-        $ctx = 'admin';
-        $ret = 'admin-empresa';
-        require __DIR__ . '/partials/vaga_card_app.php';
+          $ctx = 'admin';
+          $ret = 'admin-empresa';
+          require __DIR__ . '/partials/vaga_card_app.php';
       } ?>
     </div><?php endif; ?>
 </section>
