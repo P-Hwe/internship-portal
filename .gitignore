@@ -35,3 +35,10 @@ public/uploads/banners/*
 # Logs
 logs/
 *.log
+
+# Arquivos de teste e desenvolvimento (não para produção)
+tests/
+docs/
+seed/
+scripts/check-quality.sh
+scripts/fix-style.sh
