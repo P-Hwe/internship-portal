@@ -1,21 +1,20 @@
-# Configurações e dependências
-.env
+# Dependências e configurações de IDE
 /vendor/
-.idea/
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
 
 # Banco de dados em memória
-storage/database.sqlite
+/storage/database.sqlite
 
-# Arquivos de email
-storage/mail/*
-!storage/mail/.gitkeep
+# Arquivos de email e termos
+/storage/mail/*
+/storage/termos/*
 
-# Termos de uso
-storage/termos/*
-!storage/termos/.gitkeep
-
-# Uploads
-public/uploads/banners/*
+# Banners enviados
+/public/uploads/banners/*
 !public/uploads/banners/.htaccess
 !public/uploads/banners/vaa-0*.jpg
 !public/uploads/banners/vaga-01.jpg
@@ -26,16 +25,14 @@ public/uploads/banners/*
 !public/uploads/banners/vaga-06.jpg
 !public/uploads/banners/vaga-07.jpg
 
-# IDE e editores
-.vscode/
-*.swp
-*.swo
-*~
+# Logos e capas enviados
+/public/uploads/logos/*
+/public/uploads/capas/*
 
 # Logs
-logs/
+/logs/
 *.log
 
-# PHP CS Fixer configuration
+# PHP CS Fixer
 /.php-cs-fixer.cache
 /.php-cs-fixer.php
