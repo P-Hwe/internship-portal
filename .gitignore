@@ -43,6 +43,19 @@ public/uploads/capas/*
 /logs/
 *.log
 
-# PHP CS Fixer
-/.php-cs-fixer.cache
-/.php-cs-fixer.php
+# Arquivos de teste, QA e automação (hml e develop)
+/tests/
+/scripts/testar-email.php
+/public/uploads/teste/*
+/storage/mail/*
+/storage/termos/*
+
+# Arquivos de teste e desenvolvimento (não para produção)
+tests/
+docs/
+scripts/
+seed/
+scripts/check-quality.sh
+scripts/fix-style.sh
+
+
