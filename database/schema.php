@@ -1,15 +1,14 @@
 <?php
-
-function schema_sql(string $driver): array
+function schema_sql(): array
 {
-    $pk  = ['sqlite' => 'INTEGER PRIMARY KEY AUTOINCREMENT', 'mysql' => 'INT AUTO_INCREMENT PRIMARY KEY', 'pgsql' => 'SERIAL PRIMARY KEY'][$driver];
-    $dt  = $driver === 'pgsql' ? 'TIMESTAMP' : 'DATETIME';
-    $fim = $driver === 'mysql' ? ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci' : '';
+    $pk  = 'INT AUTO_INCREMENT PRIMARY KEY';
+    $dt  = 'DATETIME';
+    $fim = ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
     $t = [];
     $t[] = "CREATE TABLE IF NOT EXISTS migracoes (id $pk, nome VARCHAR(80) NOT NULL UNIQUE, aplicada_em $dt NOT NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS admins (
         id $pk, nome VARCHAR(100) NOT NULL, email VARCHAR(120) NOT NULL UNIQUE, senha_hash VARCHAR(255) NOT NULL,
-        papel VARCHAR(20) NOT NULL DEFAULT 'admin', ativo SMALLINT NOT NULL DEFAULT 1,
+        papel VARCHAR(20) NOT NULL DEFAULT 'admin', ativo SMALLINT NOT NULL DEFAULT 1, trocar_senha SMALLINT NOT NULL DEFAULT 0,
         criado_em $dt NOT NULL, ultimo_acesso $dt NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS empresas (
         id $pk, cnpj VARCHAR(14) NOT NULL UNIQUE, razao_social VARCHAR(150) NULL, nome VARCHAR(120) NOT NULL,
@@ -18,7 +17,7 @@ function schema_sql(string $driver): array
         cep VARCHAR(8) NULL, logradouro VARCHAR(120) NULL, numero VARCHAR(10) NULL, complemento VARCHAR(60) NULL, bairro VARCHAR(60) NULL, cidade VARCHAR(60) NULL, uf VARCHAR(2) NULL,
         responsavel VARCHAR(100) NOT NULL, cargo VARCHAR(60) NULL, telefone VARCHAR(20) NOT NULL, celular VARCHAR(20) NULL,
         email VARCHAR(120) NOT NULL UNIQUE, email_contato VARCHAR(120) NULL,
-        site VARCHAR(200) NULL, linkedin VARCHAR(200) NULL, link_principal VARCHAR(10) NOT NULL DEFAULT 'site', logo VARCHAR(200) NULL,
+        site VARCHAR(200) NULL, linkedin VARCHAR(200) NULL, link_principal VARCHAR(10) NOT NULL DEFAULT 'site', logo VARCHAR(200) NULL, banner VARCHAR(200) NULL,
         senha_hash VARCHAR(255) NOT NULL, termo_arquivo VARCHAR(80) NULL, termos_aceitos_em $dt NULL,
         status VARCHAR(12) NOT NULL DEFAULT 'pendente', motivo TEXT NULL, aprovacao_vista SMALLINT NOT NULL DEFAULT 0,
         criado_em $dt NOT NULL, avaliado_em $dt NULL, ultimo_acesso $dt NULL)$fim";
@@ -43,13 +42,14 @@ function schema_sql(string $driver): array
         ip VARCHAR(45) NULL, agente VARCHAR(160) NULL, criado_em $dt NOT NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS notificacoes (id $pk, tipo VARCHAR(12) NOT NULL, referencia_id INT NOT NULL, mensagem VARCHAR(200) NOT NULL, lida SMALLINT NOT NULL DEFAULT 0, criado_em $dt NOT NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS emails_log (id $pk, destinatario VARCHAR(120) NOT NULL, assunto VARCHAR(200) NOT NULL, status VARCHAR(10) NOT NULL, erro VARCHAR(255) NULL, criado_em $dt NOT NULL)$fim";
+    $t[] = "CREATE TABLE IF NOT EXISTS visitas (
+        id $pk, tipo VARCHAR(10) NOT NULL, ref_id INT NULL, visitante CHAR(24) NOT NULL, criado_em $dt NOT NULL)$fim";
+    $t[] = "CREATE TABLE IF NOT EXISTS senha_resets (id $pk, perfil VARCHAR(10) NOT NULL, usuario_id INT NOT NULL, token_hash CHAR(64) NOT NULL, codigo_hash CHAR(64) NOT NULL, expira_em $dt NOT NULL, usado_em $dt NULL, tentativas SMALLINT NOT NULL DEFAULT 0, criado_em $dt NOT NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS login_tentativas (id $pk, chave VARCHAR(64) NOT NULL, criado_em $dt NOT NULL)$fim";
     foreach ([
         'idx_vagas_status ON vagas (status, data_limite)', 'idx_vagas_empresa ON vagas (empresa_id)', 'idx_login_chave ON login_tentativas (chave)',
-        'idx_hist_ent ON historico (entidade, entidade_id)', 'idx_acessos_data ON acessos_log (criado_em)', 'idx_empresas_status ON empresas (status)',
-    ] as $ix) {
-        $t[] = "CREATE INDEX $ix";
-    }
+        'idx_hist_ent ON historico (entidade, entidade_id)', 'idx_visitas_data ON visitas (criado_em)', 'idx_senha_resets_token ON senha_resets (token_hash)', 'idx_senha_resets_conta ON senha_resets (perfil, usuario_id)', 'idx_visitas_ref ON visitas (tipo, ref_id, criado_em)', 'idx_acessos_data ON acessos_log (criado_em)', 'idx_empresas_status ON empresas (status)',
+    ] as $ix) $t[] = "CREATE INDEX $ix";
     return $t;
 }
 
@@ -94,38 +94,19 @@ function migrations(): array
 
 function migrar(): array
 {
-    $pdo = Database::pdo();
-    $driver = Database::driver();
-    $feitas = [];
+    $pdo = Database::pdo(); $feitas = [];
     $novo = !tabela_existe('empresas');
-    foreach (schema_sql($driver) as $sql) {
-        try {
-            $pdo->exec($sql);
-        } catch (PDOException $e) {
-            if (stripos($sql, 'CREATE INDEX') !== 0) {
-                throw $e;
-            }
-        }
+    foreach (schema_sql() as $sql) {
+        try { $pdo->exec($sql); } catch (PDOException $e) { if (stripos($sql, 'CREATE INDEX') !== 0) throw $e; }
     }
     $aplicadas = tabela_existe('migracoes') ? array_column(Database::all('SELECT nome FROM migracoes'), 'nome') : [];
     foreach (migrations() as $m) {
-        if (in_array($m['nome'], $aplicadas, true)) {
-            continue;
-        }
-        if (!$novo) {
-            ($m['up'])($pdo, $driver);
-            $feitas[] = $m['nome'];
-        }   // banco antigo: executa a migration
+        if (in_array($m['nome'], $aplicadas, true)) continue;
+        if (!$novo) { ($m['up'])($pdo); $feitas[] = $m['nome']; }   // banco antigo: executa a migration
         Database::insert('migracoes', ['nome' => $m['nome'], 'aplicada_em' => Database::agora()]);   // banco novo: esquema final já contempla
     }
-    // índices que dependem de colunas criadas por migrations
-    foreach (schema_sql($driver) as $sql) {
-        if (stripos($sql, 'CREATE INDEX') === 0) {
-            try {
-                $pdo->exec($sql);
-            } catch (PDOException $e) { /* já existe */
-            }
-        }
+    foreach (schema_sql() as $sql) {
+        if (stripos($sql, 'CREATE INDEX') === 0) { try { $pdo->exec($sql); } catch (PDOException $e) { /* já existe */ } }
     }
     foreach (AREAS_PADRAO as $a) {
         if (!Database::val('SELECT 1 FROM areas WHERE nome = :n', ['n' => $a])) {
@@ -142,13 +123,9 @@ function desfazer_ultima(): ?string
         return null;
     }
     foreach (migrations() as $m) {
-        if ($m['nome'] !== $u['nome']) {
-            continue;
-        }
-        if (empty($m['down'])) {
-            throw new RuntimeException("A migration {$m['nome']} não possui rollback.");
-        }
-        ($m['down'])(Database::pdo(), Database::driver());
+        if ($m['nome'] !== $u['nome']) continue;
+        if (empty($m['down'])) throw new RuntimeException("A migration {$m['nome']} não possui rollback.");
+        ($m['down'])(Database::pdo());
         Database::run('DELETE FROM migracoes WHERE id = :i', ['i' => $u['id']]);
         return $m['nome'];
     }
