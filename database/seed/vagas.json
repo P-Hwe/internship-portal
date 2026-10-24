@@ -1,0 +1,296 @@
+[
+  {
+    "id": 1,
+    "codigo": "VG-2026-001",
+    "empresa_id": 1,
+    "titulo": "Estágio em Desenvolvimento Web",
+    "area": "Tecnologia da Informação",
+    "modalidade": "Híbrido",
+    "local": "Guarulhos/SP",
+    "bolsa": "R$ 1.500,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Apoio ao time de produto no desenvolvimento de sistemas web em PHP e JavaScript.",
+    "descricao": "A TechNova busca estudante para integrar o time de desenvolvimento e aprender, na prática, o ciclo completo de um sistema web: do levantamento de requisitos à publicação.",
+    "atividades": [
+      "Desenvolver telas e componentes de interface",
+      "Corrigir bugs e escrever testes simples",
+      "Participar das cerimônias ágeis do time"
+    ],
+    "requisitos": [
+      "Cursando Análise e Desenvolvimento de Sistemas ou áreas afins",
+      "Noções de HTML, CSS, JavaScript e PHP",
+      "Vontade de aprender e trabalhar em equipe"
+    ],
+    "beneficios": [
+      "Vale-refeição",
+      "Vale-transporte",
+      "Recesso remunerado",
+      "Mentoria técnica"
+    ],
+    "data_publicacao": "2026-09-22",
+    "data_limite": "2026-12-15",
+    "contato": "rh@technova.example",
+    "imagem": "public/uploads/banners/vaga-01.jpg",
+    "destaque": true,
+    "status": "aprovada"
+  },
+  {
+    "id": 2,
+    "codigo": "VG-2026-002",
+    "empresa_id": 2,
+    "titulo": "Estágio em Logística",
+    "area": "Logística",
+    "modalidade": "Presencial",
+    "local": "Guarulhos/SP",
+    "bolsa": "R$ 1.350,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Acompanhamento de rotinas de expedição, estoque e indicadores no centro de distribuição.",
+    "descricao": "Oportunidade para conhecer a operação logística de um grande centro de distribuição próximo ao aeroporto, com foco em indicadores e melhoria de processos.",
+    "atividades": [
+      "Acompanhar recebimento e expedição",
+      "Atualizar planilhas de indicadores",
+      "Apoiar inventários e auditorias internas"
+    ],
+    "requisitos": [
+      "Cursando Logística, Administração ou Engenharia",
+      "Conhecimento intermediário em Excel",
+      "Disponibilidade para o período da manhã ou tarde"
+    ],
+    "beneficios": [
+      "Vale-refeição",
+      "Fretado",
+      "Seguro de vida"
+    ],
+    "data_publicacao": "2026-09-25",
+    "data_limite": "2026-11-30",
+    "contato": "estagio@alfalog.example",
+    "imagem": "public/uploads/banners/vaga-02.jpg",
+    "destaque": true,
+    "status": "aprovada"
+  },
+  {
+    "id": 3,
+    "codigo": "VG-2026-003",
+    "empresa_id": 3,
+    "titulo": "Estágio em Automação Industrial",
+    "area": "Engenharia",
+    "modalidade": "Presencial",
+    "local": "Guarulhos/SP",
+    "bolsa": "R$ 1.700,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Suporte à manutenção e programação de CLPs em linhas de produção.",
+    "descricao": "A MecPrime abre vaga para estudante de engenharia ou técnico em automação atuar junto à equipe de manutenção e projetos de melhoria contínua.",
+    "atividades": [
+      "Acompanhar manutenção preventiva",
+      "Auxiliar na programação de CLPs",
+      "Documentar diagramas e procedimentos"
+    ],
+    "requisitos": [
+      "Cursando Engenharia de Controle e Automação ou similar",
+      "Leitura de diagramas elétricos",
+      "Noções de CLP são um diferencial"
+    ],
+    "beneficios": [
+      "Vale-refeição",
+      "Assistência médica",
+      "Fretado"
+    ],
+    "data_publicacao": "2026-09-24",
+    "data_limite": "2026-12-05",
+    "contato": "talentos@mecprime.example",
+    "imagem": "public/uploads/banners/vaga-03.jpg",
+    "destaque": true,
+    "status": "aprovada"
+  },
+  {
+    "id": 4,
+    "codigo": "VG-2026-004",
+    "empresa_id": 4,
+    "titulo": "Estágio em Administração",
+    "area": "Administração",
+    "modalidade": "Presencial",
+    "local": "Guarulhos/SP",
+    "bolsa": "R$ 1.250,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Apoio às rotinas administrativas, financeiras e de atendimento ao cliente.",
+    "descricao": "Atuação nas rotinas do backoffice do grupo, com acompanhamento direto da gerência administrativa.",
+    "atividades": [
+      "Organizar documentos e arquivos",
+      "Apoiar contas a pagar e a receber",
+      "Atender clientes por telefone e e-mail"
+    ],
+    "requisitos": [
+      "Cursando Administração ou áreas afins",
+      "Boa comunicação escrita",
+      "Pacote Office"
+    ],
+    "beneficios": [
+      "Vale-refeição",
+      "Vale-transporte"
+    ],
+    "data_publicacao": "2026-09-15",
+    "data_limite": "2026-11-20",
+    "contato": "rh@belavista.example",
+    "imagem": null,
+    "destaque": false,
+    "status": "aprovada"
+  },
+  {
+    "id": 5,
+    "codigo": "VG-2026-005",
+    "empresa_id": 5,
+    "titulo": "Estágio em Análise de Dados",
+    "area": "Tecnologia da Informação",
+    "modalidade": "Remoto",
+    "local": "Remoto (reuniões pontuais em Guarulhos)",
+    "bolsa": "R$ 1.600,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Construção de painéis e análises de dados para clientes do varejo.",
+    "descricao": "A DataSul procura estudante curioso por dados para apoiar a construção de dashboards, rotinas de tratamento e relatórios analíticos.",
+    "atividades": [
+      "Tratar e validar bases de dados",
+      "Construir painéis de indicadores",
+      "Documentar regras de negócio"
+    ],
+    "requisitos": [
+      "Cursando ADS, Ciência da Computação ou Estatística",
+      "SQL básico",
+      "Conhecimento de Python é um diferencial"
+    ],
+    "beneficios": [
+      "Auxílio home office",
+      "Vale-refeição",
+      "Recesso remunerado"
+    ],
+    "data_publicacao": "2026-09-27",
+    "data_limite": "2026-12-20",
+    "contato": "carreiras@datasul.example",
+    "imagem": "public/uploads/banners/vaga-05.jpg",
+    "destaque": true,
+    "status": "aprovada"
+  },
+  {
+    "id": 6,
+    "codigo": "VG-2026-006",
+    "empresa_id": 6,
+    "titulo": "Estágio em Qualidade",
+    "area": "Qualidade",
+    "modalidade": "Presencial",
+    "local": "Aeroporto de Guarulhos",
+    "bolsa": "R$ 1.550,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Apoio aos processos de auditoria e controle de qualidade em serviços aeroportuários.",
+    "descricao": "Vaga para estudante interessado em processos, normas e melhoria contínua em operações aeroportuárias.",
+    "atividades": [
+      "Apoiar auditorias internas",
+      "Registrar não conformidades",
+      "Acompanhar planos de ação"
+    ],
+    "requisitos": [
+      "Cursando Engenharia, Administração ou Tecnólogo em Gestão",
+      "Organização e atenção a detalhes",
+      "Disponibilidade para horários alternados"
+    ],
+    "beneficios": [
+      "Vale-refeição",
+      "Vale-transporte",
+      "Seguro de vida"
+    ],
+    "data_publicacao": "2026-09-20",
+    "data_limite": "2026-11-15",
+    "contato": "estagio@aeroserv.example",
+    "imagem": "public/uploads/banners/vaga-06.jpg",
+    "destaque": false,
+    "status": "aprovada"
+  },
+  {
+    "id": 7,
+    "codigo": "VG-2026-007",
+    "empresa_id": 7,
+    "titulo": "Estágio em Suporte de TI",
+    "area": "Tecnologia da Informação",
+    "modalidade": "Presencial",
+    "local": "Guarulhos/SP",
+    "bolsa": "R$ 1.300,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Atendimento a usuários, manutenção de computadores e apoio à infraestrutura de rede.",
+    "descricao": "A Casa Lúmen precisa de apoio no suporte de TI de suas unidades de ensino, com foco em atendimento e manutenção de equipamentos.",
+    "atividades": [
+      "Atender chamados de usuários",
+      "Instalar e configurar computadores",
+      "Apoiar a rede das unidades"
+    ],
+    "requisitos": [
+      "Cursando ADS, Redes ou áreas afins",
+      "Noções de Windows e redes",
+      "Boa comunicação"
+    ],
+    "beneficios": [
+      "Vale-refeição",
+      "Vale-transporte"
+    ],
+    "data_publicacao": "2026-09-26",
+    "data_limite": "2027-01-10",
+    "contato": "ti@casalumen.example",
+    "imagem": "public/uploads/banners/vaga-07.jpg",
+    "destaque": false,
+    "status": "aprovada"
+  },
+  {
+    "id": 8,
+    "codigo": "VG-2026-008",
+    "empresa_id": 4,
+    "titulo": "Estágio em Marketing Digital",
+    "area": "Marketing",
+    "modalidade": "Híbrido",
+    "local": "Guarulhos/SP",
+    "bolsa": "R$ 1.300,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Criação de conteúdo e apoio às redes sociais do grupo.",
+    "descricao": "Vaga de exemplo já vencida: não aparece na página pública por causa da expiração automática.",
+    "atividades": [
+      "Criar posts",
+      "Acompanhar métricas"
+    ],
+    "requisitos": [
+      "Cursando Marketing ou Comunicação"
+    ],
+    "beneficios": [
+      "Vale-refeição"
+    ],
+    "data_publicacao": "2026-08-20",
+    "data_limite": "2026-09-20",
+    "contato": "rh@belavista.example",
+    "imagem": null,
+    "destaque": false,
+    "status": "aprovada"
+  },
+  {
+    "id": 9,
+    "codigo": "VG-2026-009",
+    "empresa_id": 5,
+    "titulo": "Estágio em Segurança da Informação",
+    "area": "Tecnologia da Informação",
+    "modalidade": "Remoto",
+    "local": "Remoto",
+    "bolsa": "R$ 1.650,00",
+    "carga_horaria": "6h/dia",
+    "resumo": "Vaga aguardando moderação da equipe do campus.",
+    "descricao": "Vaga de exemplo com status pendente: só aparece no painel do administrador até ser aprovada.",
+    "atividades": [
+      "Apoiar monitoramento de alertas"
+    ],
+    "requisitos": [
+      "Cursando ADS ou Redes"
+    ],
+    "beneficios": [
+      "Auxílio home office"
+    ],
+    "data_publicacao": "2026-09-28",
+    "data_limite": "2026-12-28",
+    "contato": "carreiras@datasul.example",
+    "imagem": null,
+    "destaque": false,
+    "status": "pendente"
+  }
+]
