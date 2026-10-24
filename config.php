@@ -2,32 +2,25 @@
 define('ROOT_PATH', __DIR__);
 (function () {
     $f = ROOT_PATH . '/.env';
-    if (!is_file($f)) {
-        return;
-    }
+    if (!is_file($f)) return;
     foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
-        if ($l[0] === '#' || strpos($l, '=') === false) {
-            continue;
-        }
+        if ($l[0] === '#' || strpos($l, '=') === false) continue;
         [$k, $v] = explode('=', $l, 2);
-        $_ENV[trim($k)] = trim($v, " \t\r\"'");   // \r: .env salvo no Windows (CRLF)
+        $_ENV[trim($k)] = trim($v, " \t\r\"'");
     }
 })();
-
 function app_env(): string
 {
     $v = strtolower(trim((string) env('APP_ENV', '')));
     if (in_array($v, ['dev', 'hml', 'prod'], true)) return $v;
-    $h = strtolower((string) ($_SERVER['HTTP_HOST'] ?? (parse_url((string) env('APP_URL', ''), PHP_URL_HOST) ?: 'prod.invalido')));   // sem navegador (cron/CLI): decide pelo APP_URL
+    $h = strtolower((string) ($_SERVER['HTTP_HOST'] ?? (parse_url((string) env('APP_URL', ''), PHP_URL_HOST) ?: 'prod.invalido')));
     return preg_match('/^(localhost|127\.|\[?::1)/', $h) ? 'dev' : 'prod';
 }
 
 function env(string $k, $padrao = null)
 {
     $v = getenv($k);
-    if ($v !== false && $v !== '') {
-        return $v;
-    }
+    if ($v !== false && $v !== '') return $v;
     return $_ENV[$k] ?? $padrao;
 }
 
@@ -47,7 +40,7 @@ define('SEGMENTOS', ['Tecnologia da Informação', 'Indústria', 'Comércio', 'S
 define('PORTES', ['MEI', 'Microempresa', 'Pequena empresa', 'Média empresa', 'Grande empresa']);
 define('TURNOS', ['manha' => 'Manhã', 'tarde' => 'Tarde', 'noite' => 'Noite', 'integral' => 'Integral', 'flexivel' => 'Horário flexível']);
 define('DIAS_SEMANA', ['seg' => 'Seg', 'ter' => 'Ter', 'qua' => 'Qua', 'qui' => 'Qui', 'sex' => 'Sex', 'sab' => 'Sáb']);
-define('POR_PAGINA', max(1, (int) env('POR_PAGINA', 12)));
+define('POR_PAGINA', max(1, (int) env('POR_PAGINA', 12)));   // 12 fecha linhas de 2, 3, 4 e 6 cards; use 16 se a sua tela sempre mostra 4 colunas
 define('UFS', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);
 
 date_default_timezone_set('America/Sao_Paulo');
@@ -70,7 +63,7 @@ if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function e(mixed $v): string
+function e($v): string
 {
     return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 }
@@ -85,6 +78,7 @@ function url(string $pagina = 'home', array $params = []): string
     return BASE_URL . ($params ? '?' . http_build_query($params) : '');
 }
 
+
 function origem_publica(): string
 {
     $u = parse_url((string) env('APP_URL', ''));
@@ -92,6 +86,7 @@ function origem_publica(): string
     $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     return ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 }
+
 function url_abs(string $pagina = 'home', array $params = []): string
 {
     return origem_publica() . url($pagina, $params);
@@ -118,25 +113,21 @@ function dinheiro($v): string
     return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.');
 }
 
+
 function parse_dinheiro(string $s): ?float
 {
     $s = trim(str_replace(['R$', ' '], '', $s));
-    if ($s === '') {
-        return null;
-    }
+    if ($s === '') return null;
     $s = str_contains($s, ',') ? str_replace(['.', ','], ['', '.'], $s) : $s;
     return is_numeric($s) && $s >= 0 ? round((float) $s, 2) : null;
 }
 
+
 function fone_fmt(string $d): string
 {
     $d = preg_replace('/\D/', '', $d);
-    if (strlen($d) === 11) {
-        return substr($d, 0, 2) . ' ' . substr($d, 2, 5) . '-' . substr($d, 7);
-    }
-    if (strlen($d) === 10) {
-        return substr($d, 0, 2) . ' ' . substr($d, 2, 4) . '-' . substr($d, 6);
-    }
+    if (strlen($d) === 11) return substr($d, 0, 2) . ' ' . substr($d, 2, 5) . '-' . substr($d, 7);
+    if (strlen($d) === 10) return substr($d, 0, 2) . ' ' . substr($d, 2, 4) . '-' . substr($d, 6);
     return $d;
 }
 
@@ -144,9 +135,7 @@ function resumo_da_descricao(string $desc, int $linhas = 3, int $max = 220): str
 {
     $partes = array_values(array_filter(array_map('trim', preg_split('/\R/u', $desc)), 'strlen'));
     $txt = implode(' ', array_slice($partes, 0, $linhas));
-    if (mb_strlen($txt) <= $max) {
-        return $txt;
-    }
+    if (mb_strlen($txt) <= $max) return $txt;
     $corte = mb_substr($txt, 0, $max);
     $esp = mb_strrpos($corte, ' ');
     return rtrim(mb_substr($corte, 0, $esp ?: $max), " ,.;:") . '…';
@@ -158,7 +147,7 @@ function vaga_imagem(array $v, string $classe = ''): string
     if (!empty($v['imagem'])) {
         return '<img class="' . e($classe) . '" src="' . e(BASE_URL . $v['imagem']) . '" alt="Banner da vaga ' . e($v['titulo']) . ' - ' . e($emp) . '" loading="lazy">';
     }
-    return '<div class="vg-fallback vg-fb-' . ((int) ($v['empresa_id'] ?? 0) % 6) . ' ' . e($classe) . '" role="img" aria-label="Vaga ' . e($v['titulo']) . ' - ' . e($emp) . '"><span>' . e(initials($emp)) . '</span><small>' . e($emp) . '</small></div>';
+    return '<div class="vg-fallback vg-fb-' . ((int) ($v['empresa_id'] ?? 0) % 6) . ' ' . e($classe) . '" role="img" aria-label="Vaga ' . e($v['titulo']) . ' - ' . e($emp) . '"><span>' . e(iniciais($emp)) . '</span><small>' . e($emp) . '</small></div>';
 }
 
 function url_upload(?string $p): ?string
@@ -177,6 +166,7 @@ function empresa_capa_attr(array $e): string
     $u = url_upload($e['banner'] ?? null);
     return $u ? ' has-img" style="--bn:url(\'' . e($u) . '\')' : '';
 }
+
 
 function saudacao(): string
 {
@@ -202,9 +192,7 @@ function iniciais(string $nome): string
 {
     $i = '';
     foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $p) {
-        if (preg_match('/./u', $p, $m)) {
-            $i .= mb_strtoupper($m[0]);
-        }
+        if (preg_match('/./u', $p, $m)) $i .= mb_strtoupper($m[0]);
     }
     return $i;
 }
@@ -278,6 +266,7 @@ function flash(string $tipo, string $msg): void
     $_SESSION['flash'][] = [$tipo, $msg];
 }
 
+
 function view(string $nome, array $dados = []): void
 {
     extract($dados, EXTR_SKIP);
@@ -307,7 +296,6 @@ function pagina_404(): void
     }
     view('erro_404', ['titulo' => 'Página não encontrada', 'modo' => 'publico', 'voltar' => null]);
 }
-
 function render(string $nome, array $dados, string $layout): void
 {
     extract($dados, EXTR_SKIP);
@@ -316,12 +304,12 @@ function render(string $nome, array $dados, string $layout): void
     $conteudo = ob_get_clean();
     require ROOT_PATH . "/Views/layouts/$layout.php";
 }
-
+/** URL pública da vaga (o QR Code do modo TV usa esta). PRETTY_URLS=1 exige o .htaccess (/vaga/123). */
 function url_vaga(int $id): string
 {
     return url('vaga', ['id' => $id]);
 }
-
+/** Campo oculto "p" dos formulários GET: só é preciso quando os links usam "?p=" (o GET descarta a query do action). */
 function campo_rota(string $pagina): string
 {
     return Rota::ativo() ? '' : '<input type="hidden" name="p" value="' . e($pagina) . '">';
@@ -330,13 +318,11 @@ function url_vaga_abs(int $id): string
 {
     return origem_publica() . url_vaga($id);
 }
-
+/** Trim em strings; mantém arrays de strings (checkboxes). */
 function limpar_post(array $p): array
 {
     $o = [];
-    foreach ($p as $k => $v) {
-        $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
-    }
+    foreach ($p as $k => $v) $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
     return $o;
 }
 function dias_txt(int $d): string

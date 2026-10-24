@@ -1,8 +1,6 @@
 <?php
-
 require_once __DIR__ . '/config.php';
 
-Auth::normalizar();
 Auth::normalizar();
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
@@ -10,7 +8,6 @@ header('Referrer-Policy: same-origin');
 
 // ?p=<rota> => [Controller, método]
 $rotas = [
-    // público
     'home'              => ['VagaController',          'index'],
     'vaga'              => ['VagaController',          'mostrar'],
     'encerradas'        => ['VagaController',          'encerradas'],
@@ -18,7 +15,7 @@ $rotas = [
     'empresas'          => ['ParceirasController',     'index'],
     'empresa'           => ['ParceirasController',     'perfil'],
     'externo'           => ['ParceirasController',     'externo'],
-    // autenticação e cadastro(layout independente)
+
     'empresa-login'     => ['AuthController',          'empresaLogin'],
     'admin-login'       => ['AuthController',          'adminLogin'],
     'sair'              => ['AuthController',          'sair'],
@@ -26,7 +23,7 @@ $rotas = [
     'senha-redefinir'   => ['AuthController',          'senhaRedefinir'],
     'empresa-cadastro'  => ['EmpresaController',       'cadastro'],
     'empresa-concluido' => ['EmpresaController',       'concluido'],
-    // área da empresa
+
     'painel'            => ['EmpresaAreaController',   'painel'],
     'empresa-vagas'     => ['EmpresaAreaController',   'vagas'],
     'empresa-vaga'      => ['EmpresaAreaController',   'vaga'],
@@ -35,7 +32,7 @@ $rotas = [
     'vaga-editar'       => ['EmpresaAreaController',   'formVaga'],
     'vaga-encerrar'     => ['EmpresaAreaController',   'encerrar'],
     'aviso-dispensar'   => ['EmpresaAreaController',   'dispensarAviso'],
-    // administração
+
     'admin'             => ['AdminController',         'painel'],
     'admin-vagas'       => ['AdminController',         'vagas'],
     'admin-vaga'        => ['AdminController',         'vaga'],
@@ -55,7 +52,6 @@ $rotas = [
 
 $pagina = $_GET['p'] ?? null;
 if ($pagina === null) {
-
     $r = Rota::resolver(Rota::caminhoAtual());
     if ($r) {
         $pagina = $r[0];
@@ -73,7 +69,6 @@ if (!is_string($pagina) || !isset($rotas[$pagina])) {
 }   // endereço que não existe: tela de 404
 
 try {
-    Bootstrap::garantir();
     Bootstrap::garantir();
     [$classe, $metodo] = $rotas[$pagina];
     (new $classe())->$metodo();
