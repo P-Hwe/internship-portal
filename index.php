@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/config.php';
 
 Auth::normalizar();
@@ -8,7 +9,7 @@ header('Referrer-Policy: same-origin');
 
 // ?p=<rota> => [Controller, método]
 $rotas = [
-    // público 
+    // público
     'home'              => ['VagaController',          'index'],
     'vaga'              => ['VagaController',          'mostrar'],
     'encerradas'        => ['VagaController',          'encerradas'],
@@ -16,7 +17,7 @@ $rotas = [
     'empresas'          => ['ParceirasController',     'index'],
     'empresa'           => ['ParceirasController',     'perfil'],
     'externo'           => ['ParceirasController',     'externo'],
-    // autenticação e cadastro 
+    // autenticação e cadastro
     'empresa-login'     => ['AuthController',          'empresaLogin'],
     'admin-login'       => ['AuthController',          'adminLogin'],
     'sair'              => ['AuthController',          'sair'],
@@ -48,8 +49,13 @@ $rotas = [
 ];
 
 $pagina = $_GET['p'] ?? 'home';
-if (isset($_GET['id']) && !is_scalar($_GET['id'])) { unset($_GET['id']); }
-if (!is_string($pagina) || !isset($rotas[$pagina])) { http_response_code(404); $pagina = 'home'; }
+if (isset($_GET['id']) && !is_scalar($_GET['id'])) {
+    unset($_GET['id']);
+}
+if (!is_string($pagina) || !isset($rotas[$pagina])) {
+    http_response_code(404);
+    $pagina = 'home';
+}
 
 try {
     Bootstrap::garantir();
