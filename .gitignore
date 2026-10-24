@@ -14,8 +14,6 @@ public/uploads/banners/*
 public/uploads/logos/*
 public/uploads/capas/*
 
-.env
-
 # Banco de dados em memória
 /storage/database.sqlite
 
