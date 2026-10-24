@@ -1,4 +1,5 @@
-<?php $modo = 'perfil'; $logoPrev = $old; ?>
+<?php $modo = 'perfil';
+$logoPrev = $old; ?>
 <div class="ui-grid-2" style="grid-template-columns:minmax(0,1fr) 300px;align-items:start">
   <div>
     <?php if ($emp['status'] === 'reprovada'): ?><div class="ui-alert ui-alert-danger"><div><strong>Cadastro não aprovado</strong><p>Motivo: <?= nl2br(e((string) $emp['motivo'])) ?> Corrija os dados abaixo, salve e reenvie para análise.</p></div></div><?php endif; ?>
