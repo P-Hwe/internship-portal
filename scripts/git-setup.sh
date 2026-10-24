@@ -1,4 +1,3 @@
-```bash
 #!/usr/bin/env bash
 # Cria a estrutura de branches do projeto. Uso: scripts/git-setup.sh   (dentro do repositório já iniciado)
 set -e
@@ -10,4 +9,3 @@ for b in architecture security database-company backend-core design-system notif
 done
 echo "Branches criadas:"; git branch --list
 echo "Proteja main e develop no GitHub/GitLab (PR + 1 aprovação + testes)."
-```
