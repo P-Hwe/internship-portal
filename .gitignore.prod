@@ -56,6 +56,31 @@ scripts/fix-style.sh
 scripts/seed-local.sh
 
 # ============================================
+# Scripts e ferramentas de Docker (NÃO em produção)
+# Usados apenas em dev/hml para testes locais
+# ============================================
+scripts/
+docker-compose.yml
+.env.docker
+
+# ============================================
+# Dados sensíveis e uploads
+# ============================================
+storage/mail/*
+storage/termos/*
+public/uploads/banners/*
+public/uploads/logos/*
+public/uploads/capas/*
+public/uploads/teste/*
+
+# Banco de dados em memória (NUNCA em produção)
+/storage/database.sqlite
+
+# Logs
+/logs/
+*.log
+
+# ============================================
 # Arquivos gerados automaticamente
 # ============================================
 *.pid
