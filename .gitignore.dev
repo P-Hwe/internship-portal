@@ -55,6 +55,13 @@ scripts/fix-style.sh
 scripts/seed-local.sh
 
 # ============================================
+# Scripts e ferramentas de Docker (permitidos em dev/hml)
+# Usados apenas para testes locais
+# ============================================
+# scripts/ já existe na branch feature/*
+# docker-compose.yml pode existir em dev/hml
+
+# ============================================
 # Arquivos gerados automaticamente
 # ============================================
 *.pid
