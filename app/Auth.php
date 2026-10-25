@@ -7,14 +7,21 @@ class Auth
     private static function ocioso(string $perfil): int
     {
         return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200);
-    }   // segundos sem atividade
-    private const ABSOLUTO = 43200;                                 // 12 h desde o login, mesmo com atividade
+    }
+    private const ABSOLUTO = 43200;
 
     public static function log(string $perfil, ?int $uid, ?string $email, string $evento): void
     {
         try {
-            Database::insert('acessos_log', ['perfil' => $perfil, 'usuario_id' => $uid, 'email' => $email ? mb_substr($email, 0, 120) : null, 'evento' => $evento,
-                'ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'cli'), 0, 45), 'agente' => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 160), 'criado_em' => Database::agora()]);
+            Database::insert('acessos_log', [
+                'perfil' => $perfil,
+                'usuario_id' => $uid,
+                'email' => $email ? mb_substr($email, 0, 120) : null,
+                'evento' => $evento,
+                'ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'cli'), 0, 45),
+                'agente' => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 160),
+                'criado_em' => Database::agora()
+            ]);
         } catch (Throwable $t) { /* log nunca derruba a requisição */
         }
     }
@@ -29,7 +36,7 @@ class Auth
         if (!$e || $e['status'] === Estado::E_BLOQUEADA) {
             unset($_SESSION['empresa_id']);
             return null;
-        }   // bloqueada no meio da sessão: cai na hora
+        }
         return $e;
     }
     public static function admin(): ?array

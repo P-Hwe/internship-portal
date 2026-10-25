@@ -1,21 +1,17 @@
 <?php
-// 🔒 PROTEÇÃO: Só roda em ambiente de desenvolvimento e localhost
 session_start();
 
 $env = getenv('APP_ENV') ?: $_SERVER['APP_ENV'] ?? 'prod';
 
-// Bloqueia em produção
 if ($env !== 'dev' && $env !== 'local') {
     die("❌ Este script de seed só pode ser executado em ambiente de desenvolvimento (APP_ENV=dev ou local).\n");
 }
 
-// 🔒 Só permite acesso de localhost
 $allowed_ips = ['127.0.0.1', '::1', 'localhost'];
 if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips)) {
     die("❌ Acesso não autorizado. Este script só funciona em localhost.\n");
 }
 
-// 🔒 Só via CLI ou com parâmetro ?force
 if (php_sapi_name() !== 'cli' && !isset($_GET['force'])) {
     die("❌ Este script deve ser executado via linha de comando ou com parâmetro ?force\n");
 }
@@ -71,7 +67,6 @@ try {
         }
     }
 
-    // List all tables
     $all_tables = $db->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     sort($all_tables);
 
@@ -86,7 +81,6 @@ try {
         echo "\n🎉 Banco de dados pronto!\n";
     }
 
-    // Registra as migrações no banco (para migrate.php saber quais rodar)
     try {
         $db->exec("INSERT INTO migracoes (nome, aplicada_em) VALUES
             ('001_endereco_estruturado', NOW()),
@@ -99,7 +93,6 @@ try {
     } catch (PDOException $e) {
         // Ignora se já existe
     }
-
 } catch (PDOException $e) {
     echo "\n❌ Erro ao criar tabelas: " . $e->getMessage() . "\n";
     exit(1);

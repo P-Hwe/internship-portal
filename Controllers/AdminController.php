@@ -1,6 +1,5 @@
 <?php
 
-/** Administração: cada ação é autorizada aqui no backend (Auth::exigirAdmin), nunca só escondendo botões. */
 class AdminController
 {
     private function pagina(string $view, array $dados, string $secao, string $titulo): void
@@ -17,8 +16,15 @@ class AdminController
     {
         Auth::exigirAdmin();
         $this->pagina('admin_dashboard', [
-            'emp' => Stats::empresas(), 'vag' => Vaga::contagens(), 'semanas' => Stats::porSemana(8), 'acessos' => Stats::acessosResumo(7), 'logins' => Stats::loginsPorDia(7),
-            'atividade' => Historico::recentes(8), 'empresasRecentes' => Stats::empresasRecentes(5), 'naoLidas' => Notificacao::naoLidas(), 'notifs' => Notificacao::recentes(6),
+            'emp' => Stats::empresas(),
+            'vag' => Vaga::contagens(),
+            'semanas' => Stats::porSemana(8),
+            'acessos' => Stats::acessosResumo(7),
+            'logins' => Stats::loginsPorDia(7),
+            'atividade' => Historico::recentes(8),
+            'empresasRecentes' => Stats::empresasRecentes(5),
+            'naoLidas' => Notificacao::naoLidas(),
+            'notifs' => Notificacao::recentes(6),
         ], 'dashboard', 'Dashboard');
     }
 
@@ -92,8 +98,15 @@ class AdminController
     {
         Auth::exigirAdmin();
         $this->pagina('admin_acesso', [
-            'resumo' => Stats::acessosResumo(7), 'resumo30' => Stats::acessosResumo(30), 'bloqueios' => Stats::bloqueiosAtivos(), 'contas' => Stats::contasRestritas(),
-            'ultAdmins' => Stats::ultimosAcessos('admin'), 'ultEmpresas' => Stats::ultimosAcessos('empresa'), 'suspeitos' => Stats::eventosRecentes(12, true), 'eventos' => Stats::eventosRecentes(15), 'logins' => Stats::loginsPorDia(7),
+            'resumo' => Stats::acessosResumo(7),
+            'resumo30' => Stats::acessosResumo(30),
+            'bloqueios' => Stats::bloqueiosAtivos(),
+            'contas' => Stats::contasRestritas(),
+            'ultAdmins' => Stats::ultimosAcessos('admin'),
+            'ultEmpresas' => Stats::ultimosAcessos('empresa'),
+            'suspeitos' => Stats::eventosRecentes(12, true),
+            'eventos' => Stats::eventosRecentes(15),
+            'logins' => Stats::loginsPorDia(7),
         ], 'acesso', 'Controle de acesso');
     }
 
@@ -130,7 +143,8 @@ class AdminController
         };
 
         switch ($tipo) {
-            case 'notificacoes': Notificacao::marcarLidas();
+            case 'notificacoes':
+                Notificacao::marcarLidas();
                 $voltar();
 
                 // no break
@@ -145,7 +159,6 @@ class AdminController
                 }
                 redirect('admin-config');
 
-                // no break
             case 'empresa':
                 $emp = Empresa::porId($id);
                 if (!$emp) {

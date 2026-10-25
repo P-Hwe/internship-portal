@@ -123,8 +123,6 @@ h3 {
 [hidden] {
   display: none !important;
 }
-
-/* ===== estrutura (empresa/admin) ===== */
 .app-shell {
   display: grid;
   grid-template-columns: var(--side) minmax(0, 1fr);
@@ -278,8 +276,6 @@ h3 {
 .app-scrim {
   display: none;
 }
-
-/* ===== entrada (login/cadastro) ===== */
 .auth-body {
   display: flex;
   flex-direction: column;
@@ -330,8 +326,6 @@ h3 {
   font-size: 14px;
   text-align: center;
 }
-
-/* ===== componentes ===== */
 .ui-btn {
   display: inline-flex;
   align-items: center;
@@ -487,7 +481,6 @@ h3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
-
 .ui-metrics {
   display: flex;
   flex-wrap: wrap;
@@ -542,7 +535,6 @@ a.ui-metric:hover .ui-metric-l {
 .ui-delta.is-down {
   color: var(--danger);
 }
-
 .ui-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -859,7 +851,6 @@ a.is-active .ui-count {
   background: var(--text);
   color: var(--bg);
 }
-
 .vg-fallback {
   display: flex;
   flex-direction: column;
@@ -901,7 +892,6 @@ a.is-active .ui-count {
 .vg-fb-5 {
   background: linear-gradient(135deg, #134e4a, #3bb3a7);
 }
-
 .ui-vcard {
   position: relative;
   display: flex;
@@ -1090,7 +1080,6 @@ a.is-active .ui-count {
 .ui-vcard-foot .ui-actions {
   gap: 6px;
 }
-
 .ui-ccard-media {
   position: relative;
   aspect-ratio: 2/1;
@@ -1108,7 +1097,7 @@ a.is-active .ui-count {
   position: relative;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* o banner inteiro aparece, sem corte */
+  object-fit: contain;
   display: block;
 }
 .ui-ccard-logo {
@@ -1145,7 +1134,6 @@ a.is-active .ui-count {
   color: var(--muted);
   font-size: 13.5px;
 }
-
 .ui-cover {
   position: relative;
   aspect-ratio: 3/1;
@@ -1183,7 +1171,6 @@ a.is-active .ui-count {
   border: 0;
   border-radius: 11px;
 }
-
 .ui-period-tabs {
   display: inline-flex;
   gap: 0;
@@ -1297,8 +1284,6 @@ a.is-active .ui-count {
   color: var(--muted);
   font-size: 12.5px;
 }
-
-/* formulários */
 .ui-form {
   max-width: 780px;
 }
@@ -1575,8 +1560,6 @@ a.is-active .ui-count {
   color: var(--primary);
   border-color: var(--primary);
 }
-
-/* stepper (cadastros em etapas) */
 .ui-stepper {
   display: none;
   list-style: none;
@@ -1722,7 +1705,6 @@ a.is-active .ui-count {
   margin: 0;
   word-break: break-word;
 }
-
 .ui-stepper.is-many li {
   flex: 0 0 auto;
 }
@@ -1735,7 +1717,6 @@ a.is-active .ui-count {
 .ui-stepper.is-many .is-current .t {
   display: inline;
 }
-
 .ui-modal {
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -1769,7 +1750,6 @@ a.is-active .ui-count {
 .ui-modal .ui-textarea {
   min-height: 90px;
 }
-
 .ui-chart {
   width: 100%;
   height: auto;
@@ -1883,7 +1863,6 @@ a.is-active .ui-count {
   border-radius: 5px;
   font-size: 13px;
 }
-
 @media (max-width: 980px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -1977,7 +1956,6 @@ a.is-active .ui-count {
 .ui-ledger li {
   align-items: baseline;
 }
-
 .ui-notif {
   display: flex;
   flex-direction: column;
@@ -2011,7 +1989,6 @@ a.is-active .ui-count {
   gap: 6px;
   align-items: center;
 }
-
 .ui-modal {
   width: min(440px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);

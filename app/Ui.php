@@ -1,6 +1,4 @@
 <?php
-
-/** Componentes de interface reutilizáveis (HTML escapado). Usados por empresa, admin e login. */
 class Ui
 {
     public static function badge(string $texto, string $tom = 'mute'): string
@@ -22,7 +20,7 @@ class Ui
         return '<div class="ui-empty"><strong>' . e($titulo) . '</strong>' . ($texto ? '<p>' . e($texto) . '</p>' : '')
             . ($acao ? '<a class="ui-btn ui-btn-primary" href="' . e($acao[1]) . '">' . e($acao[0]) . '</a>' : '') . '</div>';
     }
-    /** Abas por link (estado na URL). $abas = [chave => [rótulo, contagem|null]]. */
+
     public static function abas(array $abas, string $ativa, string $pagina, array $params = [], string $chave = 'aba'): string
     {
         $h = '<nav class="ui-tabs" aria-label="Filtrar por situação">';
@@ -56,7 +54,7 @@ class Ui
         }
         return '<span class="ui-logo ui-logo-ini" style="width:' . $px . 'px;height:' . $px . 'px" aria-hidden="true">' . e(iniciais($emp['nome'])) . '</span>';
     }
-    /** Botão que abre o modal de confirmação (o <form> carrega os textos em data-*). */
+
     public static function formConfirmar(string $acao, array $campos, string $botao, string $titulo, string $texto, string $tom = 'danger', string $classe = 'ui-btn ui-btn-sm'): string
     {
         $h = '<form method="post" action="' . e($acao) . '" data-confirm="' . e($texto) . '" data-confirm-title="' . e($titulo) . '" data-confirm-ok="' . e($botao) . '" data-confirm-tone="' . e($tom) . '">' . csrf_field();
@@ -65,7 +63,7 @@ class Ui
         }
         return $h . '<button class="' . e($classe) . '" type="submit">' . e($botao) . '</button></form>';
     }
-    /** Botão que abre o modal pedindo o motivo (rejeitar/bloquear). */
+
     public static function formMotivo(string $acao, array $campos, string $botao, string $titulo, string $classe = 'ui-btn ui-btn-sm ui-btn-danger-o'): string
     {
         $h = '<form method="post" action="' . e($acao) . '" data-motivo="' . e($titulo) . '" data-confirm-ok="' . e($botao) . '">' . csrf_field();
@@ -75,7 +73,6 @@ class Ui
         return $h . '<input type="hidden" name="motivo" value=""><button class="' . e($classe) . '" type="submit">' . e($botao) . '</button></form>';
     }
 
-    /** Campo de formulário padrão (label, controle, dica e erro). $o: name,label,type,req,hint,attrs[],opcoes[]|[valor=>rótulo],id */
     public static function campo(array $o, array $old = [], array $erros = []): string
     {
         $n = $o['name'];
@@ -112,7 +109,7 @@ class Ui
         return $h . '<small class="ui-err" data-err>' . e($err) . '</small></div>';
     }
 
-    /** Ações do administrador sobre uma vaga, conforme a situação (todas em modal; o backend revalida cada uma). */
+
     public static function acoesVagaAdmin(array $v, string $ret = 'admin-vagas', ?int $retId = null): string
     {
         $c = ['tipo' => 'vaga', 'id' => $v['id'], 'ret' => $ret] + ($retId ? ['ret_id' => $retId] : []);
@@ -129,7 +126,7 @@ class Ui
         }
         return $h . '</div>';
     }
-    /** Ações do administrador sobre uma empresa. */
+
     public static function acoesEmpresaAdmin(array $e, string $ret = 'admin-empresas', ?int $retId = null): string
     {
         $c = ['tipo' => 'empresa', 'id' => $e['id'], 'ret' => $ret] + ($retId ? ['ret_id' => $retId] : []);
@@ -146,7 +143,7 @@ class Ui
         return $h . '</div>';
     }
 
-    /** Rosca em SVG. $itens = [[rótulo, valor, 'var(--chart-1)']]. Sem dados: estado vazio (nada inventado). */
+
     public static function donut(array $itens, string $centro = ''): string
     {
         $total = array_sum(array_column($itens, 1));
@@ -160,7 +157,8 @@ class Ui
         foreach ($itens as [$rot, $v, $cor]) {
             if ($v <= 0) {
                 continue;
-            } $len = $v / $total * $c;
+            }
+            $len = $v / $total * $c;
             $arcos .= '<circle cx="60" cy="60" r="' . $r . '" fill="none" stroke="' . e($cor) . '" stroke-width="16" stroke-dasharray="' . round($len, 2) . ' ' . round($c - $len, 2) . '" stroke-dashoffset="' . round(-$off, 2) . '" transform="rotate(-90 60 60)"/>';
             $off += $len;
         }
@@ -171,7 +169,7 @@ class Ui
         return '<div class="ui-donut-wrap"><svg viewBox="0 0 120 120" width="150" height="150" role="img" aria-label="Gráfico de rosca: ' . e(implode(', ', array_map(fn($i) => $i[0] . ' ' . (int) $i[1], $itens))) . '">' . $arcos
             . '<text x="60" y="58" text-anchor="middle" style="font:700 20px system-ui;fill:var(--text)">' . (int) $total . '</text><text x="60" y="73" text-anchor="middle" style="font:11px system-ui;fill:var(--muted)">' . e($centro) . '</text></svg><ul>' . $li . '</ul></div>';
     }
-    /** Barras agrupadas em SVG. $linhas = [['rot'=>'01/10','a'=>2,'b'=>1]]; $series = [[chave, rótulo, cor]]. */
+
     public static function barras(array $linhas, array $series, string $descricao): string
     {
         $max = 0;
