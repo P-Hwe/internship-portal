@@ -1,15 +1,16 @@
 <?php
 
-use App\Database;
-
-/** @var Database $db */
-$db = Database::getInstance();
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../app/Database.php';
+require_once __DIR__ . '/../app/helpers.php';
+$db = Database::pdo();
 
 function migrar()
 {
     global $db;
 
     $migracoes = [
+        '000_tabelas_iniciais',
         '001_endereco_estruturado',
         '002_refinamento_empresas_vagas',
         '003_banner_empresa_e_visitas',
@@ -25,19 +26,8 @@ function migrar()
     }
 }
 
-if (!$db->pdo) {
-    echo "⚠️  Banco de dados não conectado. Configure o .env primeiro.\n";
-    echo "💡 Dica: Use SOLUÇÃO 1 para configurar MySQL/MariaDB local\n";
-    exit(1);
-}
-
 echo "✅ Banco de dados conectado!\n";
 echo "📦 Migrando...\n";
 
-try {
-    migrar();
-    echo "✅ Migrações concluídas!\n";
-} catch (Exception $e) {
-    echo "❌ Erro: " . $e->getMessage() . "\n";
-    exit(1);
-}
+migrar();
+echo "✅ Migrações concluídas!\n";
