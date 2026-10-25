@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/schema.php';
 $cmd = $argv[1] ?? 'up';
 if ($cmd === 'status') {
