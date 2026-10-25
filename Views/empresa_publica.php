@@ -19,7 +19,8 @@ $ext = Empresa::linkExterno($e); ?>
             <h2>Sobre a empresa</h2>
             <p><?= nl2br(e($e['descricao'])) ?></p>
         </section><?php endif; ?>
-    <dl class="vg-facts" style="margin-top:18px">
+    <?php require __DIR__ . '/../../public/css/empresa_publica.css'; ?>
+    <dl class="vg-facts">
         <div>
             <dt>Vagas abertas</dt>
             <dd><?= (int) $e['vagas_abertas'] ?></dd>
@@ -51,10 +52,10 @@ $ext = Empresa::linkExterno($e); ?>
     </div>
     <?php if (!$vagas): ?><p class="vg-empty">Nenhuma vaga aberta no momento.</p><?php else: ?><div class="vg-grid">
             <?php foreach ($vagas as $v) {
-                $trilho = false;
-                $chave = null;
-                require __DIR__ . '/partials/card_vaga.php';
-            } ?>
+                                                                                        $trilho = false;
+                                                                                        $chave = null;
+                                                                                        require __DIR__ . '/partials/card_vaga.php';
+                                                                                    } ?>
         </div><?php endif; ?>
 </section>
 <p><a class="vg-back" href="<?= url('empresas') ?>"><?= icon('arrow-left', 16) ?> Voltar para empresas parceiras</a></p>
