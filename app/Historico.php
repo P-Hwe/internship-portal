@@ -2,7 +2,6 @@
 
 class Historico
 {
-    /** Registra uma ação no histórico da entidade. */
     public static function registrar(string $entidade, int $id, string $acao, ?string $de, ?string $para, string $atorTipo, ?int $atorId, ?string $detalhe = null): void
     {
         Database::insert(
@@ -21,7 +20,6 @@ class Historico
         );
     }
 
-    /** Retorna as últimas ações da entidade. */
     public static function da(string $entidade, int $id, int $n = 30): array
     {
         return Database::all(
@@ -30,7 +28,6 @@ class Historico
         );
     }
 
-    /** Retorna as últimas ações de todas as entidades. */
     public static function recentes(int $n = 10): array
     {
         return Database::all(
@@ -42,7 +39,6 @@ class Historico
         );
     }
 
-    /** Ator atual da requisição, no formato [tipo, id]. */
     public static function ator(): array
     {
         if (!empty($_SESSION['admin_id'])) {
@@ -72,7 +68,6 @@ class Historico
         'expirada' => 'Prazo encerrado',
     ];
 
-    /** Retorna o rótulo da ação. */
     public static function rotulo(array $h): string
     {
         return self::ROT[$h['acao']] ?? $h['acao'];
