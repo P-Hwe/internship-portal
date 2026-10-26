@@ -3,11 +3,13 @@ Options -Indexes
 DirectoryIndex index.php
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # URL curta da vaga (usada no QR Code do modo TV quando PRETTY_URLS=1)
-  RewriteRule ^vaga/([0-9]+)/?$ index.php?p=vaga&id=$1 [L,QSA]
   RewriteRule ^(app|Controllers|Models|Views|database|cron|storage|tests|docs)(/|$) - [F,L]
+  # URLs limpas (/tv, /admin/login, /vaga/12): tudo que não é arquivo/pasta vai para o index.php, que descobre a página (veja app/Rota.php)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L,QSA]
 </IfModule>
-<FilesMatch "^(\.env.*|\.git.*|.*\.sqlite|.*\.sql|README\.md|router\.php)$">
+<FilesMatch "^(\.env.*|\.git.*|.*\.sql|README\.md|router\.php)$">
   Require all denied
 </FilesMatch>
 <IfModule mod_headers.c>
