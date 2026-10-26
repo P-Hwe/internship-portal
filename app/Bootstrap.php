@@ -6,6 +6,7 @@ class Bootstrap
     {
         $pdo = Database::pdo();
         require_once ROOT_PATH . '/database/schema.php';
+
         $precisa = true;
         try {
             $pdo->query('SELECT 1 FROM migracoes WHERE 1 = 0');
@@ -22,7 +23,7 @@ class Bootstrap
             $senha = (string) env('ADMIN_PASSWORD', '');
             if (strlen($senha) >= 8) {
                 Database::insert('admins', ['nome' => 'Coordenação', 'email' => mb_strtolower((string) env('ADMIN_EMAIL', 'admin@ifsp.local')),
-                    'senha_hash' => Auth::hash($senha), 'criado_em' => Database::agora()]);
+                    'senha_hash' => Auth::hash($senha), 'papel' => 'raiz', 'criado_em' => Database::agora()]);
             }
         }
     }
@@ -30,15 +31,9 @@ class Bootstrap
     public static function dica(Throwable $t): string
     {
         $m = $t->getMessage();
-        if ($t instanceof PDOException || str_contains($m, 'could not find driver')) {
-            if (str_contains($m, 'could not find driver')) {
-                return 'Falta a extensão PDO do banco no PHP (pdo_sqlite, pdo_mysql ou pdo_pgsql). No cPanel: "Select PHP Version" > Extensions.';
-            }
-            if (str_contains($m, 'unable to open database') || str_contains($m, 'readonly')) {
-                return 'Sem permissão de escrita na pasta storage/. Dê permissão 755/775 a storage/.';
-            }
-            return 'Não foi possível usar o banco de dados. Confira DB_* no arquivo .env.';
-        }
-        return '';
+        if ($t instanceof PDOException || str_contains($m, 'could not find driver')) return 'Falta a extensão PDO do banco no PHP (pdo_mysql). No cPanel: "Select PHP Version" > Extensions.';
+        if (str_contains($m, 'Access denied')) return 'O MySQL recusou o usuário ou a senha. Confira DB_USER e DB_PASS no arquivo .env.';
+        if (str_contains($m, 'Unknown database')) return 'O banco informado em DB_NAME não existe. Crie o banco no MySQL (ou no cPanel) e confira o .env.';
+        return 'Não foi possível usar o banco de dados. Confira DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASS no arquivo .env.';
     }
 }

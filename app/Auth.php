@@ -4,45 +4,31 @@ class Auth
 {
     private const MAX_TENTATIVAS = 5;
     private const JANELA_MIN = 15;
-    private static function ocioso(string $perfil): int
-    {
-        return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200);
-    }   // segundos sem atividade
-    private const ABSOLUTO = 43200;                                 // 12 h desde o login, mesmo com atividade
+    private static function ocioso(string $perfil): int { return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200); }
+    private const ABSOLUTO = 43200;
 
     public static function log(string $perfil, ?int $uid, ?string $email, string $evento): void
     {
         try {
             Database::insert('acessos_log', ['perfil' => $perfil, 'usuario_id' => $uid, 'email' => $email ? mb_substr($email, 0, 120) : null, 'evento' => $evento,
                 'ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'cli'), 0, 45), 'agente' => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 160), 'criado_em' => Database::agora()]);
-        } catch (Throwable $t) { /* log nunca derruba a requisição */
-        }
+        } catch (Throwable $t) {  }
     }
 
     public static function empresa(): ?array
     {
         $id = (int) ($_SESSION['empresa_id'] ?? 0);
-        if (!$id) {
-            return null;
-        }
+        if (!$id) { return null; }
         $e = Empresa::porId($id);
-        if (!$e || $e['status'] === Estado::E_BLOQUEADA) {
-            unset($_SESSION['empresa_id']);
-            return null;
-        }   // bloqueada no meio da sessão: cai na hora
+        if (!$e || $e['status'] === Estado::E_BLOQUEADA) { unset($_SESSION['empresa_id']); return null; }
         return $e;
     }
     public static function admin(): ?array
     {
         $id = (int) ($_SESSION['admin_id'] ?? 0);
-        if (!$id) {
-            return null;
-        }
+        if (!$id) { return null; }
         $a = Admin::porId($id);
-        if (!$a || !(int) $a['ativo']) {
-            unset($_SESSION['admin_id']);
-            return null;
-        }
+        if (!$a || !(int) $a['ativo']) { unset($_SESSION['admin_id']); return null; }
         return $a;
     }
     public static function perfil(): ?string
@@ -52,13 +38,9 @@ class Auth
 
     public static function normalizar(): void
     {
-        if (!empty($_SESSION['admin_id']) && !empty($_SESSION['empresa_id'])) {
-            unset($_SESSION['empresa_id']);
-        }
+        if (!empty($_SESSION['admin_id']) && !empty($_SESSION['empresa_id'])) { unset($_SESSION['empresa_id']); }
         $perfil = !empty($_SESSION['admin_id']) ? 'admin' : (!empty($_SESSION['empresa_id']) ? 'empresa' : null);
-        if (!$perfil) {
-            return;
-        }
+        if (!$perfil) { return; }
         $agora = time();
         $ult = (int) ($_SESSION['_ultima'] ?? $agora);
         $ini = (int) ($_SESSION['_inicio'] ?? $agora);
@@ -94,14 +76,12 @@ class Auth
         }
         return $e;
     }
-    public static function exigirAdmin(): array
+    public static function exigirAdmin(bool $paginaDeTroca = false): array
     {
         self::bloquearSeOutroPerfil('admin');
         $a = self::admin();
-        if (!$a) {
-            flash('info', 'Acesso restrito à Coordenação/Secretaria.');
-            redirect('admin-login');
-        }
+        if (!$a) { flash('info', 'Acesso restrito à Coordenação/Secretaria.'); redirect('admin-login'); }
+        if ((int) ($a['trocar_senha'] ?? 0) && !$paginaDeTroca) redirect('admin-senha');
         return $a;
     }
     public static function recusar(string $motivo = 'recurso'): void
@@ -117,9 +97,7 @@ class Auth
     public static function entrar(string $perfil, string $email, string $senha): array
     {
         $atual = self::perfil();
-        if ($atual && $atual !== $perfil) {
-            return [null, 'Já existe um login ativo como ' . ($atual === 'admin' ? 'administrador' : 'empresa') . '. Saia primeiro.'];
-        }
+        if ($atual && $atual !== $perfil) { return [null, 'Já existe um login ativo como ' . ($atual === 'admin' ? 'administrador' : 'empresa') . '. Saia primeiro.']; }
         $email = mb_strtolower(trim($email));
         $chave = hash('sha256', $perfil . '|' . $email . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'cli'));
         if (self::tentativas($chave) >= self::MAX_TENTATIVAS) {
@@ -127,7 +105,7 @@ class Auth
             return [null, 'Muitas tentativas. Aguarde ' . self::JANELA_MIN . ' minutos e tente de novo.'];
         }
         $u = $perfil === 'admin' ? Admin::porEmail($email) : Empresa::porEmail($email);
-        $hash = $u['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';   // tempo constante
+        $hash = $u['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';
         if (!$u || !password_verify($senha, $hash)) {
             Database::insert('login_tentativas', ['chave' => $chave, 'criado_em' => Database::agora()]);
             self::log($perfil, $u ? (int) $u['id'] : null, $email, 'login_falha');
@@ -148,6 +126,7 @@ class Auth
         $_SESSION[$perfil === 'admin' ? 'admin_id' : 'empresa_id'] = (int) $u['id'];
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
         Database::update($perfil === 'admin' ? 'admins' : 'empresas', (int) $u['id'], ['ultimo_acesso' => Database::agora()]);
+
         if ($perfil === 'empresa' && $u['status'] === Estado::E_APROVADA && !(int) $u['aprovacao_vista'] && $anterior && $u['avaliado_em'] && $anterior >= $u['avaliado_em']) {
             Database::update('empresas', (int) $u['id'], ['aprovacao_vista' => 1]);
         }
@@ -175,8 +154,6 @@ class Auth
         $desde = date('Y-m-d H:i:s', time() - self::JANELA_MIN * 60);
         return (int) Database::val('SELECT COUNT(*) FROM login_tentativas WHERE chave = :c AND criado_em >= :d', ['c' => $chave, 'd' => $desde]);
     }
-    public static function hash(string $senha): string
-    {
-        return password_hash($senha, PASSWORD_DEFAULT);
-    }
+
+    public static function hash(string $senha): string { return password_hash($senha, PASSWORD_DEFAULT); }
 }
