@@ -1,11 +1,11 @@
 <?php
+
 class Auth
 {
     private const MAX_TENTATIVAS = 5;
     private const JANELA_MIN = 15;
-    private static function ocioso(string $perfil): int { return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200); }   // segundos sem atividade
+    private static function ocioso(string $perfil): int { return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200); }
     private const ABSOLUTO = 43200;
-
     public static function log(string $perfil, ?int $uid, ?string $email, string $evento): void
     {
         try {
@@ -19,7 +19,7 @@ class Auth
         $id = (int) ($_SESSION['empresa_id'] ?? 0);
         if (!$id) return null;
         $e = Empresa::porId($id);
-        if (!$e || $e['status'] === Estado::E_BLOQUEADA) { unset($_SESSION['empresa_id']); return null; }
+        if (!$e || $e['status'] === Estado::E_BLOQUEADA) { unset($_SESSION['empresa_id']); return null; }   // bloqueada no meio da sessão: cai na hora
         return $e;
     }
     public static function admin(): ?array
@@ -110,6 +110,7 @@ class Auth
         $_SESSION[$perfil === 'admin' ? 'admin_id' : 'empresa_id'] = (int) $u['id'];
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
         Database::update($perfil === 'admin' ? 'admins' : 'empresas', (int) $u['id'], ['ultimo_acesso' => Database::agora()]);
+
         if ($perfil === 'empresa' && $u['status'] === Estado::E_APROVADA && !(int) $u['aprovacao_vista'] && $anterior && $u['avaliado_em'] && $anterior >= $u['avaliado_em']) {
             Database::update('empresas', (int) $u['id'], ['aprovacao_vista' => 1]);
         }
