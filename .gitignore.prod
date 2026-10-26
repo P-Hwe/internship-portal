@@ -1,0 +1,95 @@
+# ============================================
+# .gitignore.prod - Para ambiente de PRODUÇÃO
+# Copie para .gitignore em deploy de produção
+# ============================================
+
+# ============================================
+# Dependências e configurações de IDE
+# ============================================
+/vendor/
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# Configurações sensíveis (NUNCA commitar)
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# Dados sensíveis e uploads
+# ============================================
+storage/mail/*
+storage/termos/*
+public/uploads/banners/*
+public/uploads/logos/*
+public/uploads/capas/*
+public/uploads/teste/*
+
+# Banco de dados em memória (NUNCA em produção)
+/storage/database.sqlite
+
+# Logs
+/logs/
+*.log
+
+# ============================================
+# Arquivos de desenvolvimento e teste
+# (NÃO devem existir em produção)
+# ============================================
+tests/
+test/
+_docs/
+seed/
+
+# Scripts de seed e migração local (NÃO em produção)
+database/seed.php
+database/.htaccess
+database/README-SEED.md
+
+# Scripts de automação de desenvolvimento
+scripts/testar-email.php
+scripts/check-quality.sh
+scripts/fix-style.sh
+scripts/seed-local.sh
+
+# ============================================
+# Scripts e ferramentas de Docker (NÃO em produção)
+# Usados apenas em dev/hml para testes locais
+# ============================================
+scripts/
+docker-compose.yml
+.env.docker
+
+# ============================================
+# Dados sensíveis e uploads
+# ============================================
+storage/mail/*
+storage/termos/*
+public/uploads/banners/*
+public/uploads/logos/*
+public/uploads/capas/*
+public/uploads/teste/*
+
+# Banco de dados em memória (NUNCA em produção)
+/storage/database.sqlite
+
+# Logs
+/logs/
+*.log
+
+# ============================================
+# Arquivos gerados automaticamente
+# ============================================
+*.pid
+*.lock
+.cache/
+
+# ============================================
+# Arquivos temporários
+# ============================================
+*.tmp
+*.temp
+*.cache

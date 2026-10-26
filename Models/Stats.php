@@ -1,4 +1,5 @@
 <?php
+
 class Stats
 {
     public static function empresas(): array
@@ -10,11 +11,17 @@ class Stats
     public static function porSemana(int $n = 8): array
     {
         $ini = strtotime('monday this week') - ($n - 1) * 7 * 86400;
-        $b = []; for ($i = 0; $i < $n; $i++) $b[$i] = ['rot' => date('d/m', $ini + $i * 7 * 86400), 'empresas' => 0, 'vagas' => 0];
+        $b = [];
+        for ($i = 0; $i < $n; $i++) {
+            $b[$i] = ['rot' => date('d/m', $ini + $i * 7 * 86400), 'empresas' => 0, 'vagas' => 0];
+        }
         $desde = date('Y-m-d H:i:s', $ini);
         foreach (['empresas', 'vagas'] as $t) {
             foreach (Database::all("SELECT criado_em FROM $t WHERE criado_em >= :d", ['d' => $desde]) as $r) {
-                $i = (int) floor((strtotime($r['criado_em']) - $ini) / (7 * 86400)); if ($i >= 0 && $i < $n) $b[$i][$t]++;
+                $i = (int) floor((strtotime($r['criado_em']) - $ini) / (7 * 86400));
+                if ($i >= 0 && $i < $n) {
+                    $b[$i][$t]++;
+                }
             }
         }
         return $b;
@@ -37,7 +44,11 @@ class Stats
     public static function contasRestritas(): array
     {
         return ['empresas_bloqueadas' => (int) Database::val("SELECT COUNT(*) FROM empresas WHERE status = 'bloqueada'"), 'admins_inativos' => (int) Database::val('SELECT COUNT(*) FROM admins WHERE ativo = 0'),
-                'admins_ativos' => (int) Database::val('SELECT COUNT(*) FROM admins WHERE ativo = 1')];
+            'admins_ativos' => (int) Database::val('SELECT COUNT(*) FROM admins WHERE ativo = 1')];
+    }
+    public static function empresasRecentes(int $n = 5): array
+    {
+        return Database::all('SELECT id, nome, status, criado_em FROM empresas ORDER BY id DESC LIMIT ' . (int) $n);
     }
     public static function empresasRecentes(int $n = 5): array { return Database::all('SELECT id, nome, status, criado_em FROM empresas ORDER BY id DESC LIMIT ' . (int) $n); }
 }
