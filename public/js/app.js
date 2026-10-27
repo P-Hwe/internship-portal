@@ -441,6 +441,7 @@
     });
   });
 
+  /* ---------- ViaCEP ---------- */
   var cep = $("[data-viacep]");
   if (cep) {
     var st = $("[data-cep-status]"),
@@ -514,6 +515,7 @@
     cep.addEventListener("blur", busca);
   }
 
+  /* ---------- assistente em etapas (cadastro de empresa e de vaga) ---------- */
   var wiz = $("[data-wiz]");
   if (wiz) {
     wiz.classList.add("ui-wiz-on");
@@ -701,6 +703,7 @@
     ir(+wiz.dataset.start || 0, false);
   }
 
+  /* ---------- listas em "chips" (requisitos, benefícios) ---------- */
   $$("[data-chips]").forEach(function (w) {
     var ta = $("textarea", w),
       lista = $(".ui-chips", w),
@@ -792,6 +795,7 @@
     });
   });
 
+  /* ---------- campos condicionais e utilitários de formulário ---------- */
   $$("[data-when]").forEach(function (el) {
     // data-when="remuneracao_tipo=valor"
     var p = el.dataset.when.split("="),
@@ -879,6 +883,7 @@
   }
 })();
 
+/* ---------- Modais do "esqueci a senha" (<dialog>) ---------- */
 (function () {
   "use strict";
   function abrir(id) {
