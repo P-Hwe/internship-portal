@@ -1,5 +1,5 @@
 <?php
-/** Administração: cada ação é autorizada aqui no backend (Auth::exigirAdmin), nunca só escondendo botões. */
+
 class AdminController
 {
     private function pagina(string $view, array $dados, string $secao, string $titulo): void
@@ -12,13 +12,25 @@ class AdminController
         return [trim((string) ($_GET['q'] ?? '')), max(1, (int) ($_GET['pg'] ?? 1))];
     }
 
+    private function periodo(): string { return isset(Visitas::PERIODOS[$_GET['periodo'] ?? '']) ? $_GET['periodo'] : 'semana'; }
+
     public function painel(): void
     {
-        Auth::exigirAdmin();
+        $adm = Auth::exigirAdmin();
+        $emp = Stats::empresas(); $vag = Vaga::contagens();
+        $pend = (int) ($emp['pendente'] ?? 0) + (int) ($vag['aguardando'] ?? 0);
+        $lead = $pend ? 'Tem ' . (int) ($emp['pendente'] ?? 0) . ' empresa(s) e ' . (int) ($vag['aguardando'] ?? 0) . ' vaga(s) esperando a sua análise.' : 'Nada esperando análise por enquanto.';
         $this->pagina('admin_dashboard', [
-            'emp' => Stats::empresas(), 'vag' => Vaga::contagens(), 'semanas' => Stats::porSemana(8), 'acessos' => Stats::acessosResumo(7), 'logins' => Stats::loginsPorDia(7),
-            'atividade' => Historico::recentes(8), 'empresasRecentes' => Stats::empresasRecentes(5), 'naoLidas' => Notificacao::naoLidas(), 'notifs' => Notificacao::recentes(6),
-        ], 'dashboard', 'Dashboard');
+            'emp' => $emp, 'vag' => $vag, 'periodo' => $this->periodo(), 'resumo' => Visitas::resumo($this->periodo()), 'lead' => $lead, 'pend' => $pend,
+            'atividade' => Historico::recentes(10), 'empresasRecentes' => Stats::empresasRecentes(5), 'naoLidas' => Notificacao::naoLidas(), 'notifs' => Notificacao::recentes(8),
+        ], 'dashboard', saudacao() . ', ' . primeiro_nome($adm['nome']));
+    }
+
+    public function desempenho(): void
+    {
+        Auth::exigirAdmin();
+        $p = $this->periodo();
+        $this->pagina('admin_desempenho', ['periodo' => $p, 'resumo' => Visitas::resumo($p), 'vagasTop' => Visitas::rankingVagas($p, 10), 'empresasTop' => Visitas::rankingEmpresas($p, 10)], 'desempenho', 'Desempenho');
     }
 
     public function vagas(): void
@@ -39,7 +51,7 @@ class AdminController
         Auth::exigirAdmin();
         $v = Vaga::porId((int) ($_GET['id'] ?? 0));
         if (!$v) { http_response_code(404); render('erro', ['titulo' => 'Não encontrada', 'msg' => 'Vaga não encontrada.', 'area' => 'admin', 'secao' => 'vagas'], 'app'); return; }
-        $this->pagina('admin_vaga', ['v' => $v, 'hist' => Historico::da('vaga', (int) $v['id'])], 'vagas', $v['titulo']);
+        $this->pagina('admin_vaga', ['v' => $v, 'hist' => Historico::da('vaga', (int) $v['id']), 'desemp' => Visitas::detalhe('vaga', (int) $v['id'])], 'vagas', $v['titulo']);
     }
 
     public function empresas(): void
@@ -58,7 +70,7 @@ class AdminController
         Auth::exigirAdmin();
         $e = Empresa::comContagem((int) ($_GET['id'] ?? 0));
         if (!$e) { http_response_code(404); render('erro', ['titulo' => 'Não encontrada', 'msg' => 'Empresa não encontrada.', 'area' => 'admin', 'secao' => 'empresas'], 'app'); return; }
-        $this->pagina('admin_empresa', ['e' => $e, 'vagas' => Vaga::todasDaEmpresa((int) $e['id']), 'hist' => Historico::da('empresa', (int) $e['id'])], 'empresas', $e['nome']);
+        $this->pagina('admin_empresa', ['e' => $e, 'vagas' => Vaga::todasDaEmpresa((int) $e['id']), 'hist' => Historico::da('empresa', (int) $e['id']), 'desemp' => Visitas::detalhe('empresa', (int) $e['id'])], 'empresas', $e['nome']);
     }
 
     public function aprovacoes(): void
@@ -66,6 +78,54 @@ class AdminController
         Auth::exigirAdmin();
         [$vp] = Vaga::listar(null, 'aguardando', '', '', 'recentes', 1, 50);
         $this->pagina('admin_aprovacoes', ['empPend' => Empresa::pendentes(), 'vagasPend' => $vp], 'aprovacoes', 'Aprovações');
+    }
+
+    public function notificacao(): void
+    {
+        Auth::exigirAdmin();
+        $n = Notificacao::porId((int) ($_GET['id'] ?? 0));
+        if (!$n) { flash('erro', 'Notificação não encontrada.'); redirect('admin'); }
+        Notificacao::marcarLida((int) $n['id']);
+        [$pg, $par] = Notificacao::destino($n);
+        $existe = $n['tipo'] === 'vaga' ? Vaga::existe($par['id']) : (bool) Database::val('SELECT 1 FROM empresas WHERE id = :i', ['i' => $par['id']]);
+        if (!$existe) { flash('erro', 'Esta solicitação não existe mais.'); redirect('admin-aprovacoes'); }
+        redirect($pg, $par);
+    }
+
+    public function senha(): void
+    {
+        $adm = Auth::exigirAdmin(true);
+        $erro = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            $atual = (string) ($_POST['atual'] ?? ''); $nova = (string) ($_POST['nova'] ?? ''); $conf = (string) ($_POST['confirma'] ?? '');
+            if (!password_verify($atual, $adm['senha_hash'])) $erro = 'A senha atual (inicial) não confere.';
+            elseif (!EmpresaForm::senhaForte($nova)) $erro = 'A nova senha precisa ter 8 ou mais caracteres, com letras e números.';
+            elseif ($nova === $atual) $erro = 'A nova senha precisa ser diferente da senha inicial.';
+            elseif ($nova !== $conf) $erro = 'A confirmação não é igual à nova senha.';
+            else {
+                Admin::trocarSenha((int) $adm['id'], $nova);
+                flash('ok', 'Senha criada. Bem-vindo(a)!');
+                redirect('admin');
+            }
+        }
+        render('admin_senha', ['titulo' => 'Crie a sua senha', 'ambiente' => 'admin', 'erro' => $erro, 'forcada' => (bool) (int) $adm['trocar_senha'], 'adm' => $adm], 'auth');
+    }
+
+    public function atividade(): void
+    {
+        Auth::exigirAdmin();
+        $f = $_GET['filtro'] ?? 'tudo'; $dia = (string) ($_GET['desde'] ?? '');
+        $hoje = date('Y-m-d');
+        $ini = ['semana' => date('Y-m-d', strtotime('-6 days')), 'mes' => date('Y-m-d', strtotime('-29 days')), 'ano' => date('Y-m-d', strtotime('-364 days'))][$f] ?? null;
+        if ($f === 'dia') {
+            $d = DateTime::createFromFormat('Y-m-d', $dia);
+            if ($d && $d->format('Y-m-d') === $dia && $dia <= $hoje) $ini = $dia; else { $f = 'tudo'; $dia = ''; flash('erro', 'Escolha uma data válida (até hoje).'); }
+        } elseif (!in_array($f, ['tudo', 'semana', 'mes', 'ano'], true)) $f = 'tudo';
+        $pg = max(1, (int) ($_GET['pg'] ?? 1));
+        $total = Historico::contar($ini);
+        [$off, $pg, $paginas] = Paginador::calc($total, $pg, 30);
+        $this->pagina('admin_atividade', ['lista' => Historico::listar($ini, 30, $off), 'total' => $total, 'filtro' => $f, 'desde' => $dia, 'hoje' => $hoje, 'pg' => $pg, 'paginas' => $paginas, 'ini' => $ini], 'dashboard', 'Histórico de atividades');
     }
 
     public function usuarios(): void
@@ -96,7 +156,7 @@ class AdminController
         $this->pagina('admin_config', ['emails' => Mailer::recentes(8), 'mailModo' => Mailer::modo()], 'config', 'Configurações');
     }
 
-    private const RETORNOS = ['admin', 'admin-vagas', 'admin-vaga', 'admin-empresas', 'admin-empresa', 'admin-aprovacoes', 'admin-usuarios', 'admin-config'];
+    private const RETORNOS = ['admin', 'admin-vagas', 'admin-vaga', 'admin-empresas', 'admin-empresa', 'admin-aprovacoes', 'admin-usuarios', 'admin-atividade'];
 
     public function acao(): void
     {
@@ -112,13 +172,6 @@ class AdminController
 
         switch ($tipo) {
             case 'notificacoes': Notificacao::marcarLidas(); $voltar();
-
-            case 'email-teste':
-                $ok = Mailer::enviar($adm['email'], 'Teste de e-mail do sistema de vagas', Mailer::layout('Teste de e-mail', '<p>Se você está lendo isto, o envio de e-mails está funcionando.</p>'));
-                if (!$ok) flash('erro', 'Falha ao enviar: ' . (Mailer::$ultimoErro ?: 'erro desconhecido'));
-                elseif (Mailer::modo() === 'log') flash('info', 'Modo de teste (MAIL_DRIVER=log): nada foi enviado de verdade. A mensagem foi gravada em storage/mail. Configure SMTP no .env para receber na caixa de entrada.');
-                else flash('ok', 'E-mail de teste enviado para ' . $adm['email'] . '. Confira a caixa de entrada e o spam.');
-                redirect('admin-config');
 
             case 'empresa':
                 $emp = Empresa::porId($id);
@@ -146,17 +199,20 @@ class AdminController
                 break;
 
             case 'admin':
+                if (!Admin::ehRaiz($adm)) { flash('erro', 'Somente o administrador principal pode criar ou desativar administradores.'); $voltar(); }
                 if ($acao === 'criar') {
-                    $d = clean_post($_POST); $er = [];
+                    $d = limpar_post($_POST); $er = [];
                     if (mb_strlen($d['nome'] ?? '') < 3) $er['nome'] = 'Informe o nome.';
                     if (!filter_var($d['email'] ?? '', FILTER_VALIDATE_EMAIL)) $er['email'] = 'E-mail inválido.'; elseif (Admin::porEmail($d['email'])) $er['email'] = 'Já existe um administrador com este e-mail.';
                     if (!EmpresaForm::senhaForte($_POST['senha'] ?? '')) $er['senha'] = 'A senha precisa ter 8 ou mais caracteres, com letras e números.';
                     if ($er) { $_SESSION['erros_admin'] = $er; $_SESSION['old_admin'] = $d; $voltar(); }
                     $novo = Admin::criar($d['nome'], $d['email'], $_POST['senha']);
-                    Historico::registrar('admin', $novo, 'cadastro', null, null, $ator[0], $ator[1], $d['email']);
-                    flash('ok', 'Administrador criado.');
+                    Historico::registrar('admin', $novo, 'cadastro', null, null, $ator[0], $ator[1], $d['nome']);
+                    Notificador::adminCriado(Admin::porId($novo), $adm);
+                    flash('ok', 'Administrador criado. Ele foi avisado por e-mail e vai trocar a senha inicial no primeiro acesso.');
                 } elseif (in_array($acao, ['ativar', 'desativar'], true)) {
                     if ($id === (int) $adm['id']) { flash('erro', 'Você não pode desativar a própria conta.'); $voltar(); }
+                    if (Admin::ehRaiz(Admin::porId($id))) { flash('erro', 'A conta do administrador principal não pode ser desativada.'); $voltar(); }
                     if ($acao === 'desativar' && Stats::contasRestritas()['admins_ativos'] <= 1) { flash('erro', 'É preciso manter ao menos um administrador ativo.'); $voltar(); }
                     Admin::definirAtivo($id, $acao === 'ativar');
                     Historico::registrar('admin', $id, $acao === 'ativar' ? 'desbloqueada' : 'bloqueada', null, null, $ator[0], $ator[1]);
@@ -164,7 +220,7 @@ class AdminController
                 }
                 break;
         }
-        if (Mailer::$falhas > 0) flash('erro', 'A ação foi feita, mas o e-mail NÃO foi enviado: ' . (Mailer::$ultimoErro ?: 'erro desconhecido') . ' (veja Configurações > Diagnóstico de e-mail).');
+        if (Mailer::$falhas > 0) flash('erro', 'A ação foi feita, mas o e-mail NÃO foi enviado: ' . (Mailer::$ultimoErro ?: 'erro desconhecido') . ' (veja os logs de e-mail em storage/mail).');
         $voltar();
     }
 

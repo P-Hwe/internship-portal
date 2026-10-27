@@ -46,7 +46,8 @@ $sub = $ehAdmin ? 'Administração' : 'Área da empresa';
       <div class="app-user"><strong><?= e($pessoa) ?></strong><?= $ehAdmin ? e($adm['email'] ?? '') : e($emp['email'] ?? '') ?></div>
     </header>
     <main class="app-content" id="conteudo">
-      <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="ui-alert ui-alert-<?= e($t) ?>" role="status"><div><?= e($m) ?></div></div><?php endforeach; unset($_SESSION['flash']); ?>
+      <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="ui-alert ui-alert-<?= e($t) ?>" role="status"><div><?= e($m) ?></div></div><?php endforeach;
+unset($_SESSION['flash']); ?>
       <?= $conteudo ?>
     </main>
   </div>

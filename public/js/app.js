@@ -10,7 +10,6 @@
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- modo noturno (tokens: só troca data-theme) ---------- */
   function tema(t) {
     document.documentElement.setAttribute("data-theme", t);
     try {
@@ -35,7 +34,6 @@
   });
   tema(document.documentElement.getAttribute("data-theme") || "light");
 
-  /* ---------- menu lateral (mobile) ---------- */
   var side = $(".app-side"),
     scrim = $(".app-scrim");
   function menu(a) {
@@ -56,7 +54,6 @@
     if (e.key === "Escape") menu(false);
   });
 
-  /* ---------- modais de confirmação (no lugar do alert/confirm do navegador) ---------- */
   var dlg = $("#ui-dialog");
   function dialogo(o) {
     return new Promise(function (resolve) {
@@ -149,14 +146,12 @@
     true,
   );
 
-  /* ---------- fechar popovers ao clicar fora ---------- */
   document.addEventListener("click", function (e) {
     $$("details.ui-bell[open]").forEach(function (d) {
       if (!d.contains(e.target)) d.open = false;
     });
   });
 
-  /* ---------- copiar ---------- */
   $$("[data-copy]").forEach(function (b) {
     b.addEventListener("click", function () {
       var t = b.dataset.copy,
@@ -172,9 +167,7 @@
     });
   });
 
-  /* ---------- máscaras ---------- */
   function maskCnpj(v) {
-    // CNPJ alfanumérico (IN RFB 2.229/2024): 12 primeiros letras/números, 2 últimos dígitos
     v = v.replace(/[^0-9A-Za-z]/g, "").toUpperCase();
     var base = "";
     for (var k = 0; k < v.length && base.length < 14; k++) {
@@ -271,7 +264,6 @@
     return s.length >= 8 && /[A-Za-z]/.test(s) && /\d/.test(s);
   };
 
-  /* ---------- validação ---------- */
   function wrapErr(c) {
     var b = c.closest(".ui-field") || c.parentNode;
     return { box: b, err: b && b.querySelector("[data-err]") };

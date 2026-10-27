@@ -15,14 +15,14 @@
 <?php
 $ret = 'admin-vagas';
 $abas = [
-  'todas' => ['Todas', $cont['todas'] ?? 0],
-  'aguardando' => ['Aguardando aprovação', $cont['aguardando'] ?? 0],
-  'publicada' => ['Publicadas', $cont['publicada'] ?? 0],
-  'agendada' => ['Agendadas', $cont['agendada'] ?? 0],
-  'destaque' => ['Em destaque', $cont['destaque'] ?? 0],
-  'expirada' => ['Expiradas', $cont['expirada'] ?? 0],
-  'encerrada' => ['Encerradas', $cont['encerrada'] ?? 0],
-  'rejeitada' => ['Rejeitadas', $cont['rejeitada'] ?? 0]
+    'todas' => ['Todas', $cont['todas'] ?? 0],
+    'aguardando' => ['Aguardando aprovação', $cont['aguardando'] ?? 0],
+    'publicada' => ['Publicadas', $cont['publicada'] ?? 0],
+    'agendada' => ['Agendadas', $cont['agendada'] ?? 0],
+    'destaque' => ['Em destaque', $cont['destaque'] ?? 0],
+    'expirada' => ['Expiradas', $cont['expirada'] ?? 0],
+    'encerrada' => ['Encerradas', $cont['encerrada'] ?? 0],
+    'rejeitada' => ['Rejeitadas', $cont['rejeitada'] ?? 0],
 ];
 $pq = ['aba' => $aba, 'q' => $q, 'tipo' => $tipo, 'ord' => $ord, 'vista' => $vista];
 ?>
@@ -78,8 +78,8 @@ elseif ($vista === 'tabela'): ?><div class="ui-table-wrap">
   </div>
 <?php else: ?><div class="ui-grid">
     <?php foreach ($lista as $v) {
-      $ctx = 'admin';
-      require __DIR__ . '/partials/vaga_card_app.php';
+        $ctx = 'admin';
+        require __DIR__ . '/partials/vaga_card_app.php';
     } ?></div>
 <?php endif; ?>
 <?= Ui::paginacao($pg, $paginas, 'admin-vagas', $pq) ?>
