@@ -1,6 +1,4 @@
 <?php
-
-/** Central de avisos: e-mail + notificação dentro do painel do administrador. */
 class Notificador
 {
     private static function emailsAdmin(): array
@@ -22,14 +20,13 @@ class Notificador
         Database::insert('notificacoes', ['tipo' => $tipo, 'referencia_id' => $ref, 'mensagem' => $msg, 'lida' => 0, 'criado_em' => Database::agora()]);
     }
 
-    // ---- empresa ----
     public static function empresaCadastrada(array $emp): void
     {
         self::interna('empresa', (int) $emp['id'], 'Nova empresa para aprovar: ' . $emp['nome']);
         self::paraAdmins('Nova empresa aguardando aprovação: ' . $emp['nome'], Mailer::layout(
             'Nova empresa cadastrada',
             '<p>A empresa <strong>' . e($emp['nome']) . '</strong> (CNPJ ' . e(Cnpj::formatar($emp['cnpj'])) . ') pediu cadastro e aguarda análise.</p>'
-            . '<p>Responsável: ' . e($emp['responsavel']) . '<br>E-mail: ' . e($emp['email']) . '<br>Telefone: ' . e(fone_fmt($emp['telefone'])) . '</p>',
+                . '<p>Responsável: ' . e($emp['responsavel']) . '<br>E-mail: ' . e($emp['email']) . '<br>Telefone: ' . e(fone_fmt($emp['telefone'])) . '</p>',
             ['Analisar no painel', url_abs('admin-aprovacoes')],
         ));
         Mailer::enviar($emp['email'], 'Recebemos o cadastro da sua empresa', Mailer::layout(
@@ -44,7 +41,7 @@ class Notificador
             Mailer::enviar($emp['email'], 'Conta bloqueada', Mailer::layout(
                 'Conta bloqueada',
                 '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>O acesso da <strong>' . e($emp['nome']) . '</strong> foi bloqueado pela Coordenação e as vagas deixaram de aparecer no site.</p>'
-                . '<p><strong>Motivo:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Para esclarecimentos, fale com a Coordenação.</p>',
+                    . '<p><strong>Motivo:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Para esclarecimentos, fale com a Coordenação.</p>',
             ));
             return;
         }
@@ -61,7 +58,7 @@ class Notificador
             Mailer::enviar($emp['email'], 'Cadastro não aprovado', Mailer::layout(
                 'Cadastro não aprovado',
                 '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>O cadastro da <strong>' . e($emp['nome']) . '</strong> não foi aprovado.</p>'
-                . '<p><strong>Motivo informado pela Coordenação:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Você pode se cadastrar novamente com os dados corrigidos.</p>',
+                    . '<p><strong>Motivo informado pela Coordenação:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Você pode se cadastrar novamente com os dados corrigidos.</p>',
             ));
         }
     }
@@ -73,7 +70,7 @@ class Notificador
         self::paraAdmins('Nova vaga aguardando aprovação: ' . $vaga['titulo'], Mailer::layout(
             'Nova vaga enviada',
             '<p><strong>' . e($vaga['titulo']) . '</strong> · ' . e($vaga['tipo']) . ' · ' . e($vaga['area']) . '<br>Empresa: ' . e($emp['nome'])
-            . '<br>No ar de ' . data_br($vaga['data_publicacao']) . ' até ' . data_br($vaga['data_limite']) . '</p>',
+                . '<br>No ar de ' . data_br($vaga['data_publicacao']) . ' até ' . data_br($vaga['data_limite']) . '</p>',
             ['Analisar no painel', url_abs('admin-aprovacoes')],
         ));
         Mailer::enviar($emp['email'], 'Vaga recebida: ' . $vaga['titulo'], Mailer::layout(
@@ -82,7 +79,6 @@ class Notificador
         ));
     }
 
-    /** Empresa editou vaga já aprovada/rejeitada: volta para análise. */
     public static function vagaReenviada(array $vaga, array $emp): void
     {
         self::interna('vaga', (int) $vaga['id'], 'Vaga editada aguarda nova aprovação: ' . $vaga['titulo'] . ' (' . $emp['nome'] . ')');
@@ -105,7 +101,7 @@ class Notificador
             Mailer::enviar($emp['email'], 'Vaga aprovada: ' . $vaga['titulo'], Mailer::layout(
                 'Vaga aprovada',
                 '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> foi <strong>aprovada</strong> e ' . $quando . '.</p>'
-                . '<p>Ela ficará no ar <strong>até ' . data_br($vaga['data_limite']) . '</strong> e sai sozinha depois dessa data. Código da vaga: <strong>' . e($vaga['codigo']) . '</strong>.</p>',
+                    . '<p>Ela ficará no ar <strong>até ' . data_br($vaga['data_limite']) . '</strong> e sai sozinha depois dessa data. Código da vaga: <strong>' . e($vaga['codigo']) . '</strong>.</p>',
                 ['Ver vaga no site', url_abs('vaga', ['id' => $vaga['id']])],
             ));
         } else {

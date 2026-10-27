@@ -39,6 +39,7 @@ $sug = fn(array $l) => '<div class="ui-quick" data-quick aria-label="Sugestões"
 <?php if ($erros): ?><div class="ui-alert ui-alert-danger" role="alert">
         <div>Corrija os campos destacados e envie de novo.</div>
     </div><?php endif; ?>
+<?php require __DIR__ . '/../../public/css/vaga_form.css'; ?>
 <div class="ui-card">
     <form class="ui-form" method="post"
         action="<?= $edit ? url('vaga-editar', ['id' => $atual['id']]) : url('vaga-cadastro') ?>"
