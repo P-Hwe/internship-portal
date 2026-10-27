@@ -29,8 +29,8 @@ require __DIR__ . '/partials/nav.php'; ?>
     </div>
     <?php if (!$todas): ?><p class="vg-empty">Ainda não há empresas parceiras aprovadas.</p><?php else: ?>
         <div class="vg-grid"><?php foreach ($todas as $e) {
-            require __DIR__ . '/partials/card_empresa_publico.php';
-        } ?></div>
+                                                                                                require __DIR__ . '/partials/card_empresa_publico.php';
+                                                                                            } ?></div>
     <?php endif; ?>
 </section>
 </div>

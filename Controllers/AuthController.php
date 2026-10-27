@@ -55,7 +55,7 @@ class AuthController
         $perfil = ($_POST['perfil'] ?? '') === 'admin' ? 'admin' : 'empresa';
         if (Auth::perfil() === $perfil) {
             Auth::sair($perfil);
-        }   // só encerra o perfil que de fato está conectado
+        }
         flash('ok', 'Você saiu da conta.');
         redirect($perfil === 'admin' ? 'admin-login' : 'home');
     }

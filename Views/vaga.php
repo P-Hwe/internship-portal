@@ -66,7 +66,7 @@ $selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
         <?php if ($vaga['requisitos']): ?><section class="vg-block">
                 <h2>Requisitos</h2>
                 <ul><?php foreach ($vaga['requisitos'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-                <?php if ($vaga['requisitos_desejaveis']): ?><h2 style="margin-top:12px">Desejáveis</h2>
+                <?php if ($vaga['requisitos_desejaveis']): ?><h2>Desejáveis</h2>
                     <ul><?php foreach ($vaga['requisitos_desejaveis'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
                 <?php endif; ?>
             </section><?php endif; ?>
@@ -104,7 +104,7 @@ $selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
                             class="vg-btn vg-btn-ghost" href="<?= e($vaga[$k]) ?>" target="_blank"
                             rel="noopener noreferrer nofollow"><?= icon('external', 16) ?>
                             <?= $rot ?></a><?php endif;
-                endforeach; ?>
+                                    endforeach; ?>
             </div>
         </section>
     <?php endif; ?>
@@ -115,10 +115,10 @@ $selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
             <h2 id="vg-rel">Outras vagas</h2>
         </div>
         <div class="vg-grid"><?php foreach ($relacionadas as $v) {
-            $trilho = false;
-            $chave = null;
-            require __DIR__ . '/partials/card_vaga.php';
-        } ?></div>
+                                    $trilho = false;
+                                    $chave = null;
+                                    require __DIR__ . '/partials/card_vaga.php';
+                                } ?></div>
     </section><?php endif; ?>
 <p><a class="vg-back" href="<?= url() ?>"><?= icon('arrow-left', 16) ?> Voltar para todas as vagas</a></p>
 </div>
