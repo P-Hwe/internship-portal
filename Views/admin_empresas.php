@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var array $abas
  * @var string $aba
@@ -22,6 +23,8 @@
 </div>
 <p class="ui-sub"><?= (int) $total ?> empresa(s) encontrada(s).</p>
 <?php if (!$lista): echo Ui::vazio('Nenhuma empresa nesta categoria', $q ? 'Tente outro termo.' : '');
-else: ?><div class="ui-grid"><?php foreach ($lista as $e) require __DIR__ . '/partials/empresa_card_app.php'; ?></div>
+else: ?><div class="ui-grid"><?php foreach ($lista as $e) {
+                                require __DIR__ . '/partials/empresa_card_app.php';
+                              } ?></div>
   <?= Ui::paginacao($pg, $paginas, 'admin-empresas', ['aba' => $aba, 'q' => $q]) ?><?php endif; ?>
   ?>

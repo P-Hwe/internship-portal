@@ -1,24 +1,26 @@
 <?php
+
 /**
  * @var array $e
  * @var array $vagas
  */
 ?>
 <?php $ret = 'admin-empresa'; ?>
+<?php require __DIR__ . '/../../public/css/admin_empresa.css'; ?>
 <div class="ui-row-between">
   <div class="ui-actions"><a class="ui-btn ui-btn-sm"
       href="<?= url('admin-empresas') ?>"><?= icon('arrow-left', 15) ?> Empresas</a>
     <?= Ui::statusEmpresa($e['status']) ?></div><?= Ui::acoesEmpresaAdmin($e, 'admin-empresa', (int) $e['id']) ?>
 </div>
-<div class="ui-card" style="margin-bottom:16px">
-  <div class="ui-comp-head" style="gap:16px"><?= Ui::logo($e, 72) ?><div>
-      <h2 style="font-size:22px;margin:0 0 2px"><?= e($e['nome']) ?></h2>
-      <p class="ui-sub" style="margin:0">
+<div class="ui-card">
+  <div class="ui-comp-head"><?= Ui::logo($e, 72) ?><div>
+      <h2><?= e($e['nome']) ?></h2>
+      <p class="ui-sub">
         <?= e(Empresa::segmentoTxt($e)) ?><?= $e['porte'] ? ' · ' . e($e['porte']) : '' ?><?= $e['cidade'] ? ' · ' . e($e['cidade'] . '/' . $e['uf']) : '' ?>
       </p>
     </div>
   </div>
-  <?php if ($e['descricao']): ?><p style="margin:14px 0 0"><?= nl2br(e($e['descricao'])) ?></p><?php endif; ?>
+  <?php if ($e['descricao']): ?><p><?= nl2br(e($e['descricao'])) ?></p><?php endif; ?>
 </div>
 <?php if ($e['status'] === 'reprovada' || $e['status'] === 'bloqueada'): ?><div class="ui-alert ui-alert-danger">
     <div><strong><?= $e['status'] === 'bloqueada' ? 'Empresa bloqueada' : 'Cadastro reprovado' ?></strong>
