@@ -15,4 +15,4 @@ $empLog = $perfilAtual === 'empresa' ? Auth::empresa() : null; ?>
     <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="vg-flash vg-flash-<?= e($t) ?>" role="status">
             <?= icon($t === 'erro' ? 'info' : 'check', 18) ?> <span><?= e($m) ?></span></div>
     <?php endforeach;
-unset($_SESSION['flash']); ?>
+    unset($_SESSION['flash']); ?>

@@ -129,17 +129,7 @@
 
             <div class="">
                 <nav class="row  nav">
-                    <style type="text/css">
-                        .phocadownloadfile32 {
-                            background: url(http://portal.ifspguarulhos.edu.br/media/plg_content_phocadownload/images/icon-download-32.png) 5px 50% no-repeat transparent;
-                        }
-
-                        ul.nomarkerli {
-                            list-style: none inside;
-                            list-style-type: none;
-                            list-style-position: inside;
-                        }
-                    </style>
+                    <?php require __DIR__ . '/../../public/css/footer.css'; ?>
                 </nav>
             </div>
 
