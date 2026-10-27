@@ -1,0 +1,76 @@
+# ============================================
+# .gitignore.dev - Para ambiente de DESENVOLVIMENTO
+# Use em branches feature/hml para testes locais
+# ============================================
+
+# ============================================
+# Dependências e configurações de IDE
+# ============================================
+/vendor/
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# Configurações sensíveis
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# Dados sensíveis e uploads
+# ============================================
+storage/mail/*
+storage/termos/*
+public/uploads/banners/*
+public/uploads/logos/*
+public/uploads/capas/*
+public/uploads/teste/*
+
+# Banco de dados em memória (para dev)
+/storage/database.sqlite
+
+# Logs
+/logs/
+*.log
+
+# ============================================
+# Arquivos de teste e desenvolvimento
+# ============================================
+tests/
+test/
+_docs/
+seed/
+
+# Scripts de seed e migração local (permitidos em dev)
+database/seed.php
+database/.htaccess
+database/README-SEED.md
+
+# Scripts de automação de desenvolvimento
+scripts/testar-email.php
+scripts/check-quality.sh
+scripts/fix-style.sh
+scripts/seed-local.sh
+
+# ============================================
+# Scripts e ferramentas de Docker (permitidos em dev/hml)
+# Usados apenas para testes locais
+# ============================================
+# scripts/ já existe na branch feature/*
+# docker-compose.yml pode existir em dev/hml
+
+# ============================================
+# Arquivos gerados automaticamente
+# ============================================
+*.pid
+*.lock
+.cache/
+
+# ============================================
+# Arquivos temporários
+# ============================================
+*.tmp
+*.temp
+*.cache
