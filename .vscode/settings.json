@@ -3,6 +3,23 @@
   "php.suggest.basic": false,
   "php.validate.enable": false,
   "phptools.language.enabled": false,
+  // Reduzir warnings do Intelephense para código funcional mas com tipos flexíveis
+  "intelephense.diagnostics.uninitializedProperty": false,
+  "intelephense.diagnostics.undefinedArrayIndex": false,
+  "intelephense.diagnostics.missingReturnType": false,
+  "intelephense.diagnostics.untypedClassProperties": false,
+  "intelephense.diagnostics.untypedClassConstructor": false,
+  "intelephense.diagnostics.untypedMethodParameter": false,
+  "intelephense.diagnostics.untypedMethodProperty": false,
+  "intelephense.diagnostics.unusedVariable": false,
+  "intelephense.diagnostics.unusedFunctionParameter": false,
+  "intelephense.diagnostics.unreachableCode": false,
+  "intelephense.diagnostics.missingTypeForDefaultProperty": false,
+  "intelephense.diagnostics.propertyMustBeInitialized": false,
+  "intelephense.diagnostics.unusedExpression": false,
+  "intelephense.diagnostics.unusedLabel": false,
+  "intelephense.diagnostics.unusedNamespace": false,
+  "intelephense.diagnostics.unusedParameter": false,
   "[php]": {
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
     "editor.formatOnSave": true
