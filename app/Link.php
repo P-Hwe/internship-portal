@@ -2,7 +2,6 @@
 
 class Link
 {
-    /** Lista de plataformas de recrutamento com nomes formatados. */
     public const PLATAFORMAS = [
         'gupy' => 'Gupy',
         'linkedin' => 'LinkedIn',
@@ -11,7 +10,6 @@ class Link
         'outro' => 'Outro sistema',
     ];
 
-    /** Converte URL sem protocolo para URL completa. */
     public static function normalizar(?string $u): ?string
     {
         $u = trim((string) $u);
@@ -27,7 +25,6 @@ class Link
         return $u;
     }
 
-    /** Valida URL e plataforma de recrutamento. */
     public static function valido(?string $u, ?string $plataforma = null): bool
     {
         if ($u === null || $u === '' || strlen($u) > 250 || preg_match('/[\s<>"\']/', $u)) {
@@ -63,7 +60,6 @@ class Link
         return true;
     }
 
-    /** Extrai e normaliza o domínio de uma URL. */
     public static function dominio(string $u): string
     {
         return strtolower((string) parse_url($u, PHP_URL_HOST));
