@@ -64,7 +64,6 @@ class Estado
         return self::TOM[$s] ?? 'mute';
     }
 
-    /** Condição SQL equivalente a situacaoVaga(), para filtrar/contar no banco. @return array [sql, params] */
     public static function sqlSituacao(string $sit, string $v = 'v'): array
     {
         $h = ['hoje' => date('Y-m-d')];

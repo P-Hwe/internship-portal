@@ -6,7 +6,6 @@ class Csrf
     {
         return $_SESSION['_csrf'] ??= bin2hex(random_bytes(32)); // @phpstan-ignore return.type
     }
-    /** Exige token válido em todo POST. */
     public static function exigir(): void
     {
         $t = $_POST['_csrf'] ?? '';
