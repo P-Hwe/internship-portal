@@ -30,11 +30,11 @@ class Notificador
             'Nova empresa cadastrada',
             '<p>A empresa <strong>' . e($emp['nome']) . '</strong> (CNPJ ' . e(Cnpj::formatar($emp['cnpj'])) . ') pediu cadastro e aguarda análise.</p>'
             . '<p>Responsável: ' . e($emp['responsavel']) . '<br>E-mail: ' . e($emp['email']) . '<br>Telefone: ' . e(fone_fmt($emp['telefone'])) . '</p>',
-            ['Analisar no painel', url_abs('admin-aprovacoes')]
+            ['Analisar no painel', url_abs('admin-aprovacoes')],
         ));
         Mailer::enviar($emp['email'], 'Recebemos o cadastro da sua empresa', Mailer::layout(
             'Cadastro recebido',
-            '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>Recebemos o cadastro da <strong>' . e($emp['nome']) . '</strong>. A Coordenação vai analisar os dados e o termo de cooperação. Você receberá um e-mail com o resultado.</p>'
+            '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>Recebemos o cadastro da <strong>' . e($emp['nome']) . '</strong>. A Coordenação vai analisar os dados e o termo de cooperação. Você receberá um e-mail com o resultado.</p>',
         ));
     }
 
@@ -44,7 +44,7 @@ class Notificador
             Mailer::enviar($emp['email'], 'Conta bloqueada', Mailer::layout(
                 'Conta bloqueada',
                 '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>O acesso da <strong>' . e($emp['nome']) . '</strong> foi bloqueado pela Coordenação e as vagas deixaram de aparecer no site.</p>'
-                . '<p><strong>Motivo:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Para esclarecimentos, fale com a Coordenação.</p>'
+                . '<p><strong>Motivo:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Para esclarecimentos, fale com a Coordenação.</p>',
             ));
             return;
         }
@@ -55,13 +55,13 @@ class Notificador
             Mailer::enviar($emp['email'], 'Cadastro aprovado: sua empresa já pode publicar vagas', Mailer::layout(
                 'Cadastro aprovado',
                 '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>O cadastro da <strong>' . e($emp['nome']) . '</strong> foi <strong>aprovado</strong>. Entre na área da empresa para publicar suas vagas.</p>',
-                ['Acessar área da empresa', url_abs('empresa-login')]
+                ['Acessar área da empresa', url_abs('empresa-login')],
             ));
         } else {
             Mailer::enviar($emp['email'], 'Cadastro não aprovado', Mailer::layout(
                 'Cadastro não aprovado',
                 '<p>Olá, ' . e($emp['responsavel']) . '!</p><p>O cadastro da <strong>' . e($emp['nome']) . '</strong> não foi aprovado.</p>'
-                . '<p><strong>Motivo informado pela Coordenação:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Você pode se cadastrar novamente com os dados corrigidos.</p>'
+                . '<p><strong>Motivo informado pela Coordenação:</strong><br>' . nl2br(e((string) $emp['motivo'])) . '</p><p>Você pode se cadastrar novamente com os dados corrigidos.</p>',
             ));
         }
     }
@@ -74,11 +74,11 @@ class Notificador
             'Nova vaga enviada',
             '<p><strong>' . e($vaga['titulo']) . '</strong> · ' . e($vaga['tipo']) . ' · ' . e($vaga['area']) . '<br>Empresa: ' . e($emp['nome'])
             . '<br>No ar de ' . data_br($vaga['data_publicacao']) . ' até ' . data_br($vaga['data_limite']) . '</p>',
-            ['Analisar no painel', url_abs('admin-aprovacoes')]
+            ['Analisar no painel', url_abs('admin-aprovacoes')],
         ));
         Mailer::enviar($emp['email'], 'Vaga recebida: ' . $vaga['titulo'], Mailer::layout(
             'Vaga enviada para análise',
-            '<p>Recebemos a vaga <strong>' . e($vaga['titulo']) . '</strong> (código ' . e($vaga['codigo']) . '). Assim que a Coordenação aprovar, avisaremos por e-mail com as datas em que ela ficará no ar.</p>'
+            '<p>Recebemos a vaga <strong>' . e($vaga['titulo']) . '</strong> (código ' . e($vaga['codigo']) . '). Assim que a Coordenação aprovar, avisaremos por e-mail com as datas em que ela ficará no ar.</p>',
         ));
     }
 
@@ -89,11 +89,11 @@ class Notificador
         self::paraAdmins('Vaga editada aguarda nova aprovação: ' . $vaga['titulo'], Mailer::layout(
             'Vaga editada',
             '<p>A empresa <strong>' . e($emp['nome']) . '</strong> alterou a vaga <strong>' . e($vaga['titulo']) . '</strong> (' . e($vaga['codigo']) . '). Ela saiu do ar e precisa de nova aprovação.</p>',
-            ['Analisar no painel', url_abs('admin-aprovacoes')]
+            ['Analisar no painel', url_abs('admin-aprovacoes')],
         ));
         Mailer::enviar($emp['email'], 'Vaga em nova análise: ' . $vaga['titulo'], Mailer::layout(
             'Vaga em nova análise',
-            '<p>As alterações na vaga <strong>' . e($vaga['titulo']) . '</strong> foram recebidas. Ela só volta ao ar depois de aprovada pela Coordenação.</p>'
+            '<p>As alterações na vaga <strong>' . e($vaga['titulo']) . '</strong> foram recebidas. Ela só volta ao ar depois de aprovada pela Coordenação.</p>',
         ));
     }
 
@@ -106,12 +106,12 @@ class Notificador
                 'Vaga aprovada',
                 '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> foi <strong>aprovada</strong> e ' . $quando . '.</p>'
                 . '<p>Ela ficará no ar <strong>até ' . data_br($vaga['data_limite']) . '</strong> e sai sozinha depois dessa data. Código da vaga: <strong>' . e($vaga['codigo']) . '</strong>.</p>',
-                ['Ver vaga no site', url_abs('vaga', ['id' => $vaga['id']])]
+                ['Ver vaga no site', url_abs('vaga', ['id' => $vaga['id']])],
             ));
         } else {
             Mailer::enviar($emp['email'], 'Vaga não aprovada: ' . $vaga['titulo'], Mailer::layout(
                 'Vaga não aprovada',
-                '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> não foi aprovada.</p><p><strong>Motivo:</strong><br>' . nl2br(e((string) $vaga['motivo'])) . '</p><p>Você pode corrigir e publicar novamente.</p>'
+                '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> não foi aprovada.</p><p><strong>Motivo:</strong><br>' . nl2br(e((string) $vaga['motivo'])) . '</p><p>Você pode corrigir e publicar novamente.</p>',
             ));
         }
     }
@@ -121,7 +121,7 @@ class Notificador
         Mailer::enviar($emp['email'], 'Sua vaga encerra em breve: ' . $vaga['titulo'], Mailer::layout(
             'Vaga perto do fim do prazo',
             '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> sai do ar em <strong>' . data_br($vaga['data_limite']) . '</strong>. Se ainda precisar de candidatos, publique uma nova vaga com novo prazo.</p>',
-            ['Publicar vaga', url_abs('vaga-cadastro')]
+            ['Publicar vaga', url_abs('vaga-cadastro')],
         ));
     }
 
@@ -129,7 +129,7 @@ class Notificador
     {
         Mailer::enviar($emp['email'], 'Vaga encerrada: ' . $vaga['titulo'], Mailer::layout(
             'Vaga encerrada',
-            '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> (código ' . e($vaga['codigo']) . ') saiu do ar.</p>'
+            '<p>A vaga <strong>' . e($vaga['titulo']) . '</strong> (código ' . e($vaga['codigo']) . ') saiu do ar.</p>',
         ));
     }
 }

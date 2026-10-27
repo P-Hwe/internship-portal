@@ -1,11 +1,15 @@
 <?php
+
 class EmpresaController
 {
     public function cadastro(): void
     {
         Auth::bloquearSeOutroPerfil('empresa');
-        if (Auth::empresa()) redirect('painel');
-        $erros = []; $old = [];
+        if (Auth::empresa()) {
+            redirect('painel');
+        }
+        $erros = [];
+        $old = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Csrf::exigir();
             $old = clean_post($_POST);
@@ -24,7 +28,9 @@ class EmpresaController
     public function concluido(): void
     {
         $emp = Auth::exigirEmpresa();
-        if ((int) ($_SESSION['concluido'] ?? 0) !== (int) $emp['id']) redirect('painel');
+        if ((int) ($_SESSION['concluido'] ?? 0) !== (int) $emp['id']) {
+            redirect('painel');
+        }
         unset($_SESSION['concluido']);
         render('empresa_concluido', ['titulo' => 'Cadastro enviado', 'ambiente' => 'empresa', 'emp' => $emp], 'auth');
     }
