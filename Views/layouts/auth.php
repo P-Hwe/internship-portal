@@ -1,4 +1,16 @@
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<script>try{var t=localStorage.getItem('vg-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
-<link rel="stylesheet" href="<?= e(BASE_URL) ?>public/css/app.css?v=<?= (int) @filemtime(ROOT_PATH . '/public/css/app.css') ?>">
+<!DOCTYPE html>
+<html lang="pt-br"><head><?php require __DIR__ . '/head.php'; ?><title><?= e($titulo ?? 'ESTAGIA+') ?> · ESTAGIA+</title></head>
+<body class="auth-body">
+  <div class="auth-top">
+    <a class="app-brand" href="<?= url() ?>">ESTAGIA<b>+</b><small>IFSP Guarulhos</small></a>
+    <div class="ui-actions">
+      <a class="ui-btn ui-btn-sm" href="<?= url() ?>">Ver vagas</a>
+      <button type="button" class="app-icon-btn" data-theme-toggle aria-label="Ativar modo noturno"><?= icon('moon', 18) ?></button>
+    </div>
+  </div>
+  <main class="auth-wrap <?= !empty($larga) ? 'is-wide' : '' ?>">
+    <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="ui-alert ui-alert-<?= e($t) ?>" role="status"><div><?= e($m) ?></div></div><?php endforeach; unset($_SESSION['flash']); ?>
+    <?= $conteudo ?>
+  </main>
+  <script src="<?= e(BASE_URL) ?>public/js/app.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/app.js') ?>"></script>
+</body></html>
