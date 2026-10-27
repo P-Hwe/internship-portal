@@ -1,7 +1,6 @@
 <?php
-/** Etapas 1 a 3 (dados, endereço, contato). Usadas no cadastro e na edição do perfil. Espera $old, $erros, $modo ('cadastro'|'perfil'). */
 $c = fn(array $o) => Ui::campo($o, $old, $erros);
-$logoAtual = $old['logo'] ?? null;
+$logoAtual = $old['logo'] ?? null; $bannerAtual = url_upload($old['banner'] ?? null);
 ?>
 <fieldset class="ui-fieldset ui-step" data-step="0" data-title="Dados da empresa">
   <legend>Dados da empresa</legend><p class="ui-step-sub">Essas informações aparecem para os estudantes na página da empresa.</p>
@@ -30,9 +29,14 @@ $logoAtual = $old['logo'] ?? null;
     </div><small class="ui-hint">Se o escolhido estiver vazio, usamos o outro. O estudante é avisado de que está saindo do sistema.</small></div>
   <div class="ui-field"><label for="logo">Logo da empresa</label>
     <div class="ui-logo-pick">
-      <?php if ($logoAtual): ?><img class="ui-logo" data-logo-prev width="64" height="64" src="<?= e(BASE_URL . $logoAtual) ?>" alt="Logo atual"><?php else: ?><span class="ui-logo ui-logo-ini" data-logo-prev style="width:64px;height:64px"><?= e(initials($old['nome'] ?: 'Empresa')) ?></span><?php endif; ?>
+      <?php if ($logoAtual): ?><img class="ui-logo" data-logo-prev width="64" height="64" src="<?= e(BASE_URL . $logoAtual) ?>" alt="Logo atual"><?php else: ?><span class="ui-logo ui-logo-ini" data-logo-prev style="width:64px;height:64px"><?= e(iniciais($old['nome'] ?: 'Empresa')) ?></span><?php endif; ?>
       <div><input id="logo" name="logo" type="file" accept=".jpg,.jpeg,.png" data-file data-max="2" data-img-only data-logo-pick><small class="ui-hint">JPG ou PNG, até 2 MB. Quadrado fica melhor.</small></div></div>
     <small class="ui-err" data-err><?= e($erros['logo'] ?? '') ?></small></div>
+  <div class="ui-field"><label for="banner">Banner da empresa</label>
+    <?php if ($bannerAtual): ?><div class="ui-cover" style="margin-bottom:8px;border-radius:8px"><img src="<?= e($bannerAtual) ?>" alt="Banner atual da empresa"></div><?php endif; ?>
+    <input id="banner" name="banner" type="file" accept=".jpg,.jpeg,.png" data-file data-max="<?= UPLOAD_MAX_MB ?>" data-img-only>
+    <small class="ui-hint">Opcional. JPG ou PNG de 1200 × 400 px, até <?= UPLOAD_MAX_MB ?> MB. Aparece no topo da página da empresa e no card das empresas parceiras. Sem imagem, usamos uma cor com o nome da empresa.<?= $bannerAtual ? ' Envie outra só se quiser trocar.' : '' ?></small>
+    <small class="ui-err" data-err><?= e($erros['banner'] ?? '') ?></small></div>
 </fieldset>
 
 <fieldset class="ui-fieldset ui-step" data-step="1" data-title="Endereço">
