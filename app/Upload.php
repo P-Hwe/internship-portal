@@ -4,7 +4,6 @@ class Upload
 {
     private const EXT = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'];
 
-    /** @return array [nomeSalvo|null, erro|null] */
     public static function salvar(?array $f, array $mimes, string $destino, bool $obrigatorio, ?int $maxMb = null): array
     {
         if (!$f || ($f['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

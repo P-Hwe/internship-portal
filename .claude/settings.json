@@ -1,0 +1,35 @@
+{
+  "theme": "dark",
+  "autoUpdatesChannel": "latest",
+  "intelephense": {
+    "diagnostics": {
+      "undefinedVariables": false,
+      "uninitializedPropertyAccess": false,
+      "unusedFunction": false,
+      "unusedVariable": false,
+      "missingProperty": false,
+      "invalidPropertyAssignment": false,
+      "invalidParameterAssignment": false,
+      "unusedParameters": false,
+      "functionNameInParameters": false,
+      "parameterNameMismatches": false,
+      "propertyAccessMismatch": false,
+      "unreachableCode": false,
+      "assignmentToNonVariable": false,
+      "awaitExpression": false,
+      "awaitThenable": false,
+      "awaitUnsupported": false,
+      "forInOfLoopVar": false,
+      "missingReturn": false,
+      "missingThrows": false,
+      "noImplicitAny": false,
+      "strictPropertyInitialization": false
+    }
+  },
+  "phpcs": {
+    "enabled": false
+  },
+  "phpstan": {
+    "enabled": false
+  }
+}
