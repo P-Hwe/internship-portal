@@ -13,7 +13,7 @@
         } ?>
     </div>
 </div>
-<h2 style="font-size:22px;margin-bottom:14px"><?= e($v['titulo']) ?></h2>
+<h2><?= e($v['titulo']) ?></h2>
 <?php if ($sit === 'rejeitada'): ?><div class="ui-alert ui-alert-danger">
         <div><strong>Vaga rejeitada</strong>
             <p>Motivo: <?= nl2br(e((string) $v['motivo'])) ?></p>

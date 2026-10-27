@@ -6,7 +6,10 @@ class SenhaReset
     public const MAX_TENTATIVAS = 5;
     public const MAX_PEDIDOS_HORA = 5;
 
-    private static function tabela(string $perfil): string { return $perfil === 'admin' ? 'admins' : 'empresas'; }
+    private static function tabela(string $perfil): string
+    {
+        return $perfil === 'admin' ? 'admins' : 'empresas';
+    }
     private static function usuario(string $perfil, string $email): ?array
     {
         $email = mb_strtolower(trim($email));
@@ -14,7 +17,10 @@ class SenhaReset
         $extra = $perfil === 'admin' ? ' AND ativo = 1' : '';
         return Database::one('SELECT * FROM ' . self::tabela($perfil) . ' WHERE email = :e' . $extra, ['e' => $email]) ?: null;
     }
-    public static function hashCodigo(int $id, string $codigo): string { return hash('sha256', $id . ':' . $codigo); }
+    public static function hashCodigo(int $id, string $codigo): string
+    {
+        return hash('sha256', $id . ':' . $codigo);
+    }
 
     public static function solicitar(string $perfil, string $email): ?array
     {

@@ -1,6 +1,5 @@
 <?php
 
-/** Verifica se uma tabela existe */
 function tabela_existe(string $nome): bool
 {
     global $db;
@@ -10,25 +9,21 @@ function tabela_existe(string $nome): bool
     return (bool) $db->query("SHOW TABLES LIKE '$nome'")->fetchColumn();
 }
 
-/** Adiciona uma coluna a uma tabela */
 function add_coluna(string $tabela, string $coluna, string $tipo): void
 {
     global $db;
     if (!$db) {
         $db = Database::pdo();
     }
-    // Verifica se a coluna já existe
     try {
         $existe = (bool) $db->query("SHOW COLUMNS FROM `$tabela` LIKE '`$coluna`")->fetchColumn();
         if (!$existe) {
             $db->exec("ALTER TABLE `$tabela` ADD COLUMN `$coluna` $tipo");
         }
     } catch (PDOException $e) {
-        // Ignora erros de permissão ou outras exceções
     }
 }
 
-/** Verifica se um índice existe */
 function indice_existe(string $tabela, string $nome): bool
 {
     global $db;
@@ -42,7 +37,6 @@ function indice_existe(string $tabela, string $nome): bool
     }
 }
 
-/** Cria um índice em uma tabela */
 function criar_indice(string $tabela, string $nome, string $colunas): void
 {
     global $db;
@@ -54,7 +48,6 @@ function criar_indice(string $tabela, string $nome, string $colunas): void
     }
 }
 
-/** Retorna lista de migrações disponíveis */
 function migrations(): array
 {
     global $db;
@@ -68,7 +61,6 @@ function migrations(): array
     }
 }
 
-/** Desfaz a última migração */
 function desfazer_ultima(): ?string
 {
     global $db;
@@ -90,7 +82,6 @@ function desfazer_ultima(): ?string
             }
         }
     } catch (PDOException) {
-        // Ignora erros
     }
     return null;
 }
