@@ -84,45 +84,26 @@ class EmpresaForm
         }
 
         [$logo, $eLogo] = Upload::salvar($files['logo'] ?? null, ['image/jpeg', 'image/png'], ROOT_PATH . '/public/uploads/logos', false, 2);
-        if ($eLogo) {
-            $e['logo'] = $eLogo;
-        } elseif ($logo) {
-            $d['logo'] = 'public/uploads/logos/' . $logo;
-        }
+        if ($eLogo) $e['logo'] = $eLogo; elseif ($logo) $d['logo'] = 'public/uploads/logos/' . $logo;
+        [$ban, $eBan] = Upload::salvar($files['banner'] ?? null, ['image/jpeg', 'image/png'], ROOT_PATH . '/public/uploads/capas', false);
+        if ($eBan) $e['banner'] = $eBan; elseif ($ban) $d['banner'] = 'public/uploads/capas/' . $ban;
 
         if ($modo === 'cadastro') {
-            if (!filter_var($d['email'] ?? '', FILTER_VALIDATE_EMAIL) || mb_strlen($d['email']) > 120) {
-                $e['email'] = 'E-mail inválido.';
-            } elseif (Empresa::porEmail($d['email'])) {
-                $e['email'] = 'Este e-mail já tem cadastro. Entre na área da empresa.';
-            }
+            if (!filter_var($d['email'] ?? '', FILTER_VALIDATE_EMAIL) || mb_strlen($d['email']) > 120) $e['email'] = 'E-mail inválido.';
+            elseif (Empresa::porEmail($d['email'])) $e['email'] = 'Este e-mail já tem cadastro. Entre na área da empresa.';
             $s = $_POST['senha'] ?? '';
-            if (!self::senhaForte($s)) {
-                $e['senha'] = 'A senha precisa ter 8 ou mais caracteres, com letras e números.';
-            } elseif ($s !== ($_POST['senha2'] ?? '')) {
-                $e['senha2'] = 'As senhas não conferem.';
-            }
+            if (!self::senhaForte($s)) $e['senha'] = 'A senha precisa ter 8 ou mais caracteres, com letras e números.';
+            elseif ($s !== ($_POST['senha2'] ?? '')) $e['senha2'] = 'As senhas não conferem.';
             $d['senha'] = $s;
             [$arq, $eArq] = Upload::salvar($files['termo'] ?? null, ['application/pdf', 'image/jpeg', 'image/png'], ROOT_PATH . '/storage/termos', true);
-            if ($eArq) {
-                $e['termo'] = $eArq;
-            } else {
-                $d['termo_arquivo'] = $arq;
-            }
-            if (empty($d['aceite_termos'])) {
-                $e['aceite_termos'] = 'É preciso aceitar os termos de uso.';
-            }
-            if (empty($d['aceite_privacidade'])) {
-                $e['aceite_privacidade'] = 'É preciso confirmar a política de privacidade.';
-            }
+            if ($eArq) $e['termo'] = $eArq; else $d['termo_arquivo'] = $arq;
+            if (empty($d['aceite_termos'])) $e['aceite_termos'] = 'É preciso aceitar os termos de uso.';
+            if (empty($d['aceite_privacidade'])) $e['aceite_privacidade'] = 'É preciso confirmar a política de privacidade.';
         }
         if ($e) {
-            if (!empty($d['logo']) && (!$atual || $d['logo'] !== $atual['logo'])) {
-                @unlink(ROOT_PATH . '/' . $d['logo']);
-            }
-            if (!empty($d['termo_arquivo'])) {
-                @unlink(ROOT_PATH . '/storage/termos/' . $d['termo_arquivo']);
-            }
+            if (!empty($d['logo']) && (!$atual || $d['logo'] !== $atual['logo'])) @unlink(ROOT_PATH . '/' . $d['logo']);
+            if (!empty($d['banner']) && (!$atual || $d['banner'] !== ($atual['banner'] ?? null))) @unlink(ROOT_PATH . '/' . $d['banner']);
+            if (!empty($d['termo_arquivo'])) @unlink(ROOT_PATH . '/storage/termos/' . $d['termo_arquivo']);
         }
         return [$d, $e];
     }
