@@ -1,5 +1,5 @@
 # ============================================
-# .gitignore - Padrão para Produção (main)
+# .gitignore - Padrão para Desenvolvimento (develop e hml)
 # ============================================
 
 # ============================================
@@ -36,7 +36,7 @@ public/uploads/teste/*
 
 # ============================================
 # Arquivos de desenvolvimento e teste
-# (NÃO para produção - main branch)
+# PERMITIDOS EM DEVELOP E HML
 # ============================================
 tests/
 test/
@@ -59,10 +59,11 @@ database/README-SEED.md
 *.lock
 .cache/
 
-
-
-
-
-# PHP CS Fixer configuration
-/.php-cs-fixer.cache
-/.php-cs-fixer.php
+# ============================================
+# Arquivos de Docker e setup local
+# PERMITIDOS EM DEVELOP E HML
+# ============================================
+docker-compose.yml
+scripts/git-setup.sh
+scripts/start-docker.sh
+scripts/start-docker.ps1
