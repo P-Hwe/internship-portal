@@ -1,15 +1,8 @@
 <?php
 
-/**
- * Envio de e-mail. MAIL_DRIVER no .env:
- *  log  -> não envia; grava em storage/mail/*.html (desenvolvimento)
- *  mail -> função mail() do PHP (funciona na maioria dos cPanel)
- *  smtp -> SMTP próprio (SMTP_HOST/PORT/USER/PASS/SECURE=ssl|tls|none)
- * Toda tentativa fica registrada na tabela emails_log. Falha de e-mail nunca derruba a ação do usuário.
- */
 class Mailer
 {
-    public static int $falhas = 0;          // quantos envios falharam nesta requisição
+    public static int $falhas = 0;
     public static ?string $ultimoErro = null;
 
     public static function modo(): string
@@ -54,15 +47,19 @@ class Mailer
             self::$ultimoErro = $erro;
         }
         try {
-            Database::insert('emails_log', ['destinatario' => $para, 'assunto' => $assunto,
-                'status' => $ok ? ($driver === 'log' ? 'simulado' : 'enviado') : 'falha', 'erro' => $erro ? mb_substr($erro, 0, 250) : null, 'criado_em' => Database::agora()]);
+            Database::insert('emails_log', [
+                'destinatario' => $para,
+                'assunto' => $assunto,
+                'status' => $ok ? ($driver === 'log' ? 'simulado' : 'enviado') : 'falha',
+                'erro' => $erro ? mb_substr($erro, 0, 250) : null,
+                'criado_em' => Database::agora()
+            ]);
         } catch (Throwable $t) {
-/* log é best-effort */
+            /* log é best-effort */
         }
         return $ok;
     }
 
-    /** Layout padrão dos e-mails (verde do IF). $botao = [texto, url] */
     public static function layout(string $titulo, string $corpoHtml, ?array $botao = null): string
     {
         $b = $botao ? '<p style="margin:22px 0"><a href="' . e($botao[1]) . '" style="background:#2f9e41;color:#fff;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:8px;display:inline-block">' . e($botao[0]) . '</a></p>' : '';
@@ -76,7 +73,6 @@ class Mailer
             . '</table></td></tr></table></body></html>';
     }
 
-    /** Cabeçalho Reply-To (opcional): MAIL_REPLY_TO=coordenacao.gru@ifsp.edu.br */
     private static function replyTo(): string
     {
         $r = trim((string) env('MAIL_REPLY_TO', ''));
@@ -100,7 +96,6 @@ class Mailer
         if ($host === '') {
             throw new RuntimeException('SMTP_HOST não está configurado no .env');
         }
-        // SMTP_VERIFY_TLS=0 desliga a checagem do certificado (só para teste local no Windows/XAMPP sem bundle de CAs)
         $verifica = !in_array(strtolower((string) env('SMTP_VERIFY_TLS', '1')), ['0', 'false', 'no'], true);
         $ctx = stream_context_create(['ssl' => ['verify_peer' => $verifica, 'verify_peer_name' => $verifica, 'allow_self_signed' => !$verifica]]);
         $s = @stream_socket_client(($sec === 'ssl' ? 'ssl://' : 'tcp://') . "$host:$porta", $en, $es, 15, STREAM_CLIENT_CONNECT, $ctx);
@@ -115,7 +110,8 @@ class Mailer
                 if (isset($l[3]) && $l[3] === ' ') {
                     break;
                 }
-            } return $r;
+            }
+            return $r;
         };
         $cmd = function (string $c, string $esp) use ($s, $ler) {
             fwrite($s, $c . "\r\n");

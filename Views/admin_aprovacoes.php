@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var array $empPend
  * @var array $vagasPend

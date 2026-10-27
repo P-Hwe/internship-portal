@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var array $cont
  * @var string $aba
@@ -22,7 +23,7 @@ $abas = [
   'destaque' => ['Em destaque', $cont['destaque'] ?? 0],
   'expirada' => ['Expiradas', $cont['expirada'] ?? 0],
   'encerrada' => ['Encerradas', $cont['encerrada'] ?? 0],
-  'rejeitada' => ['Rejeitadas', $cont['rejeitada'] ?? 0]
+  'rejeitada' => ['Rejeitadas', $cont['rejeitada'] ?? 0],
 ];
 $pq = ['aba' => $aba, 'q' => $q, 'tipo' => $tipo, 'ord' => $ord, 'vista' => $vista];
 ?>

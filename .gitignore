@@ -1,30 +1,68 @@
-# Configurações e dependências
-.env
-vendor/
-.idea/
+# ============================================
+# .gitignore - Padrão para Produção (main)
+# ============================================
 
-# Banco de dados em memória
-storage/database.sqlite
-
-# Arquivos de email
-storage/mail/*
-!storage/mail/.gitkeep
-
-# Termos de uso
-storage/termos/*
-!storage/termos/.gitkeep
-
-# Uploads
-public/uploads/banners/*
-!public/uploads/banners/.htaccess
-!public/uploads/banners/vaa-0*.jpg
-
-# IDE e editores
-.vscode/
+# ============================================
+# Dependências e configurações de IDE
+# ============================================
+/vendor/
+/.idea/
+/.vscode/
 *.swp
 *.swo
 *~
 
+# Configurações sensíveis
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# Dados sensíveis e uploads
+# ============================================
+storage/mail/*
+storage/termos/*
+public/uploads/banners/*
+public/uploads/logos/*
+public/uploads/capas/*
+public/uploads/teste/*
+
+# Banco de dados em memória (apenas dev)
+/storage/database.sqlite
+
 # Logs
-logs/
+/logs/
 *.log
+
+# ============================================
+# Arquivos de desenvolvimento e teste
+# (NÃO para produção - main branch)
+# ============================================
+tests/
+test/
+_docs/
+seed/
+scripts/testar-email.php
+scripts/check-quality.sh
+scripts/fix-style.sh
+scripts/seed-local.sh
+
+# Scripts de seed e migração local
+database/seed.php
+database/.htaccess
+database/README-SEED.md
+
+# ============================================
+# Arquivos gerados automaticamente
+# ============================================
+*.pid
+*.lock
+.cache/
+
+
+
+
+
+# PHP CS Fixer configuration
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
