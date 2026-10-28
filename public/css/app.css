@@ -123,6 +123,8 @@ h3 {
 [hidden] {
   display: none !important;
 }
+
+/* ===== estrutura (empresa/admin) ===== */
 .app-shell {
   display: grid;
   grid-template-columns: var(--side) minmax(0, 1fr);
@@ -276,6 +278,8 @@ h3 {
 .app-scrim {
   display: none;
 }
+
+/* ===== entrada (login/cadastro) ===== */
 .auth-body {
   display: flex;
   flex-direction: column;
@@ -326,6 +330,8 @@ h3 {
   font-size: 14px;
   text-align: center;
 }
+
+/* ===== componentes ===== */
 .ui-btn {
   display: inline-flex;
   align-items: center;
@@ -481,6 +487,8 @@ h3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
+
+/* números: uma faixa só, sem caixinhas nem ícones coloridos */
 .ui-metrics {
   display: flex;
   flex-wrap: wrap;
@@ -535,6 +543,7 @@ a.ui-metric:hover .ui-metric-l {
 .ui-delta.is-down {
   color: var(--danger);
 }
+
 .ui-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -851,6 +860,8 @@ a.is-active .ui-count {
   background: var(--text);
   color: var(--bg);
 }
+
+/* sem banner: fundo de cor com as iniciais (mesmo recurso do site público) */
 .vg-fallback {
   display: flex;
   flex-direction: column;
@@ -892,6 +903,9 @@ a.is-active .ui-count {
 .vg-fb-5 {
   background: linear-gradient(135deg, #134e4a, #3bb3a7);
 }
+
+/* cards de vaga: o mesmo desenho do site de vagas (banner inteiro à vista, selos, empresa, dados) + ações do admin/empresa.
+   O card inteiro é clicável (o título carrega um link esticado); botões ficam acima dele. */
 .ui-vcard {
   position: relative;
   display: flex;
@@ -928,6 +942,7 @@ a.is-active .ui-count {
 .ui-vcard-media.is-cover img {
   object-fit: cover;
 }
+/* banner da vaga no detalhe (admin): largura total e a mesma proporção do site público (900 × 400), sem sobra ao lado */
 .ui-vbanner {
   position: relative;
   width: 100%;
@@ -1080,6 +1095,7 @@ a.is-active .ui-count {
 .ui-vcard-foot .ui-actions {
   gap: 6px;
 }
+/* card de empresa: banner da empresa em cima e logo sobreposto */
 .ui-ccard-media {
   position: relative;
   aspect-ratio: 2/1;
@@ -1097,7 +1113,7 @@ a.is-active .ui-count {
   position: relative;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: contain; /* o banner inteiro aparece, sem corte */
   display: block;
 }
 .ui-ccard-logo {
@@ -1116,7 +1132,7 @@ a.is-active .ui-count {
   border-radius: 9px;
 }
 .ui-ccard-body {
-  padding: 40px 14px 10px;
+  padding: 40px 14px 10px; /* espaço para o logo sobreposto ao banner não cobrir o nome */
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -1134,6 +1150,7 @@ a.is-active .ui-count {
   color: var(--muted);
   font-size: 13.5px;
 }
+/* capa da empresa nas telas de detalhe */
 .ui-cover {
   position: relative;
   aspect-ratio: 3/1;
@@ -1171,6 +1188,8 @@ a.is-active .ui-count {
   border: 0;
   border-radius: 11px;
 }
+
+/* barra de período e quadros de desempenho */
 .ui-period-tabs {
   display: inline-flex;
   gap: 0;
@@ -1284,6 +1303,7 @@ a.is-active .ui-count {
   color: var(--muted);
   font-size: 12.5px;
 }
+
 .ui-form {
   max-width: 780px;
 }
@@ -1560,6 +1580,7 @@ a.is-active .ui-count {
   color: var(--primary);
   border-color: var(--primary);
 }
+
 .ui-stepper {
   display: none;
   list-style: none;
@@ -1705,6 +1726,7 @@ a.is-active .ui-count {
   margin: 0;
   word-break: break-word;
 }
+
 .ui-stepper.is-many li {
   flex: 0 0 auto;
 }
@@ -1717,6 +1739,8 @@ a.is-active .ui-count {
 .ui-stepper.is-many .is-current .t {
   display: inline;
 }
+
+/* modal */
 .ui-modal {
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -1750,6 +1774,7 @@ a.is-active .ui-count {
 .ui-modal .ui-textarea {
   min-height: 90px;
 }
+
 .ui-chart {
   width: 100%;
   height: auto;
@@ -1863,6 +1888,7 @@ a.is-active .ui-count {
   border-radius: 5px;
   font-size: 13px;
 }
+
 @media (max-width: 980px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -1956,6 +1982,7 @@ a.is-active .ui-count {
 .ui-ledger li {
   align-items: baseline;
 }
+
 .ui-notif {
   display: flex;
   flex-direction: column;
@@ -1989,6 +2016,7 @@ a.is-active .ui-count {
   gap: 6px;
   align-items: center;
 }
+
 .ui-modal {
   width: min(440px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);

@@ -1,4 +1,4 @@
-<?php
+<?php /** Os dois modais do "esqueci a senha". Espera $perfil ('admin'|'empresa') e $modal (null ou ['passo','email','token','erro','aviso']). */
 $m = $modal ?? null; $abre1 = $m && ($m['passo'] ?? 1) === 1; $abre2 = $m && ($m['passo'] ?? 1) === 2;
 $com = !empty($m['token']);
 ?>
