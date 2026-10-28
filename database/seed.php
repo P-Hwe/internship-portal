@@ -1,17 +1,7 @@
 <?php
 session_start();
 
-$env = getenv('APP_ENV') ?: $_SERVER['APP_ENV'] ?? 'prod';
-
-if ($env !== 'dev' && $env !== 'local') {
-    die("❌ Este script de seed só pode ser executado em ambiente de desenvolvimento (APP_ENV=dev ou local).\n");
-}
-
-$allowed_ips = ['127.0.0.1', '::1', 'localhost'];
-if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips)) {
-    die("❌ Acesso não autorizado. Este script só funciona em localhost.\n");
-}
-
+// Permite execução tanto via CLI quanto pelo XAMPP
 if (php_sapi_name() !== 'cli' && !isset($_GET['force'])) {
     die("❌ Este script deve ser executado via linha de comando ou com parâmetro ?force\n");
 }
