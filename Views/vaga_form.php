@@ -1,10 +1,32 @@
 <?php
-$edit = (bool) $atual; $hoje = date('Y-m-d');
+$edit = (bool) $atual;
+$hoje = date('Y-m-d');
 $c = fn(array $o) => Ui::campo($o, $old, $erros);
-$etapaDe = ['tipo' => 0, 'titulo' => 0, 'area' => 0, 'modalidade' => 0, 'local' => 0, 'descricao' => 0, 'requisitos' => 1, 'bolsa' => 3, 'carga_horas_dia' => 4, 'dias' => 4, 'carga_turno' => 4,
-            'data_publicacao' => 5, 'data_limite' => 5, 'link_site' => 6, 'link_linkedin' => 6, 'link_plataforma' => 6, 'link_candidatura' => 6, 'contato' => 6, 'banner' => 6];
+$etapaDe = [
+    'tipo' => 0,
+    'titulo' => 0,
+    'area' => 0,
+    'modalidade' => 0,
+    'local' => 0,
+    'descricao' => 0,
+    'requisitos' => 1,
+    'bolsa' => 3,
+    'carga_horas_dia' => 4,
+    'dias' => 4,
+    'carga_turno' => 4,
+    'data_publicacao' => 5,
+    'data_limite' => 5,
+    'link_site' => 6,
+    'link_linkedin' => 6,
+    'link_plataforma' => 6,
+    'link_candidatura' => 6,
+    'contato' => 6,
+    'banner' => 6
+];
 $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros))) : 0;
-$areaSel = $old['area'] ?? ''; $diasSel = (array) ($old['dias'] ?? []); $remTipo = ($old['remuneracao_tipo'] ?? 'valor') === 'combinar' ? 'combinar' : 'valor';
+$areaSel = $old['area'] ?? '';
+$diasSel = (array) ($old['dias'] ?? []);
+$remTipo = ($old['remuneracao_tipo'] ?? 'valor') === 'combinar' ? 'combinar' : 'valor';
 $sug = fn(array $l) => '<div class="ui-quick" data-quick aria-label="Sugestões"><span class="ui-hint" style="margin:0">Sugestões:</span>' . implode('', array_map(fn($x) => '<button type="button">' . e($x) . '</button>', $l)) . '</div>';
 ?>
 <?php if ($edit && in_array($atual['status'], ['aprovada', 'rejeitada'], true)): ?>

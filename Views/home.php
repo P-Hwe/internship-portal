@@ -1,4 +1,6 @@
-<?php require __DIR__ . '/header.php'; $ativa = 'home'; require __DIR__ . '/partials/nav.php'; ?>
+<?php require __DIR__ . '/header.php';
+$ativa = 'home';
+require __DIR__ . '/partials/nav.php'; ?>
 
 <div class="vg-hero">
     <h1>Vagas de Estágio e Primeiro Emprego</h1>
@@ -49,7 +51,11 @@
         </div>
     </div>
     <div class="vg-rail-track" data-rail-track tabindex="0">
-        <?php foreach ($t['itens'] as $v) { $chave = $t['chave']; $trilho = true; require __DIR__ . '/partials/card_vaga.php'; } ?>
+        <?php foreach ($t['itens'] as $v) {
+                $chave = $t['chave'];
+                $trilho = true;
+                require __DIR__ . '/partials/card_vaga.php';
+            } ?>
     </div>
 </section>
 <?php endforeach; ?>
@@ -84,8 +90,14 @@
     </form>
 
     <div class="vg-grid" data-grid>
-        <?php foreach ($vagas as $v) { $trilho = false; $chave = null; require __DIR__ . '/partials/card_vaga.php'; } ?>
+        <?php foreach ($vagas as $v) {
+            $trilho = false;
+            $chave = null;
+            require __DIR__ . '/partials/card_vaga.php';
+        } ?>
     </div>
+    <p style="text-align:right;margin:10px 0 0"><a class="vg-btn-link" href="<?= url('encerradas') ?>">Ver vagas
+            encerradas e expiradas <?= icon('arrow-right', 16) ?></a></p>
     <p class="vg-empty" data-empty <?= $vagas ? 'hidden' : '' ?>>
         <?= $vagas ? 'Nenhuma vaga encontrada. Tente limpar os filtros.' : 'Nenhuma vaga aberta no momento. Volte em breve!' ?>
     </p>

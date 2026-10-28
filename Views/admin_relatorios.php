@@ -14,5 +14,3 @@
             href="<?= url('admin-exportar', ['tipo' => 'empresas']) ?>"><?= icon('file', 16) ?> Baixar empresas.csv</a>
     </div>
 </div>
-<p class="ui-sub">Relatórios gráficos e por período ficam para uma próxima sprint; os dados e os
-    gráficos do dashboard já usam os mesmos números do banco.</p>

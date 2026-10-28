@@ -1,4 +1,7 @@
-<?php require __DIR__ . '/header.php'; $ativa = 'empresas'; require __DIR__ . '/partials/nav.php'; $ext = Empresa::linkExterno($e); ?>
+<?php require __DIR__ . '/header.php';
+$ativa = 'empresas';
+require __DIR__ . '/partials/nav.php';
+$ext = Empresa::linkExterno($e); ?>
 <nav class="vg-crumbs" aria-label="Você está aqui"><a href="<?= url('empresas') ?>">Empresas parceiras</a> <span
         aria-hidden="true">›</span> <span><?= e($e['nome']) ?></span></nav>
 <article class="vg-detail">
@@ -16,7 +19,7 @@
         <h2>Sobre a empresa</h2>
         <p><?= nl2br(e($e['descricao'])) ?></p>
     </section><?php endif; ?>
-    <dl class="vg-facts">
+    <dl class="vg-facts" style="margin-top:18px">
         <div>
             <dt>Vagas abertas</dt>
             <dd><?= (int) $e['vagas_abertas'] ?></dd>
@@ -47,7 +50,11 @@
         <h2 id="vg-ev">Vagas abertas desta empresa</h2>
     </div>
     <?php if (!$vagas): ?><p class="vg-empty">Nenhuma vaga aberta no momento.</p><?php else: ?><div class="vg-grid">
-        <?php foreach ($vagas as $v) { $trilho = false; $chave = null; require __DIR__ . '/partials/card_vaga.php'; } ?>
+        <?php foreach ($vagas as $v) {
+                                                                                        $trilho = false;
+                                                                                        $chave = null;
+                                                                                        require __DIR__ . '/partials/card_vaga.php';
+                                                                                    } ?>
     </div><?php endif; ?>
 </section>
 <p><a class="vg-back" href="<?= url('empresas') ?>"><?= icon('arrow-left', 16) ?> Voltar para empresas parceiras</a></p>

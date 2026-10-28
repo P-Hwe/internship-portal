@@ -12,7 +12,7 @@ class EmpresaController
         $old = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Csrf::exigir();
-            $old = clean_post($_POST);
+            $old = limpar_post($_POST);
             [$dados, $erros] = EmpresaForm::validar($old, $_FILES, 'cadastro');
             if (!$erros) {
                 $id = Empresa::criar($dados);

@@ -8,7 +8,7 @@
         type="text/css" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title><?= htmlspecialchars($titulo ?? "Vagas de Estágio") ?> - IFSP Guarulhos</title>
-    <link href="<?= BASE_URL ?>images/if.png" rel="shortcut icon" type="image/x-icon" />
+    <link href="<?= BASE_URL ?>public/img/ifsp/if.png" rel="shortcut icon" type="image/x-icon" />
     <script type="application/json" class="joomla-script-options new">
     {
         "csrf.token": "b6b5ba187a333f7b3462578be868db42",

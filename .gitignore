@@ -21,6 +21,7 @@
 # Dados sensíveis e uploads
 # ============================================
 storage/mail/*
+storage/
 storage/termos/*
 public/uploads/banners/*
 public/uploads/logos/*
@@ -46,6 +47,7 @@ scripts/testar-email.php
 scripts/check-quality.sh
 scripts/fix-style.sh
 scripts/seed-local.sh
+vendor/
 
 # Scripts de seed e migração local
 database/seed.php

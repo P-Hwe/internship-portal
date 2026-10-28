@@ -25,8 +25,7 @@ $pq = ['aba' => $aba, 'q' => $q, 'tipo' => $tipo, 'ord' => $ord, 'vista' => $vis
         <label class="ui-sr" for="ord">Ordenar</label><select id="ord" class="ui-select"
             name="ord"><?php foreach (['recentes' => 'Mais recentes', 'prazo' => 'Prazo final', 'titulo' => 'Título (A-Z)', 'empresa' => 'Empresa (A-Z)'] as $k => $r): ?>
             <option value="<?= $k ?>" <?= $ord === $k ? 'selected' : '' ?>><?= $r ?></option>
-            <?php endforeach; ?>
-        </select>
+            <?php endforeach; ?></select>
         <button class="ui-btn" type="submit"><?= icon('search', 16) ?> Filtrar</button>
     </form>
     <div class="ui-seg" role="group" aria-label="Modo de exibição"><a

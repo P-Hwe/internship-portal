@@ -1,4 +1,6 @@
-<?php require __DIR__ . '/header.php'; $ativa = 'home'; require __DIR__ . '/partials/nav.php'; ?>
+<?php require __DIR__ . '/header.php';
+$ativa = 'home';
+require __DIR__ . '/partials/nav.php'; ?>
 <div class="vg-hero">
     <h1>Vagas encerradas</h1>
     <p>Vagas que já saíram do ar nos últimos 120 dias. Elas não recebem mais inscrições e ficam aqui só para consulta.

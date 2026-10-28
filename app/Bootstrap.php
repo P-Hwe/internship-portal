@@ -22,8 +22,13 @@ class Bootstrap
         if (!Database::val('SELECT 1 FROM admins LIMIT 1')) {
             $senha = (string) env('ADMIN_PASSWORD', '');
             if (strlen($senha) >= 8) {
-                Database::insert('admins', ['nome' => 'Coordenação', 'email' => mb_strtolower((string) env('ADMIN_EMAIL', 'admin@ifsp.local')),
-                    'senha_hash' => Auth::hash($senha), 'papel' => 'raiz', 'criado_em' => Database::agora()]);
+                Database::insert('admins', [
+                    'nome' => 'Coordenação',
+                    'email' => mb_strtolower((string) env('ADMIN_EMAIL', 'admin@ifsp.local')),
+                    'senha_hash' => Auth::hash($senha),
+                    'papel' => 'raiz',
+                    'criado_em' => Database::agora()
+                ]);
             }
         }
     }
@@ -31,9 +36,14 @@ class Bootstrap
     public static function dica(Throwable $t): string
     {
         $m = $t->getMessage();
-        if ($t instanceof PDOException || str_contains($m, 'could not find driver')) return 'Falta a extensão PDO do banco no PHP (pdo_mysql). No cPanel: "Select PHP Version" > Extensions.';
-        if (str_contains($m, 'Access denied')) return 'O MySQL recusou o usuário ou a senha. Confira DB_USER e DB_PASS no arquivo .env.';
-        if (str_contains($m, 'Unknown database')) return 'O banco informado em DB_NAME não existe. Crie o banco no MySQL (ou no cPanel) e confira o .env.';
-        return 'Não foi possível usar o banco de dados. Confira DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASS no arquivo .env.';
+        if (str_contains($m, 'could not find driver'))
+            return 'Falta a extensão PDO do banco no PHP (pdo_mysql). No cPanel: "Select PHP Version" > Extensions.';
+        if (str_contains($m, 'Access denied'))
+            return 'O MySQL recusou o usuário ou a senha. Confira DB_USER e DB_PASSWORD no arquivo .env.';
+        if (str_contains($m, 'Unknown database'))
+            return 'O banco informado em DB_NAME não existe. Crie o banco no MySQL (ou no cPanel) e confira o .env.';
+        if ($t instanceof PDOException)
+            return 'Erro de banco de dados: ' . $m;
+        return 'Não foi possível usar o banco de dados. Confira DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASSWORD no arquivo .env.';
     }
 }
