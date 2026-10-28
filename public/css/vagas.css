@@ -1,4 +1,3 @@
-/* Vagas - IFSP Guarulhos. Tudo com prefixo .vg para não conflitar com o template do portal (Bootstrap 2 + padrão gov). */
 .vg {
   --verde: #2f9e41;
   --verde-esc: #1f6f2d;
@@ -59,7 +58,6 @@
   flex: none;
 }
 
-/* navegação */
 .vg-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -113,7 +111,6 @@
   border: 1px solid #c5ddf0;
 }
 
-/* banner de título: fundo verde do IF com texto branco (a cor é forçada para o template não sobrescrever) */
 .vg .vg-hero {
   background: linear-gradient(120deg, #14532d 0%, #1f6f2d 55%, #2f9e41 100%);
   border-radius: var(--r);
@@ -135,7 +132,6 @@
   font-size: 15.5px;
 }
 
-/* carrossel grande (banner 900x400) */
 .vg-carousel {
   position: relative;
   border-radius: var(--r);
@@ -256,7 +252,6 @@
   border-radius: 99px;
 }
 
-/* trilhos (carrosséis por tema) */
 .vg-rail {
   margin: 0 0 28px;
 }
@@ -338,7 +333,6 @@
   scroll-snap-align: start;
 }
 
-/* lista, chips e filtros */
 .vg-list-head {
   display: flex;
   justify-content: space-between;
@@ -412,7 +406,6 @@
   border-radius: var(--r);
 }
 
-/* card de vaga */
 .vg-card {
   position: relative;
   display: flex;
@@ -433,7 +426,7 @@
 .vg-card[hidden] {
   display: none;
 }
-/* card mais quadrado: o banner aparece inteiro (sem cortar) sobre uma versão desfocada dele mesmo */
+
 .vg-card-media {
   position: relative;
   aspect-ratio: 4/3;
@@ -604,7 +597,6 @@
   position: relative;
 }
 
-/* selos simples (detalhe) */
 .vg-badges {
   display: flex;
   flex-wrap: wrap;
@@ -624,7 +616,6 @@
   color: var(--verde-esc);
 }
 
-/* banner sem imagem */
 .vg-fallback {
   display: flex;
   flex-direction: column;
@@ -669,7 +660,6 @@
   display: flex;
 }
 
-/* chamada para empresas */
 .vg-cta-box {
   display: flex;
   align-items: center;
@@ -714,7 +704,6 @@
   color: #fff !important;
 }
 
-/* botões */
 .vg-btn {
   display: inline-flex;
   align-items: center;
@@ -783,7 +772,6 @@
   font-weight: 600;
 }
 
-/* detalhe */
 .vg-crumbs {
   font-size: 13px;
   color: var(--muted);
@@ -992,7 +980,6 @@
   text-decoration: underline;
 }
 
-/* etapas */
 .vg-steps {
   list-style: none;
   display: flex;
@@ -1027,7 +1014,6 @@
   color: #fff;
 }
 
-/* formulários e login */
 .vg-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 290px;
@@ -1205,7 +1191,6 @@
   color: var(--muted);
 }
 
-/* painel / admin */
 .vg-adm-head {
   display: flex;
   gap: 14px;
@@ -1504,7 +1489,6 @@
   }
 }
 
-/* ===== Empresas parceiras (estudante) ===== */
 .vg-comp {
   padding: 16px;
   gap: 8px;
@@ -1568,8 +1552,6 @@
   background: #e4f3e8;
 }
 
-/* ===== Modo TV (tela cheia, sem header/footer do portal) ===== */
-/* ===== Modo TV: banner em cima (centralizado), conteúdo à esquerda e QR Code à direita. Tudo em vh/vw e com cortes (line-clamp), então nada passa da tela, mesmo com muito texto ===== */
 .vg-tv {
   margin: 0;
   background: #0d1f14;
@@ -1599,7 +1581,7 @@
   opacity: 1;
   visibility: visible;
 }
-/* banner: faixa de largura total, preenchida inteiramente pela imagem */
+
 .vg-tv-media {
   position: relative;
   display: flex;
@@ -1616,8 +1598,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  object-fit: cover;   /* preenche a faixa inteira do banner; o que passar da proporção é cortado nas bordas */
-  object-position: center;
+  object-fit: cover;
   border-radius: 0;
 }
 .vg-tv-media .vg-fallback {
@@ -1630,7 +1611,7 @@
   font-size: 2.6vh;
   margin-top: 1vh;
 }
-/* conteúdo (esquerda) e QR Code (direita, centralizado na altura do conteúdo) */
+
 .vg-tv-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -1810,7 +1791,6 @@
   }
 }
 
-/* banner sem imagem dentro de cards: desce o conteúdo para não ficar sob os selos */
 .vg-card-media .vg-fallback {
   padding-top: 34px;
   justify-content: center;
@@ -1825,9 +1805,6 @@
   padding-top: 30px;
 }
 
-/* ===== Modo TV: QR Code ===== */
-
-/* banner da empresa (capa) nos cards e na página das empresas parceiras */
 .vg-comp-cover {
   position: relative;
   aspect-ratio: 2/1;
@@ -1843,8 +1820,9 @@
 }
 .vg-comp-cover img {
   position: relative;
-  object-fit: contain !important;   /* banner inteiro à vista nos cards */
+  object-fit: contain !important;
 }
+
 .vg-comp-cover img,
 .vg-comp-cover .vg-fallback,
 .vg-comp-banner img,
@@ -1886,7 +1864,6 @@
   align-items: flex-end;
 }
 
-/* ===== Ajustes de celular no layout do portal (header/menu/rodapé copiados do site original) ===== */
 img {
   max-width: 100%;
   height: auto;
@@ -1897,7 +1874,6 @@ textarea {
   max-width: 100%;
 }
 @media (max-width: 767px) {
-  /* "Acesso à informação | Contato | ..." quebra em linhas em vez de estourar a largura da tela */
   .sobre .menu-servicos {
     float: none;
     width: 100%;

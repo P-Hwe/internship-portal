@@ -6,17 +6,15 @@ define('ROOT_PATH', __DIR__);
     foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
         if ($l[0] === '#' || strpos($l, '=') === false) continue;
         [$k, $v] = explode('=', $l, 2);
-        $_ENV[trim($k)] = trim($v, " \t\r\"'");
+        $_ENV[trim($k)] = trim($v, " \t\r\"'");   
     }
 })();
 function app_env(): string
 {
     $v = strtolower(trim((string) env('APP_ENV', '')));
     if (in_array($v, ['dev', 'hml', 'prod'], true)) return $v;
-    $h = strtolower((string) ($_SERVER['HTTP_HOST'] ?? (parse_url((string) env('APP_URL', ''), PHP_URL_HOST) ?: 'prod.invalido')));
-    return preg_match('/^(localhost|127\.|\[?::1)/', $h) ? 'dev' : 'prod';
+    $h = strtolower((string) ($_SERVER['HTTP_HOST'] ?? (parse_url((string) env('APP_URL', ''), PHP_URL_HOST) ?: 'prod.invalido')));  
 }
-
 function env(string $k, $padrao = null)
 {
     $v = getenv($k);
@@ -27,11 +25,11 @@ function env(string $k, $padrao = null)
 $dir = PHP_SAPI === 'cli' ? rtrim((string) env('APP_BASE_PATH', (string) parse_url((string) env('APP_URL', ''), PHP_URL_PATH)), '/') : rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
 define('BASE_URL', $dir . '/');
 
-define('CARROSSEL_MAX', max(1, (int) env('CARROSSEL_MAX', 5)));
-define('DIAS_VAGA_NOVA', max(1, (int) env('DIAS_VAGA_NOVA', 7)));
-define('DIAS_VAGA_VENCENDO', max(1, (int) env('DIAS_VAGA_VENCENDO', 7)));
-define('AREA_MIN_VAGAS', max(1, (int) env('AREA_MIN_VAGAS', 3)));
-define('DIAS_RECRUTADOR_ATIVO', max(1, (int) env('DIAS_RECRUTADOR_ATIVO', 7)));
+define('CARROSSEL_MAX', max(1, (int) env('CARROSSEL_MAX', 5)));       
+define('DIAS_VAGA_NOVA', max(1, (int) env('DIAS_VAGA_NOVA', 7)));      
+define('DIAS_VAGA_VENCENDO', max(1, (int) env('DIAS_VAGA_VENCENDO', 7))); 
+define('AREA_MIN_VAGAS', max(1, (int) env('AREA_MIN_VAGAS', 3)));      
+define('DIAS_RECRUTADOR_ATIVO', max(1, (int) env('DIAS_RECRUTADOR_ATIVO', 7))); 
 define('UPLOAD_MAX_MB', max(1, (int) env('UPLOAD_MAX_MB', 5)));
 define('TIPOS_VAGA', ['Estágio', 'Trainee', 'Jovem Aprendiz', 'Jovem Profissional']);
 define('MODALIDADES', ['Presencial', 'Híbrido', 'Remoto']);
@@ -113,7 +111,6 @@ function dinheiro($v): string
     return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.');
 }
 
-
 function parse_dinheiro(string $s): ?float
 {
     $s = trim(str_replace(['R$', ' '], '', $s));
@@ -121,7 +118,6 @@ function parse_dinheiro(string $s): ?float
     $s = str_contains($s, ',') ? str_replace(['.', ','], ['', '.'], $s) : $s;
     return is_numeric($s) && $s >= 0 ? round((float) $s, 2) : null;
 }
-
 
 function fone_fmt(string $d): string
 {
@@ -166,7 +162,6 @@ function empresa_capa_attr(array $e): string
     $u = url_upload($e['banner'] ?? null);
     return $u ? ' has-img" style="--bn:url(\'' . e($u) . '\')' : '';
 }
-
 
 function saudacao(): string
 {
@@ -266,13 +261,11 @@ function flash(string $tipo, string $msg): void
     $_SESSION['flash'][] = [$tipo, $msg];
 }
 
-
 function view(string $nome, array $dados = []): void
 {
     extract($dados, EXTR_SKIP);
     require ROOT_PATH . "/Views/$nome.php";
 }
-
 function pagina_404(): void
 {
     http_response_code(404);
@@ -285,7 +278,7 @@ function pagina_404(): void
         $emp = $noPainel ? Auth::empresa() : null;
     } catch (Throwable $t) {
         $adm = $emp = null;
-    }   // sem banco/sessão: cai na página pública
+    }
     if ($adm) {
         render('erro_404', ['titulo' => 'Página não encontrada', 'modo' => 'app', 'area' => 'admin', 'secao' => '', 'adm' => $adm, 'emp' => [], 'voltar' => ['Voltar ao painel', url('admin')]], 'app');
         return;
@@ -304,12 +297,10 @@ function render(string $nome, array $dados, string $layout): void
     $conteudo = ob_get_clean();
     require ROOT_PATH . "/Views/layouts/$layout.php";
 }
-/** URL pública da vaga (o QR Code do modo TV usa esta). PRETTY_URLS=1 exige o .htaccess (/vaga/123). */
 function url_vaga(int $id): string
 {
     return url('vaga', ['id' => $id]);
 }
-/** Campo oculto "p" dos formulários GET: só é preciso quando os links usam "?p=" (o GET descarta a query do action). */
 function campo_rota(string $pagina): string
 {
     return Rota::ativo() ? '' : '<input type="hidden" name="p" value="' . e($pagina) . '">';
@@ -318,7 +309,6 @@ function url_vaga_abs(int $id): string
 {
     return origem_publica() . url_vaga($id);
 }
-/** Trim em strings; mantém arrays de strings (checkboxes). */
 function limpar_post(array $p): array
 {
     $o = [];

@@ -1,7 +1,13 @@
 <?php
-$checks = [['Logo da empresa', !empty($emp['logo'])], ['Descrição completa', mb_strlen((string) $emp['descricao']) >= 30], ['Site ou LinkedIn', !empty($emp['site']) || !empty($emp['linkedin'])],
-           ['Segmento e porte', !empty($emp['segmento']) && !empty($emp['porte'])], ['Celular de contato', !empty($emp['celular'])]];
-$feitos = count(array_filter($checks, fn($c) => $c[1])); $pct = (int) round($feitos / count($checks) * 100);
+$checks = [
+    ['Logo da empresa', !empty($emp['logo'])],
+    ['Descrição completa', mb_strlen((string) $emp['descricao']) >= 30],
+    ['Site ou LinkedIn', !empty($emp['site']) || !empty($emp['linkedin'])],
+    ['Segmento e porte', !empty($emp['segmento']) && !empty($emp['porte'])],
+    ['Celular de contato', !empty($emp['celular'])]
+];
+$feitos = count(array_filter($checks, fn($c) => $c[1]));
+$pct = (int) round($feitos / count($checks) * 100);
 ?>
 <?php if ($emp['status'] === 'pendente'): ?>
 <div class="ui-alert ui-alert-warn"><?= icon('clock', 22) ?><div><strong>Cadastro em análise</strong>
@@ -12,7 +18,7 @@ $feitos = count(array_filter($checks, fn($c) => $c[1])); $pct = (int) round($fei
 <?php elseif ($emp['status'] === 'reprovada'): ?>
 <div class="ui-alert ui-alert-danger"><?= icon('info', 22) ?><div><strong>Cadastro não aprovado</strong>
         <p>Motivo: <?= nl2br(e((string) $emp['motivo'])) ?></p>
-        <form method="post" action="<?= url('empresa-perfil') ?>"><?= csrf_field() ?><input
+        <form method="post" action="<?= url('empresa-perfil') ?>" style="margin-top:8px"><?= csrf_field() ?><input
                 type="hidden" name="acao" value="reenviar">
             <a class="ui-btn ui-btn-sm" href="<?= url('empresa-perfil') ?>">Corrigir perfil</a> <button
                 class="ui-btn ui-btn-sm ui-btn-primary" type="submit">Reenviar para análise</button>
@@ -58,8 +64,11 @@ $feitos = count(array_filter($checks, fn($c) => $c[1])); $pct = (int) round($fei
                 todas</a>
         </div>
         <?php if (!$recentes): echo Ui::vazio('Nenhuma vaga ainda', $emp['status'] === 'aprovada' ? 'Publique a primeira vaga da sua empresa.' : 'Você poderá publicar vagas depois que a Coordenação aprovar o cadastro.', $emp['status'] === 'aprovada' ? ['Publicar vaga', url('vaga-cadastro')] : null);
-    else: ?><div class="ui-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-            <?php foreach ($recentes as $v) { $ctx = 'empresa'; require __DIR__ . '/partials/vaga_card_app.php'; } ?>
+        else: ?><div class="ui-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+            <?php foreach ($recentes as $v) {
+                    $ctx = 'empresa';
+                    require __DIR__ . '/partials/vaga_card_app.php';
+                } ?>
         </div><?php endif; ?>
     </section>
     <aside class="ui-card">

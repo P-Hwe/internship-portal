@@ -6,8 +6,8 @@ header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
 
-// ?p=<rota> => [Controller, método]
 $rotas = [
+
     'home'              => ['VagaController',          'index'],
     'vaga'              => ['VagaController',          'mostrar'],
     'encerradas'        => ['VagaController',          'encerradas'],
@@ -66,7 +66,7 @@ if (isset($_GET['id']) && !is_scalar($_GET['id'])) {
 if (!is_string($pagina) || !isset($rotas[$pagina])) {
     pagina_404();
     exit;
-}   // endereço que não existe: tela de 404
+}
 
 try {
     Bootstrap::garantir();

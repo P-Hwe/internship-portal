@@ -4,7 +4,7 @@ $dif = function (int $a, int $b) {
     return $d === 0 ? 'igual ao anterior' : ($d > 0 ? '+' : '') . $d . ' vs. período anterior';
 }; ?>
 <div class="ui-row-between">
-    <p class="ui-sub">Veja o que os estudantes mais procuram nos <?= e($txtAtual) ?> e
+    <p class="ui-sub" style="margin:0;max-width:60ch">Veja o que os estudantes mais procuram nos <?= e($txtAtual) ?> e
         use isso para escolher quais vagas colocar em destaque e quais empresas procurar.</p>
     <nav class="ui-period-tabs" aria-label="Período"><?php foreach (Visitas::PERIODOS as $k => $d): ?><a
             href="<?= e(url('admin-desempenho', ['periodo' => $k])) ?>"
@@ -47,7 +47,7 @@ $dif = function (int $a, int $b) {
         </ol><?php endif; ?>
     </section>
 </div>
-<div class="ui-card">
+<div class="ui-card" style="margin-top:18px">
     <h2>Visitantes diferentes por <?= $resumo['janela']['bucket'] === 'mes' ? 'mês' : 'dia' ?></h2>
     <?= Ui::comparar($resumo['linhasU'], 'Visitantes diferentes ' . $txtAtual . ' e ' . $txtAnt) ?>
 </div>

@@ -127,7 +127,7 @@ class EmpresaAreaController
                 redirect('empresa-vaga', ['id' => $novo]);
             }
         }
-        $this->pagina('vaga_form', ['emp' => $emp, 'atual' => $atual, 'old' => $old, 'erros' => $erros, 'areas' => Vaga::areas()], 'vagas', $atual ? 'Editar vaga' : 'Publicar vaga');
+        $this->pagina('vaga_form', ['emp' => $emp, 'atual' => $atual, 'old' => $old, 'erros' => $erros, 'areas' => Vaga::areas()], $atual ? 'vagas' : 'publicar', $atual ? 'Editar vaga' : 'Publicar vaga');
     }
 
     public function encerrar(): void

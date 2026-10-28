@@ -1,10 +1,17 @@
 <?php
-$j = $resumo['janela']; $at = $resumo['atual']; $an = $resumo['anterior']; [$rotPeriodo, $txtAtual, $txtAnt] = Visitas::PERIODOS[$periodo];
-$delta = function (int $a, int $b) { [$t, $p] = Visitas::variacao($a, $b); if ($t === 'novo') return '<span class="ui-delta is-up">novo no período</span>'; if ($t === 'igual') return '<span class="ui-delta">igual ao período anterior</span>';
-    return '<span class="ui-delta ' . ($t === 'sobe' ? 'is-up' : 'is-down') . '">' . ($p > 0 ? '+' : '') . $p . '% sobre o período anterior</span>'; };
+$j = $resumo['janela'];
+$at = $resumo['atual'];
+$an = $resumo['anterior'];
+[$rotPeriodo, $txtAtual, $txtAnt] = Visitas::PERIODOS[$periodo];
+$delta = function (int $a, int $b) {
+    [$t, $p] = Visitas::variacao($a, $b);
+    if ($t === 'novo') return '<span class="ui-delta is-up">novo no período</span>';
+    if ($t === 'igual') return '<span class="ui-delta">igual ao período anterior</span>';
+    return '<span class="ui-delta ' . ($t === 'sobe' ? 'is-up' : 'is-down') . '">' . ($p > 0 ? '+' : '') . $p . '% sobre o período anterior</span>';
+};
 $m = fn(string $r, int $a, int $b) => '<div class="ui-metric"><span class="ui-metric-n">' . $a . '</span><span class="ui-metric-l">' . e($r) . '</span>' . $delta($a, $b) . '</div>';
 ?>
-<?php if ($pend): ?><p class="ui-btn-wrapper"><a class="ui-btn ui-btn-primary"
+<?php if ($pend): ?><p style="margin:-10px 0 24px"><a class="ui-btn ui-btn-primary"
         href="<?= url('admin-aprovacoes') ?>">Abrir aprovações</a></p><?php endif; ?>
 
 <section class="ui-section">
@@ -53,11 +60,15 @@ $m = fn(string $r, int $a, int $b) => '<div class="ui-metric"><span class="ui-me
 
 <div class="ui-grid-2" style="margin-bottom:30px">
     <section class="ui-card">
-        <div class="ui-row-between"><h2>O que aconteceu por aqui</h2><a class="ui-btn ui-btn-sm" href="<?= e(url('admin-atividade')) ?>">Ver mais</a></div>
-        <?php if (!$atividade): echo Ui::vazio('Nada por enquanto', 'As decisões da Coordenação e os envios das empresas aparecem aqui.'); else: ?>
+        <div class="ui-row-between">
+            <h2>O que aconteceu por aqui</h2><a class="ui-btn ui-btn-sm" href="<?= e(url('admin-atividade')) ?>">Ver
+                mais</a>
+        </div>
+        <?php if (!$atividade): echo Ui::vazio('Nada por enquanto', 'As decisões da Coordenação e os envios das empresas aparecem aqui.');
+        else: ?>
         <ul class="ui-feed">
             <?php foreach ($atividade as $h): [$quem, $verbo, $item] = Historico::frase($h);
-      $link = $h['entidade'] === 'vaga' ? url('admin-vaga', ['id' => $h['entidade_id']]) : ($h['entidade'] === 'empresa' ? url('admin-empresa', ['id' => $h['entidade_id']]) : null); ?>
+                    $link = $h['entidade'] === 'vaga' ? url('admin-vaga', ['id' => $h['entidade_id']]) : ($h['entidade'] === 'empresa' ? url('admin-empresa', ['id' => $h['entidade_id']]) : null); ?>
             <li><strong><?= e($quem) ?></strong> <?= e($verbo) ?>
                 <?= $link && $item ? '<a href="' . e($link) . '">' . e($item) . '</a>' : e($item) ?>
                 <small><?= e(tempo_atras($h['criado_em'])) ?></small><?php if (in_array($h['acao'], ['rejeitada', 'reprovada', 'bloqueada'], true) && $h['detalhe']): ?><small
@@ -84,8 +95,8 @@ $m = fn(string $r, int $a, int $b) => '<div class="ui-metric"><span class="ui-me
                     rejeitadas</span></li>
         </ul>
         <h2 style="margin:20px 0 8px;font-size:15px">Empresas que chegaram há pouco</h2>
-        <?php if (!$empresasRecentes): echo '<p class="ui-sub">Nenhuma empresa cadastrada ainda.</p>'; else: ?><ul
-            class="ui-ledger"><?php foreach ($empresasRecentes as $r): ?>
+        <?php if (!$empresasRecentes): echo '<p class="ui-sub">Nenhuma empresa cadastrada ainda.</p>';
+        else: ?><ul class="ui-ledger"><?php foreach ($empresasRecentes as $r): ?>
             <li><a href="<?= url('admin-empresa', ['id' => $r['id']]) ?>"><?= e($r['nome']) ?></a><span><?= Ui::statusEmpresa($r['status']) ?>
                     <?= e(data_br(substr($r['criado_em'], 0, 10))) ?></span></li><?php endforeach; ?>
         </ul><?php endif; ?>

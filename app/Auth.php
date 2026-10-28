@@ -101,13 +101,17 @@ class Auth
         }
         return $e;
     }
-    public static function exigirAdmin(): array
+    /** $paginaDeTroca = true só na própria tela de troca de senha (senão o admin com senha inicial é levado até ela antes de tudo). */
+    public static function exigirAdmin(bool $paginaDeTroca = false): array
     {
         self::bloquearSeOutroPerfil('admin');
         $a = self::admin();
         if (!$a) {
             flash('info', 'Acesso restrito à Coordenação/Secretaria.');
             redirect('admin-login');
+        }
+        if ((int) ($a['trocar_senha'] ?? 0) && !$paginaDeTroca) {
+            redirect('admin-senha');
         }
         return $a;
     }

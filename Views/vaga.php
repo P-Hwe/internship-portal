@@ -1,7 +1,12 @@
-<?php require __DIR__ . '/header.php'; $ativa = 'home'; require __DIR__ . '/partials/nav.php'; $emp = $vaga['empresa']; $selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
+<?php require __DIR__ . '/header.php';
+$ativa = 'home';
+require __DIR__ . '/partials/nav.php';
+$emp = $vaga['empresa'];
+$selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
 
 <nav class="vg-crumbs" aria-label="Você está aqui"><a href="<?= url() ?>">Vagas</a> <span aria-hidden="true">›</span>
-    <span><?= e($vaga['titulo']) ?></span></nav>
+    <span><?= e($vaga['titulo']) ?></span>
+</nav>
 <?php if (!$aberta): ?><div class="vg-flash vg-flash-info" role="status"><?= icon('info', 18) ?> <span><strong>Esta vaga
             não recebe mais inscrições.</strong>
         <?= $vaga['situacao'] === 'encerrada' ? 'Foi encerrada pela empresa.' : 'O prazo terminou em ' . data_br($vaga['data_limite']) . '.' ?>
@@ -19,7 +24,7 @@
                 class="vg-badge vg-badge-soft"><?= e($vaga['modalidade']) ?></span></div>
         <h1><?= e($vaga['titulo']) ?></h1>
         <p class="vg-detail-company"><?= icon('building', 18) ?> <a href="<?= url('empresa', ['id' => $emp['id']]) ?>"
-                class="vg-detail-company-link"><?= e($emp['nome']) ?></a></p>
+                style="color:inherit"><?= e($emp['nome']) ?></a></p>
     </div>
     <dl class="vg-facts">
         <div>
@@ -61,7 +66,7 @@
         <?php if ($vaga['requisitos']): ?><section class="vg-block">
             <h2>Requisitos</h2>
             <ul><?php foreach ($vaga['requisitos'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-            <?php if ($vaga['requisitos_desejaveis']): ?><h2>Desejáveis</h2>
+            <?php if ($vaga['requisitos_desejaveis']): ?><h2 style="margin-top:12px">Desejáveis</h2>
             <ul><?php foreach ($vaga['requisitos_desejaveis'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
             <?php endif; ?>
         </section><?php endif; ?>
@@ -98,7 +103,8 @@
             <?php foreach (['link_site' => 'Site da empresa', 'link_linkedin' => 'LinkedIn'] as $k => $rot): if ($vaga[$k]): ?><a
                 class="vg-btn vg-btn-ghost" href="<?= e($vaga[$k]) ?>" target="_blank"
                 rel="noopener noreferrer nofollow"><?= icon('external', 16) ?>
-                <?= $rot ?></a><?php endif; endforeach; ?>
+                <?= $rot ?></a><?php endif;
+                                    endforeach; ?>
         </div>
     </section>
     <?php endif; ?>
@@ -109,7 +115,11 @@
         <h2 id="vg-rel">Outras vagas</h2>
     </div>
     <div class="vg-grid">
-        <?php foreach ($relacionadas as $v) { $trilho = false; $chave = null; require __DIR__ . '/partials/card_vaga.php'; } ?>
+        <?php foreach ($relacionadas as $v) {
+                $trilho = false;
+                $chave = null;
+                require __DIR__ . '/partials/card_vaga.php';
+            } ?>
     </div>
 </section><?php endif; ?>
 <p><a class="vg-back" href="<?= url() ?>"><?= icon('arrow-left', 16) ?> Voltar para todas as vagas</a></p>

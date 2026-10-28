@@ -93,6 +93,7 @@ class VagaController
 
     public function tv(): void
     {
-        view('tv', ['vagas' => Vaga::publicas()]);
+        $publicas = Vaga::publicas();
+        view('tv', ['vagas' => Vaga::tv($publicas)]);
     }
 }

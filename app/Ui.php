@@ -170,6 +170,12 @@ class Ui
             . '<text x="60" y="58" text-anchor="middle" style="font:700 20px system-ui;fill:var(--text)">' . (int) $total . '</text><text x="60" y="73" text-anchor="middle" style="font:11px system-ui;fill:var(--muted)">' . e($centro) . '</text></svg><ul>' . $li . '</ul></div>';
     }
 
+    /** Barras do período atual ao lado do anterior. $linhas = [['rot'=>'05/10','atual'=>3,'anterior'=>1]]. */
+    public static function comparar(array $linhas, string $descricao): string
+    {
+        return self::barras($linhas, [['atual', 'Período atual', 'var(--chart-1)'], ['anterior', 'Período anterior', 'var(--chart-prev)']], $descricao);
+    }
+
     public static function barras(array $linhas, array $series, string $descricao): string
     {
         $max = 0;
@@ -203,7 +209,9 @@ class Ui
                 $h = $ih * $v / $topo;
                 $svg .= '<rect x="' . round($x0 + $j * $bw, 1) . '" y="' . round($pt + $ih - $h, 1) . '" width="' . round($bw - 2, 1) . '" height="' . round($h, 1) . '" rx="3" fill="' . e($cor) . '"><title>' . e($rot . ' ' . $l['rot'] . ': ' . $v) . '</title></rect>';
             }
-            $svg .= '<text x="' . round($pl + $i * $gw + $gw / 2, 1) . '" y="' . ($H - 8) . '" text-anchor="middle">' . e($l['rot']) . '</text>';
+            if ($i % max(1, (int) ceil($n / 10)) === 0) {
+                $svg .= '<text x="' . round($pl + $i * $gw + $gw / 2, 1) . '" y="' . ($H - 8) . '" text-anchor="middle">' . e($l['rot']) . '</text>';
+            }
         }
         $lg = implode('', array_map(fn($s) => '<span><i style="background:' . e($s[2]) . '"></i>' . e($s[1]) . '</span>', $series));
         return '<svg class="ui-chart" viewBox="0 0 ' . $W . ' ' . $H . '" role="img" aria-label="' . e($descricao) . '">' . $svg . '</svg><div class="ui-legend">' . $lg . '</div>';
