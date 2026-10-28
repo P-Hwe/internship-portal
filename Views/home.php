@@ -1,6 +1,4 @@
-<?php require __DIR__ . '/header.php';
-$ativa = 'home';
-require __DIR__ . '/partials/nav.php'; ?>
+<?php require __DIR__ . '/header.php'; $ativa = 'home'; require __DIR__ . '/partials/nav.php'; ?>
 
 <div class="vg-hero">
     <h1>Vagas de Estágio e Primeiro Emprego</h1>
@@ -9,55 +7,51 @@ require __DIR__ . '/partials/nav.php'; ?>
 </div>
 
 <?php if ($destaques): ?>
-    <section class="vg-carousel" data-carousel aria-roledescription="carrossel" aria-label="Vagas em destaque">
-        <div class="vg-slides">
-            <?php foreach ($destaques as $i => $v): ?>
-                <a class="vg-slide <?= $i === 0 ? 'is-active' : '' ?>" href="<?= url('vaga', ['id' => $v['id']]) ?>"
-                    aria-label="<?= ($i + 1) ?> de <?= count($destaques) ?>: <?= e($v['titulo']) ?> - <?= e($v['empresa']['nome']) ?>">
-                    <?= vaga_imagem($v) ?>
-                    <span class="vg-slide-caption">
-                        <span class="vg-slide-tag"><?= e($v['tipo']) ?> · Destaque</span>
-                        <strong><?= e($v['titulo']) ?></strong>
-                        <span><?= e($v['empresa']['nome']) ?> · <?= e($v['modalidade']) ?> · <?= e($v['bolsa_txt']) ?></span>
-                    </span>
-                </a>
-            <?php endforeach; ?>
-        </div>
-        <?php if (count($destaques) > 1): ?>
-            <button type="button" class="vg-car-btn vg-prev" data-prev
-                aria-label="Vaga anterior"><?= icon('chevron-left', 22) ?></button>
-            <button type="button" class="vg-car-btn vg-next" data-next
-                aria-label="Próxima vaga"><?= icon('chevron-right', 22) ?></button>
-            <div class="vg-dots" role="tablist" aria-label="Escolher slide">
-                <?php foreach ($destaques as $i => $v): ?><button type="button" class="<?= $i === 0 ? 'is-active' : '' ?>"
-                        data-dot="<?= $i ?>" aria-label="Ir para a vaga <?= $i + 1 ?>"></button><?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </section>
+<section class="vg-carousel" data-carousel aria-roledescription="carrossel" aria-label="Vagas em destaque">
+    <div class="vg-slides">
+        <?php foreach ($destaques as $i => $v): ?>
+        <a class="vg-slide <?= $i === 0 ? 'is-active' : '' ?>" href="<?= url('vaga', ['id' => $v['id']]) ?>"
+            aria-label="<?= ($i + 1) ?> de <?= count($destaques) ?>: <?= e($v['titulo']) ?> - <?= e($v['empresa']['nome']) ?>">
+            <?= vaga_imagem($v) ?>
+            <span class="vg-slide-caption">
+                <span class="vg-slide-tag"><?= e($v['tipo']) ?> · Destaque</span>
+                <strong><?= e($v['titulo']) ?></strong>
+                <span><?= e($v['empresa']['nome']) ?> · <?= e($v['modalidade']) ?> · <?= e($v['bolsa_txt']) ?></span>
+            </span>
+        </a>
+        <?php endforeach; ?>
+    </div>
+    <?php if (count($destaques) > 1): ?>
+    <button type="button" class="vg-car-btn vg-prev" data-prev
+        aria-label="Vaga anterior"><?= icon('chevron-left', 22) ?></button>
+    <button type="button" class="vg-car-btn vg-next" data-next
+        aria-label="Próxima vaga"><?= icon('chevron-right', 22) ?></button>
+    <div class="vg-dots" role="tablist" aria-label="Escolher slide">
+        <?php foreach ($destaques as $i => $v): ?><button type="button" class="<?= $i === 0 ? 'is-active' : '' ?>"
+            data-dot="<?= $i ?>" aria-label="Ir para a vaga <?= $i + 1 ?>"></button><?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+</section>
 <?php endif; ?>
 
 <?php foreach ($trilhos as $t): ?>
-    <section class="vg-rail" data-rail aria-labelledby="rail-<?= e($t['id']) ?>">
-        <div class="vg-rail-head">
-            <div>
-                <h2 id="rail-<?= e($t['id']) ?>"><?= icon($t['icone'], 20) ?> <?= e($t['titulo']) ?></h2>
-                <?php if (!empty($t['sub'])): ?><p><?= e($t['sub']) ?></p><?php endif; ?>
-            </div>
-            <div class="vg-rail-ctrl">
-                <button type="button" class="vg-rail-btn" data-rail-prev
-                    aria-label="Voltar em <?= e($t['titulo']) ?>"><?= icon('chevron-left', 20) ?></button>
-                <button type="button" class="vg-rail-btn" data-rail-next
-                    aria-label="Avançar em <?= e($t['titulo']) ?>"><?= icon('chevron-right', 20) ?></button>
-            </div>
+<section class="vg-rail" data-rail aria-labelledby="rail-<?= e($t['id']) ?>">
+    <div class="vg-rail-head">
+        <div>
+            <h2 id="rail-<?= e($t['id']) ?>"><?= icon($t['icone'], 20) ?> <?= e($t['titulo']) ?></h2>
+            <?php if (!empty($t['sub'])): ?><p><?= e($t['sub']) ?></p><?php endif; ?>
         </div>
-        <div class="vg-rail-track" data-rail-track tabindex="0">
-            <?php foreach ($t['itens'] as $v) {
-                $chave = $t['chave'];
-                $trilho = true;
-                require __DIR__ . '/partials/card_vaga.php';
-            } ?>
+        <div class="vg-rail-ctrl">
+            <button type="button" class="vg-rail-btn" data-rail-prev
+                aria-label="Voltar em <?= e($t['titulo']) ?>"><?= icon('chevron-left', 20) ?></button>
+            <button type="button" class="vg-rail-btn" data-rail-next
+                aria-label="Avançar em <?= e($t['titulo']) ?>"><?= icon('chevron-right', 20) ?></button>
         </div>
-    </section>
+    </div>
+    <div class="vg-rail-track" data-rail-track tabindex="0">
+        <?php foreach ($t['itens'] as $v) { $chave = $t['chave']; $trilho = true; require __DIR__ . '/partials/card_vaga.php'; } ?>
+    </div>
+</section>
 <?php endforeach; ?>
 
 <section id="todas" aria-labelledby="vg-lista-titulo">
@@ -67,11 +61,11 @@ require __DIR__ . '/partials/nav.php'; ?>
     </div>
 
     <?php if ($tipos): ?>
-        <div class="vg-chips" role="group" aria-label="Filtrar por tipo de vaga">
-            <button type="button" class="vg-chip is-active" data-chip="">Todas</button>
-            <?php foreach ($tipos as $t): ?><button type="button" class="vg-chip"
-                    data-chip="<?= e($t) ?>"><?= e($t) ?></button><?php endforeach; ?>
-        </div>
+    <div class="vg-chips" role="group" aria-label="Filtrar por tipo de vaga">
+        <button type="button" class="vg-chip is-active" data-chip="">Todas</button>
+        <?php foreach ($tipos as $t): ?><button type="button" class="vg-chip"
+            data-chip="<?= e($t) ?>"><?= e($t) ?></button><?php endforeach; ?>
+    </div>
     <?php endif; ?>
 
     <form class="vg-filters" data-filters role="search" onsubmit="return false">
@@ -90,32 +84,26 @@ require __DIR__ . '/partials/nav.php'; ?>
     </form>
 
     <div class="vg-grid" data-grid>
-        <?php foreach ($vagas as $v) {
-            $trilho = false;
-            $chave = null;
-            require __DIR__ . '/partials/card_vaga.php';
-        } ?>
+        <?php foreach ($vagas as $v) { $trilho = false; $chave = null; require __DIR__ . '/partials/card_vaga.php'; } ?>
     </div>
-    <p style="text-align:right;margin:10px 0 0"><a class="vg-btn-link" href="<?= url('encerradas') ?>">Ver vagas
-            encerradas e expiradas <?= icon('arrow-right', 16) ?></a></p>
     <p class="vg-empty" data-empty <?= $vagas ? 'hidden' : '' ?>>
         <?= $vagas ? 'Nenhuma vaga encontrada. Tente limpar os filtros.' : 'Nenhuma vaga aberta no momento. Volte em breve!' ?>
     </p>
 </section>
 
 <?php if (!Auth::perfil()): ?>
-    <aside class="vg-cta-box">
-        <div>
-            <h2>É uma empresa parceira?</h2>
-            <p>Cadastre sua empresa e, depois de aprovada pela Coordenação, publique suas vagas.</p>
-        </div>
-        <div class="vg-cta-actions">
-            <a class="vg-btn vg-btn-lg" href="<?= url('empresa-cadastro') ?>"><?= icon('building', 18) ?> Cadastrar minha
-                empresa</a>
-            <a class="vg-btn-link" href="<?= url('empresa-login') ?>">Já sou parceira: entrar
-                <?= icon('arrow-right', 16) ?></a>
-        </div>
-    </aside>
+<aside class="vg-cta-box">
+    <div>
+        <h2>É uma empresa parceira?</h2>
+        <p>Cadastre sua empresa e, depois de aprovada pela Coordenação, publique suas vagas.</p>
+    </div>
+    <div class="vg-cta-actions">
+        <a class="vg-btn vg-btn-lg" href="<?= url('empresa-cadastro') ?>"><?= icon('building', 18) ?> Cadastrar minha
+            empresa</a>
+        <a class="vg-btn-link" href="<?= url('empresa-login') ?>">Já sou parceira: entrar
+            <?= icon('arrow-right', 16) ?></a>
+    </div>
+</aside>
 <?php endif; ?>
 </div>
 

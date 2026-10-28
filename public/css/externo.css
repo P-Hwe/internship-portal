@@ -1,0 +1,12 @@
+/* ============================================
+   External Link Page Styles
+   Extrair de Views/externo.php
+   ============================================ */
+
+.vg-code {
+    word-break: break-all;
+}
+
+.vg-apply-actions {
+    justify-content: center;
+}

@@ -16,7 +16,7 @@
         <h2>Sobre a empresa</h2>
         <p><?= nl2br(e($e['descricao'])) ?></p>
     </section><?php endif; ?>
-    <dl class="vg-facts" style="margin-top:18px">
+    <dl class="vg-facts">
         <div>
             <dt>Vagas abertas</dt>
             <dd><?= (int) $e['vagas_abertas'] ?></dd>

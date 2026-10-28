@@ -1,8 +1,37 @@
 <?php
-$larga = true; $modo = 'cadastro'; $old = $old + ['logo' => null, 'banner' => null, 'cnpj' => '', 'nome' => ''];
-$etapaDe = ['cnpj' => 0, 'razao_social' => 0, 'nome' => 0, 'descricao' => 0, 'segmento' => 0, 'porte' => 0, 'site' => 0, 'linkedin' => 0, 'logo' => 0, 'banner' => 0,
-    'cep' => 1, 'logradouro' => 1, 'numero' => 1, 'complemento' => 1, 'bairro' => 1, 'cidade' => 1, 'uf' => 1, 'responsavel' => 2, 'cargo' => 2, 'telefone' => 2, 'celular' => 2, 'email_contato' => 2,
-    'email' => 3, 'senha' => 3, 'senha2' => 3, 'termo' => 4, 'aceite_termos' => 4, 'aceite_privacidade' => 4];
+$larga = true;
+$modo = 'cadastro';
+$old = $old + ['logo' => null, 'banner' => null, 'cnpj' => '', 'nome' => ''];
+$etapaDe = [
+    'cnpj' => 0,
+    'razao_social' => 0,
+    'nome' => 0,
+    'descricao' => 0,
+    'segmento' => 0,
+    'porte' => 0,
+    'site' => 0,
+    'linkedin' => 0,
+    'logo' => 0,
+    'banner' => 0,
+    'cep' => 1,
+    'logradouro' => 1,
+    'numero' => 1,
+    'complemento' => 1,
+    'bairro' => 1,
+    'cidade' => 1,
+    'uf' => 1,
+    'responsavel' => 2,
+    'cargo' => 2,
+    'telefone' => 2,
+    'celular' => 2,
+    'email_contato' => 2,
+    'email' => 3,
+    'senha' => 3,
+    'senha2' => 3,
+    'termo' => 4,
+    'aceite_termos' => 4,
+    'aceite_privacidade' => 4
+];
 $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros))) : 0;
 ?>
 <div class="auth-card">

@@ -13,8 +13,10 @@
         <button class="ui-btn ui-btn-primary ui-btn-lg ui-btn-block" type="submit">Entrar</button>
     </form>
     <div class="auth-links">
-        <span><a href="<?= url('empresa-login', ['esqueci' => 1]) ?>" data-abrir-modal="modal-esqueci">Esqueceu a senha?</a></span>
+        <span><a href="<?= url('empresa-login', ['esqueci' => 1]) ?>" data-abrir-modal="modal-esqueci">Esqueceu a
+                senha?</a></span>
         <span>Ainda não é parceira? <a href="<?= url('empresa-cadastro') ?>">Cadastrar empresa</a></span>
     </div>
 </div>
-<?php $perfil = 'empresa'; require __DIR__ . '/partials/modal_senha.php'; ?>
+<?php $perfil = 'empresa';
+require __DIR__ . '/partials/modal_senha.php'; ?>
