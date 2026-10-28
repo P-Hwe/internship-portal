@@ -1,8 +1,11 @@
 <span class="hide">Fim do conteúdo da página</span>
 </section>
 </div>
+<!-- fim #content.span9 -->
 </div>
+<!-- fim .row-fluid -->
 </div>
+<!-- fim .container -->
 </main>
 <footer>
     <div class="footer-atalhos">
@@ -128,15 +131,17 @@
 
 
             <div class="">
-                <nav class="row  nav">
-                    <?php require __DIR__ . '/../../public/css/footer.css'; ?>
+                <nav class="row nav">
+                    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/navigation.css" type="text/css" />
                 </nav>
             </div>
 
 
             <span class="hide">Fim da navegação de rodapé</span>
         </div>
+        <!-- fim .row -->
     </div>
+    <!-- fim .container -->
     <div class="footer-logos">
         <div class="container">
             <a href="http://www.acessoainformacao.gov.br/" class="logo-acesso pull-left"><img
@@ -157,17 +162,24 @@
     </div>
 </footer>
 </div>
+<!-- fim div#wrapper -->
+<!-- scripts principais do template -->
 <script src="https://gru.ifsp.edu.br/templates/padraogoverno01/bootstrap/js/bootstrap.min.js" type="text/javascript">
 </script><noscript>&nbsp;
+    <!-- item para fins de acessibilidade -->
 </noscript>
 <script src="https://gru.ifsp.edu.br/templates/padraogoverno01/js/jquery.cookie.js" type="text/javascript"></script>
 <noscript>&nbsp;
+    <!-- item para fins de acessibilidade -->
 </noscript>
 <script src="https://gru.ifsp.edu.br/templates/padraogoverno01/js/template.js" type="text/javascript"></script>
 <noscript>&nbsp;
+    <!-- item para fins de acessibilidade -->
 </noscript>
 <script src="https://barra.brasil.gov.br/barra.js?cor=verde" type="text/javascript"></script><noscript>&nbsp;
+    <!-- item para fins de acessibilidade -->
 </noscript>
+<!-- debug -->
 
 <script src="<?= BASE_URL ?>public/js/vagas.js"></script>
 </body>
