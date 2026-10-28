@@ -19,7 +19,7 @@
                 class="vg-badge vg-badge-soft"><?= e($vaga['modalidade']) ?></span></div>
         <h1><?= e($vaga['titulo']) ?></h1>
         <p class="vg-detail-company"><?= icon('building', 18) ?> <a href="<?= url('empresa', ['id' => $emp['id']]) ?>"
-                style="color:inherit"><?= e($emp['nome']) ?></a></p>
+                class="vg-detail-company-link"><?= e($emp['nome']) ?></a></p>
     </div>
     <dl class="vg-facts">
         <div>
@@ -61,7 +61,7 @@
         <?php if ($vaga['requisitos']): ?><section class="vg-block">
             <h2>Requisitos</h2>
             <ul><?php foreach ($vaga['requisitos'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-            <?php if ($vaga['requisitos_desejaveis']): ?><h2 style="margin-top:12px">Desejáveis</h2>
+            <?php if ($vaga['requisitos_desejaveis']): ?><h2>Desejáveis</h2>
             <ul><?php foreach ($vaga['requisitos_desejaveis'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
             <?php endif; ?>
         </section><?php endif; ?>

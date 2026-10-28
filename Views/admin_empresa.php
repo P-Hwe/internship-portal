@@ -7,11 +7,11 @@
 <div class="ui-card ui-cover-card" style="margin-bottom:16px">
     <div class="ui-cover"><?= empresa_banner($e) ?></div>
     <div class="ui-cover-body"><span class="ui-cover-logo"><?= Ui::logo($e, 72) ?></span>
-        <h2 style="font-size:22px;margin:0 0 2px"><?= e($e['nome']) ?></h2>
-        <p class="ui-sub" style="margin:0">
+        <h2><?= e($e['nome']) ?></h2>
+        <p class="ui-sub">
             <?= e(Empresa::segmentoTxt($e)) ?><?= $e['porte'] ? ' · ' . e($e['porte']) : '' ?><?= $e['cidade'] ? ' · ' . e($e['cidade'] . '/' . $e['uf']) : '' ?>
         </p>
-        <?php if ($e['descricao']): ?><p style="margin:14px 0 0"><?= nl2br(e($e['descricao'])) ?></p><?php endif; ?>
+        <?php if ($e['descricao']): ?><p><?= nl2br(e($e['descricao'])) ?></p><?php endif; ?>
     </div>
 </div>
 <?php if ($e['status'] === 'reprovada' || $e['status'] === 'bloqueada'): ?><div class="ui-alert ui-alert-danger">

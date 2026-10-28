@@ -1,10 +1,10 @@
 <?php /** Desempenho de uma vaga ou empresa (para decidir o que destacar). Espera $desemp = Visitas::detalhe(). */
 $emp = $desemp['tipo'] === 'empresa'; $d30 = $desemp['d30']; $d7 = $desemp['d7'];
 ?>
-<section class="ui-card" style="margin-bottom:16px">
-    <h2 style="margin:0 0 4px">Desempenho <?= $emp ? 'da empresa' : 'da vaga' ?></h2>
-    <p class="ui-hint" style="margin-top:0">Quantas vezes <?= $emp ? 'a página da empresa e as vagas dela' : 'esta vaga' ?> foram abertas por estudantes. Use para escolher o que colocar em destaque.</p>
-    <div class="ui-metrics" style="margin-bottom:12px">
+<section class="ui-card">
+    <h2>Desempenho <?= $emp ? 'da empresa' : 'da vaga' ?></h2>
+    <p class="ui-hint">Quantas vezes <?= $emp ? 'a página da empresa e as vagas dela' : 'esta vaga' ?> foram abertas por estudantes. Use para escolher o que colocar em destaque.</p>
+    <div class="ui-metrics">
         <?= Ui::metrica('Visualizações (7 dias)', $d7['views'], 'eye') ?>
         <?= Ui::metrica('Visualizações (30 dias)', $d30['views'], 'eye') ?>
         <?= Ui::metrica('Visitantes diferentes (30 dias)', $d30['unicos'], 'users') ?>

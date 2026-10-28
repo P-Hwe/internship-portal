@@ -11,6 +11,8 @@
         <?= Ui::campo(['name' => 'senha', 'label' => 'Senha', 'type' => 'password', 'req' => true, 'attrs' => ['autocomplete' => 'current-password']]) ?>
         <button class="ui-btn ui-btn-primary ui-btn-lg ui-btn-block" type="submit">Entrar</button>
     </form>
-    <div class="auth-links"><span><a href="<?= url('admin-login', ['esqueci' => 1]) ?>" data-abrir-modal="modal-esqueci">Esqueceu a senha?</a></span></div>
+    <div class="auth-links"><span><a href="<?= url('admin-login', ['esqueci' => 1]) ?>"
+                data-abrir-modal="modal-esqueci">Esqueceu a senha?</a></span></div>
 </div>
-<?php $perfil = 'admin'; require __DIR__ . '/partials/modal_senha.php'; ?>
+<?php $perfil = 'admin';
+require __DIR__ . '/partials/modal_senha.php'; ?>

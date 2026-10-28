@@ -1,4 +1,6 @@
-<?php require __DIR__ . '/header.php'; $ativa = 'empresas'; require __DIR__ . '/partials/nav.php'; ?>
+<?php require __DIR__ . '/header.php';
+$ativa = 'empresas';
+require __DIR__ . '/partials/nav.php'; ?>
 <div class="vg-hero">
     <h1>Empresas parceiras</h1>
     <p>Conheça as empresas que divulgam oportunidades para os estudantes do campus. Clique em uma empresa para conhecer

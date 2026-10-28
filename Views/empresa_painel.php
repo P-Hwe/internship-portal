@@ -12,7 +12,7 @@ $feitos = count(array_filter($checks, fn($c) => $c[1])); $pct = (int) round($fei
 <?php elseif ($emp['status'] === 'reprovada'): ?>
 <div class="ui-alert ui-alert-danger"><?= icon('info', 22) ?><div><strong>Cadastro não aprovado</strong>
         <p>Motivo: <?= nl2br(e((string) $emp['motivo'])) ?></p>
-        <form method="post" action="<?= url('empresa-perfil') ?>" style="margin-top:8px"><?= csrf_field() ?><input
+        <form method="post" action="<?= url('empresa-perfil') ?>"><?= csrf_field() ?><input
                 type="hidden" name="acao" value="reenviar">
             <a class="ui-btn ui-btn-sm" href="<?= url('empresa-perfil') ?>">Corrigir perfil</a> <button
                 class="ui-btn ui-btn-sm ui-btn-primary" type="submit">Reenviar para análise</button>

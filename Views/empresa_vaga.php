@@ -11,7 +11,7 @@
         <?php if ($v['status'] === 'aprovada') echo Ui::formConfirmar(url('vaga-encerrar'), ['id' => $v['id']], 'Encerrar vaga', 'Encerrar esta vaga?', 'A vaga "' . $v['titulo'] . '" deixa de aparecer para os estudantes imediatamente. Ela continua guardada no histórico e não será excluída.', 'danger', 'ui-btn ui-btn-sm ui-btn-danger-o'); ?>
     </div>
 </div>
-<h2 style="font-size:22px;margin-bottom:14px"><?= e($v['titulo']) ?></h2>
+<h2><?= e($v['titulo']) ?></h2>
 <?php if ($sit === 'rejeitada'): ?><div class="ui-alert ui-alert-danger">
     <div><strong>Vaga rejeitada</strong>
         <p>Motivo: <?= nl2br(e((string) $v['motivo'])) ?></p>
@@ -40,6 +40,6 @@
     </div>
 </div><?php endif; ?>
 <?php require __DIR__ . '/partials/vaga_detalhe.php'; ?>
-<div class="ui-card" style="margin-top:16px">
+<div class="ui-card">
     <h2>Histórico</h2><?php require __DIR__ . '/partials/timeline.php'; ?>
 </div>

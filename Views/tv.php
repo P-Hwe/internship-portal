@@ -14,7 +14,8 @@
         <h1>Vagas de Estágio</h1>
         <p>Nenhuma vaga em destaque ou com melhor salário no momento.</p>
     </div>
-    <?php else: foreach ($vagas as $i => $v): [$pt] = selo_prazo($v); $link = url_vaga_abs((int) $v['id']); ?>
+    <?php else: foreach ($vagas as $i => $v): [$pt] = selo_prazo($v);
+            $link = url_vaga_abs((int) $v['id']); ?>
     <section class="vg-tv-slide <?= $i === 0 ? 'is-active' : '' ?>">
         <div class="vg-tv-media"><?= vaga_imagem($v) ?></div>
         <div class="vg-tv-body">
@@ -35,11 +36,13 @@
             <div class="vg-tv-qr">
                 <div data-qr="<?= e($link) ?>" class="vg-tv-qrimg"></div>
                 <small><?= e(preg_replace('#^https?://#', '', $link)) ?></small>
-                <img class="vg-tv-logo" src="<?= BASE_URL ?>images/if.png" alt="Instituto Federal de São Paulo - Campus Guarulhos">
+                <img class="vg-tv-logo" src="<?= BASE_URL ?>images/if.png"
+                    alt="Instituto Federal de São Paulo - Campus Guarulhos">
             </div>
         </div>
     </section>
-    <?php endforeach; endif; ?>
+    <?php endforeach;
+    endif; ?>
     <div class="vg-tv-bar"><span data-tv-count></span><span>Tecla F: tela cheia</span></div>
     <script src="<?= BASE_URL ?>public/js/vendor/qrcode.js"></script>
     <script src="<?= BASE_URL ?>public/js/vagas.js"></script>
