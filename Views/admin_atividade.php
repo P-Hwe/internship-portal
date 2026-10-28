@@ -6,9 +6,9 @@ $q = fn(array $x) => url('admin-atividade', $x);
     <div class="ui-actions"><a class="ui-btn ui-btn-sm" href="<?= url('admin') ?>"><?= icon('arrow-left', 15) ?> Início</a></div>
     <nav class="ui-period-tabs" aria-label="Período"><?php foreach ($abas as $k => $r): ?><a href="<?= e($q(['filtro' => $k])) ?>" class="<?= $k === $filtro ? 'is-active' : '' ?>"><?= e($r) ?></a><?php endforeach; ?></nav>
 </div>
-<form method="get" action="<?= e(BASE_URL) ?>" class="ui-actions" style="margin:12px 0;align-items:end">
+<form method="get" action="<?= e(BASE_URL) ?>" class="ui-actions">
     <?= campo_rota('admin-atividade') ?><input type="hidden" name="filtro" value="dia">
-    <label class="ui-label" for="desde" style="margin:0">A partir de um dia específico, até hoje
+    <label class="ui-label" for="desde">A partir de um dia específico, até hoje
         <input class="ui-input" type="date" id="desde" name="desde" value="<?= e($desde) ?>" max="<?= e($hoje) ?>" required></label>
     <button class="ui-btn ui-btn-primary" type="submit">Filtrar</button>
 </form>

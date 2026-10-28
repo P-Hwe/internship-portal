@@ -4,7 +4,7 @@ $delta = function (int $a, int $b) { [$t, $p] = Visitas::variacao($a, $b); if ($
     return '<span class="ui-delta ' . ($t === 'sobe' ? 'is-up' : 'is-down') . '">' . ($p > 0 ? '+' : '') . $p . '% sobre o período anterior</span>'; };
 $m = fn(string $r, int $a, int $b) => '<div class="ui-metric"><span class="ui-metric-n">' . $a . '</span><span class="ui-metric-l">' . e($r) . '</span>' . $delta($a, $b) . '</div>';
 ?>
-<?php if ($pend): ?><p style="margin:-10px 0 24px"><a class="ui-btn ui-btn-primary"
+<?php if ($pend): ?><p class="ui-btn-wrapper"><a class="ui-btn ui-btn-primary"
         href="<?= url('admin-aprovacoes') ?>">Abrir aprovações</a></p><?php endif; ?>
 
 <section class="ui-section">

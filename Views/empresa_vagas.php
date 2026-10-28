@@ -3,7 +3,7 @@ $abas = ['todas' => ['Todas', $cont['todas'] ?? 0], 'aguardando' => ['Em anális
 if (!empty($cont['agendada'])) $abas['agendada'] = ['Agendadas', $cont['agendada']];
 $abas += ['destaque' => ['Em destaque', $cont['destaque'] ?? 0], 'expirada' => ['Expiradas', $cont['expirada'] ?? 0], 'encerrada' => ['Encerradas', $cont['encerrada'] ?? 0], 'rejeitada' => ['Rejeitadas', $cont['rejeitada'] ?? 0]];
 ?>
-<div class="ui-row-between"><p class="ui-sub" style="margin:0">Vagas expiradas e encerradas ficam guardadas no histórico; nada é excluído.</p>
+<div class="ui-row-between"><p class="ui-sub">Vagas expiradas e encerradas ficam guardadas no histórico; nada é excluído.</p>
   <?php if ($emp['status'] === 'aprovada'): ?><a class="ui-btn ui-btn-primary" href="<?= url('vaga-cadastro') ?>"><?= icon('plus', 16) ?> Publicar vaga</a><?php endif; ?></div>
 <?= Ui::abas($abas, $aba, 'empresa-vagas', ['q' => $q]) ?>
 <div class="ui-toolbar"><form method="get" action="<?= url('empresa-vagas') ?>" role="search"><?= campo_rota('empresa-vagas') ?><input type="hidden" name="aba" value="<?= e($aba) ?>">

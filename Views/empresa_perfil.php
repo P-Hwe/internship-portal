@@ -1,5 +1,5 @@
 <?php $modo = 'perfil'; $logoPrev = $old; ?>
-<div class="ui-grid-2" style="grid-template-columns:minmax(0,1fr) 300px;align-items:start">
+<div class="ui-grid-2">
     <div>
         <?php if ($emp['status'] === 'reprovada'): ?><div class="ui-alert ui-alert-danger">
             <div><strong>Cadastro não aprovado</strong>
@@ -29,17 +29,16 @@
     <aside>
         <div class="ui-card">
             <h2>Como o estudante vê</h2>
-            <div class="ui-cover" style="aspect-ratio:3/1;border-radius:8px;margin-bottom:10px">
-                <?= empresa_banner($emp) ?></div>
-            <div class="ui-comp-head" style="margin-bottom:10px"><?= Ui::logo($emp, 56) ?><div>
+            <div class="ui-cover"><?= empresa_banner($emp) ?></div>
+            <div class="ui-comp-head"><?= Ui::logo($emp, 56) ?><div>
                     <strong><?= e($emp['nome']) ?></strong>
-                    <p class="ui-sub" style="margin:0"><?= e(Empresa::segmentoTxt($emp)) ?></p>
+                    <p class="ui-sub"><?= e(Empresa::segmentoTxt($emp)) ?></p>
                 </div>
             </div>
-            <p class="ui-sub" style="margin:0 0 10px">
+            <p class="ui-sub">
                 <?= e(mb_substr((string) $emp['descricao'], 0, 140)) ?><?= mb_strlen((string) $emp['descricao']) > 140 ? '…' : '' ?>
             </p>
-            <p class="ui-sub" style="margin:0"><?= (int) ($cont['publicada'] ?? 0) ?> vaga(s) no ar</p>
+            <p class="ui-sub"><?= (int) ($cont['publicada'] ?? 0) ?> vaga(s) no ar</p>
             <?php if ($emp['status'] === 'aprovada'): ?><a class="ui-btn ui-btn-sm ui-btn-block" style="margin-top:12px"
                 target="_blank" rel="noopener" href="<?= url('empresa', ['id' => $emp['id']]) ?>">Ver página
                 pública</a><?php endif; ?>

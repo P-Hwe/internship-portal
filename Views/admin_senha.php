@@ -10,5 +10,5 @@
         <?= Ui::campo(['name' => 'confirma', 'label' => 'Repita a nova senha', 'type' => 'password', 'req' => true, 'attrs' => ['autocomplete' => 'new-password']]) ?>
         <button class="ui-btn ui-btn-primary ui-btn-lg ui-btn-block" type="submit">Salvar e entrar</button>
     </form>
-    <form method="post" action="<?= url('sair') ?>" style="margin-top:12px;text-align:center"><?= csrf_field() ?><input type="hidden" name="perfil" value="admin"><button class="ui-btn ui-btn-sm" type="submit">Sair</button></form>
+    <form method="post" action="<?= url('sair') "><?= csrf_field() ?><input type="hidden" name="perfil" value="admin"><button class="ui-btn ui-btn-sm" type="submit">Sair</button></form>
 </div>

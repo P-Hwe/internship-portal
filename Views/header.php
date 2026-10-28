@@ -1,25 +1,7 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html prefix="og: http://ogp.me/ns#" class="no-js lt-ie9 lt-ie8 lt-ie7" lang="pt-br" dir="ltr"> <![endif]-->
-<!--[if IE 7]>         <html prefix="og: http://ogp.me/ns#" class="no-js lt-ie9 lt-ie8" lang="pt-br" dir="ltr"> <![endif]-->
-<!--[if IE 8]>         <html prefix="og: http://ogp.me/ns#" class="no-js lt-ie9" lang="pt-br" dir="ltr"> <![endif]-->
-<!--[if gt IE 8]><!-->
 <html prefix="og: http://ogp.me/ns#" class="no-js" lang="pt-br" dir="ltr">
-<!--<![endif]-->
 
 <head>
-    <!--[if lt IE 9]>
-    <script src="/templates/padraogoverno01/js/html5shiv.js"></script>
-    <![endif]-->
-    <!--[if lt IE 10]>
-    <link rel="stylesheet" href="/templates/padraogoverno01/css/ie.css" />
-    <![endif]-->
-    <!--[if lt IE 9]>
-    <link rel="stylesheet" href="/templates/padraogoverno01/css/ie8.css" />
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="/templates/padraogoverno01/css/ie7.css" />
-    <link rel="stylesheet" href="/font-awesome/css/font-awesome-ie7.min.css" />
-    <![endif]-->
     <base href="<?= BASE_URL ?>" />
     <link rel="stylesheet"
         href="<?= BASE_URL ?>public/css/ifsp.css?v=<?= @filemtime(ROOT_PATH . '/public/css/ifsp.css') ?>"
@@ -69,14 +51,11 @@
         ]
     }
     </script>
-    <!--[if lt IE 9]><link rel="stylesheet" href="https://gru.ifsp.edu.br/modules/mod_barradogoverno/assets/2014/css/ie8.css" /><![endif]-->
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <!-- Matomo -->
     <script type="text/javascript">
     var _paq = window._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
@@ -96,7 +75,6 @@
     <noscript>
         <p><img src="https://dadosportais.ifsp.edu.br/matomo.php?idsite=53&amp;rec=1" style="border:0;" alt="" /></p>
     </noscript>
-    <!-- End Matomo Code -->
     <link rel="stylesheet" href="<?= BASE_URL ?>public/css/vagas.css" type="text/css" />
 </head>
 
@@ -108,8 +86,6 @@
             podem não estar acessíveis.
         </div>
     </noscript>
-    <!--[if lt IE 7]><center><strong>Atenção, a versão de seu navegador não é compatível com este sítio. Atualize seu navegador.</strong></center><![endif]-->
-    <!-- barra do governo -->
     <div id="barra-brasil">
         <div id="wrapper-barra-brasil">
             <div class=brasil-flag><a href=https://gov.br/ class=link-barra>Brasil</a></div>
@@ -136,8 +112,6 @@
                         href=http://www.vlibras.gov.br />VLibras</a></span></span>
         </div>
     </div>
-    <!--[if lt IE 7]><br /><strong>Seu navegador é incompatível com os novos padrões de tecnologia e por isso você não pode visualizar a nova barra do Governo Federal. Atualize ou troque seu navegador.</strong><br /><![endif]-->
-    <!-- fim barra do governo -->
     <div class="layout">
         <header>
             <div class="container">
@@ -170,7 +144,6 @@
                             </li>
                         </ul>
                     </div>
-                    <!-- fim div.span6 -->
                     <div class="span6 language-and-actions-container">
                         <h2 class="hide">Opções de acessibilidade</h2>
 
@@ -184,9 +157,7 @@
                         </ul>
 
                     </div>
-                    <!-- fim div.span6 -->
                 </div>
-                <!-- fim .row-fluid -->
                 <div class="row-fluid">
                     <div id="logo" class="span8 small">
                         <a href="https://gru.ifsp.edu.br/" title="Instituto Federal de São Paulo">
@@ -195,7 +166,6 @@
                             <span class="portal-description">Ministério da Educação</span>
                         </a>
                     </div>
-                    <!-- fim .span8 -->
                     <div class="span4">
                         <div id="portal-searchbox" class="row">
                             <h2 class="hidden">Buscar no portal</h2>
@@ -242,11 +212,8 @@
                         </div>
 
                     </div>
-                    <!-- fim .span4 -->
                 </div>
-                <!-- fim .row-fluid -->
             </div>
-            <!-- fim div.container -->
             <div class="sobre">
                 <div class="container">
                     <nav class="menu-servicos pull-right">
@@ -268,9 +235,7 @@
                     </nav>
 
                 </div>
-                <!-- .container -->
             </div>
-            <!-- fim .sobre -->
         </header>
         <main>
             <div class="container">
@@ -291,7 +256,7 @@
                             <span class="hide">Início do menu principal</span>
                             <nav class="assuntos span9">
                                 <h2>O Campus <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i>
-                                </h2><!-- visible-phone visible-tablet -->
+                                </h2>
 
                                 <ul>
                                     <li class="item-365 parent"><a
@@ -319,7 +284,6 @@
                             </nav>
                             <nav class="sobre span9">
                                 <h2>Cursos <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
 
                                 <ul>
                                     <li class="item-374 parent"><a
@@ -335,8 +299,6 @@
                             </nav>
                             <nav class="sobre span9">
                                 <h2>Ensino <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
-
                                 <ul>
                                     <li class="item-893"><a
                                             href="https://gru.ifsp.edu.br/cae-coordenadoria-de-apoio-ao-ensino.html">Coordenadoria
@@ -371,7 +333,7 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>Pesquisa <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i>
-                                </h2><!-- visible-phone visible-tablet -->
+                                </h2>
 
                                 <ul>
                                     <li class="item-785"><a
@@ -400,7 +362,7 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>Extensão <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i>
-                                </h2><!-- visible-phone visible-tablet -->
+                                </h2>
 
                                 <ul>
                                     <li class="item-366"><a
@@ -427,7 +389,6 @@
                             <nav class="sobre span9">
                                 <h2>Direção Geral <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
 
                                 <ul>
                                     <li class="item-953 active deeper parent"><a
@@ -451,8 +412,6 @@
                             <nav class="sobre span9">
                                 <h2>Administração <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
-
                                 <ul>
                                     <li class="item-954"><a
                                             href="https://gru.ifsp.edu.br/diretoria-adjunta-de-administra%C3%83%C2%A7%C3%83%C2%A3o.html">Diretoria
@@ -471,7 +430,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>CGP <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
 
                                 <ul>
                                     <li class="item-835"><a
@@ -490,8 +448,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>CPA <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
-
                                 <ul>
                                     <li class="item-528"><a
                                             href="https://gru.ifsp.edu.br/comissao-propria-de-avaliacao.html">Comissão
@@ -513,8 +469,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>CSP <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
-
                                 <ul>
                                     <li class="item-522"><a
                                             href="https://gru.ifsp.edu.br/coordenadoria-sociopedagogica.html">Coordenadoria
@@ -540,8 +494,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>NAPNE <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
-
                                 <ul>
                                     <li class="item-855"><a
                                             href="https://gru.ifsp.edu.br/apresenta%C3%83%C2%A7%C3%83%C2%A3o.html">Apresentação</a>
@@ -567,7 +519,7 @@
                             </nav>
                             <nav class="sobre span9">
                                 <h2>Secretaria <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i>
-                                </h2><!-- visible-phone visible-tablet -->
+                                </h2>
 
                                 <ul>
                                     <li class="item-846"><a
@@ -587,7 +539,6 @@
                             <nav class="sobre span9">
                                 <h2>Semanas Temáticas <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
 
                                 <ul>
                                     <li class="item-873"><a href="https://revista.gru.ifsp.edu.br/exatecca">EXATECCA</a>
@@ -599,7 +550,6 @@
                             <nav class="sobre span9">
                                 <h2>Acesso à Informação <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
 
                                 <ul>
                                     <li class="item-112"><a
@@ -641,7 +591,6 @@
                             <span class="hide">Fim do menu principal</span>
                         </section>
                     </div>
-                    <!-- fim #navigation.span3 -->
                     <div id="content" class="span9 internas">
                         <section id="content-section">
                             <span class="hide">Início do conteúdo da página</span>

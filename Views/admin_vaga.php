@@ -4,7 +4,7 @@
             Vagas</a> <?= Ui::situacao($sit) ?> <span class="ui-badge ui-badge-info"><?= e($v['tipo']) ?></span></div>
     <?= Ui::acoesVagaAdmin($v, 'admin-vaga', (int) $v['id']) ?>
 </div>
-<h2 style="font-size:22px;margin-bottom:4px"><?= e($v['titulo']) ?></h2>
+<h2><?= e($v['titulo']) ?></h2>
 <p class="ui-sub"><a href="<?= url('admin-empresa', ['id' => $e['id']]) ?>"><?= e($e['nome']) ?></a>
     <?= Ui::statusEmpresa($e['status']) ?><?= $sit === 'publicada' ? ' · <a href="' . e(url_vaga((int) $v['id'])) . '" target="_blank" rel="noopener">ver no site</a>' : '' ?>
 </p>
@@ -24,6 +24,6 @@
     </div>
 </div><?php endif; ?>
 <?php require __DIR__ . '/partials/vaga_detalhe.php'; ?>
-<div class="ui-card" style="margin-top:16px">
+<div class="ui-card">
     <h2>Histórico</h2><?php require __DIR__ . '/partials/timeline.php'; ?>
 </div>

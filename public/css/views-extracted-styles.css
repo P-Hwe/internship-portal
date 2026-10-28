@@ -1,0 +1,212 @@
+.ui-sub {
+  margin-top: 16px;
+}
+
+.ui-sub {
+  margin: 0;
+  max-width: 60ch;
+}
+
+.ui-label {
+  margin: 0;
+}
+
+form {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.vg-detail-company a {
+  color: inherit;
+}
+
+.ui-cover-body h2 {
+  font-size: 22px;
+  margin: 0 0 2px;
+}
+
+.ui-cover-body p:first-of-type {
+  margin: 0;
+}
+
+.ui-cover-body p:nth-of-type(2) {
+  margin: 14px 0 0;
+}
+
+.ui-section h2 {
+  margin: 0;
+}
+
+.ui-metric table {
+  border: 0;
+}
+
+.ui-metric p {
+  margin: 12px 0 0;
+}
+
+.ui-card h2:last-of-type {
+  margin: 20px 0 8px;
+  font-size: 15px;
+}
+
+.ui-grid-2 {
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
+}
+
+.ui-section h2 {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+
+.ui-grid {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.ui-hint {
+  margin: 0;
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.ui-card {
+  margin-top: 16px;
+}
+
+.auth-card {
+  text-align: center;
+}
+
+.ui-card {
+  text-align: left;
+  margin: 0 auto 20px;
+  max-width: 520px;
+}
+
+.ui-alert form {
+  margin-top: 8px;
+}
+
+.ui-grid-2 {
+  grid-template-columns: 2fr 1fr;
+  align-items: start;
+}
+
+.ui-section h2 {
+  margin: 0;
+}
+
+.ui-progress {
+  margin: 0 0 12px;
+}
+
+.ui-rules {
+  font-size: 14px;
+}
+
+.ui-sub {
+  margin: 10px 0;
+}
+
+dl.vg-facts {
+  margin-top: 18px;
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom: 14px;
+}
+
+.ui-card {
+  margin-top: 16px;
+}
+
+.ui-sub {
+  margin: 0;
+}
+
+img.barralazy {
+  width: 132px;
+  height: 116px;
+}
+
+p {
+  text-align: right;
+  margin: 10px 0 0;
+}
+
+h3 {
+  margin: 0;
+}
+
+.ui-card {
+  margin-bottom: 16px;
+}
+
+h2 {
+  margin: 0 0 4px;
+}
+
+.ui-hint {
+  margin-top: 0;
+}
+
+.ui-metrics {
+  margin-bottom: 12px;
+}
+
+small.ui-hint {
+  display: inline;
+}
+
+div.ui-field {
+  max-width: 240px;
+}
+
+span.ui-ccard-logo {
+  top: -30px;
+  bottom: auto;
+}
+
+div.ui-ccard-body {
+  position: relative;
+}
+
+div.auth-card {
+  text-align: center;
+}
+
+.ui-grid-2 {
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: start;
+}
+
+div.ui-cover {
+  aspect-ratio: 3/1;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.ui-comp-head {
+  margin-bottom: 10px;
+}
+
+.ui-sub {
+  margin: 0 0 10px;
+}
+
+div.ui-card {
+  margin-top: 14px;
+}
+
+dl.ui-kv {
+  grid-template-columns: 100px 1fr;
+}
+
+p.ui-hint {
+  margin-top: 12px;
+}

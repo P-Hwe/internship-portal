@@ -86,8 +86,6 @@
     <div class="vg-grid" data-grid>
         <?php foreach ($vagas as $v) { $trilho = false; $chave = null; require __DIR__ . '/partials/card_vaga.php'; } ?>
     </div>
-    <p style="text-align:right;margin:10px 0 0"><a class="vg-btn-link" href="<?= url('encerradas') ?>">Ver vagas
-            encerradas e expiradas <?= icon('arrow-right', 16) ?></a></p>
     <p class="vg-empty" data-empty <?= $vagas ? 'hidden' : '' ?>>
         <?= $vagas ? 'Nenhuma vaga encontrada. Tente limpar os filtros.' : 'Nenhuma vaga aberta no momento. Volte em breve!' ?>
     </p>

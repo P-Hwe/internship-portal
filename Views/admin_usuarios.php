@@ -1,8 +1,8 @@
 <?php $c = fn(array $o, $v = null) => Ui::campo($o, $old, $erros); $ehRaiz = Admin::ehRaiz($adm); ?>
-<div class="ui-grid-2" style="grid-template-columns:minmax(0,1fr) 340px;align-items:start">
+<div class="ui-grid-2">
     <section>
-        <h2 style="font-size:17px;margin-bottom:12px">Administradores</h2>
-        <div class="ui-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+        <h2>Administradores</h2>
+        <div class="ui-grid">
             <?php foreach ($admins as $a): ?>
             <article class="ui-job">
                 <div class="ui-job-top">
@@ -19,7 +19,7 @@
           echo $a['ativo'] ? Ui::formConfirmar(url('admin-acao'), ['tipo' => 'admin', 'acao' => 'desativar', 'id' => $a['id'], 'ret' => 'admin-usuarios'], 'Desativar', 'Desativar este administrador?', $a['nome'] . ' não conseguirá mais entrar. Você pode reativar depois.', 'danger', 'ui-btn ui-btn-sm ui-btn-danger-o')
                         : Ui::formConfirmar(url('admin-acao'), ['tipo' => 'admin', 'acao' => 'ativar', 'id' => $a['id'], 'ret' => 'admin-usuarios'], 'Reativar', 'Reativar este administrador?', $a['nome'] . ' volta a acessar a administração.', 'primary', 'ui-btn ui-btn-sm'); ?>
                 </div>
-                <?php elseif ((int) $a['id'] === (int) $adm['id']): ?><div class="ui-job-foot"><span class="ui-hint" style="margin:0">Esta é a sua conta.</span>
+                <?php elseif ((int) $a['id'] === (int) $adm['id']): ?><div class="ui-job-foot"><span class="ui-hint">Esta é a sua conta.</span>
                 </div><?php endif; ?>
             </article>
             <?php endforeach; ?>
