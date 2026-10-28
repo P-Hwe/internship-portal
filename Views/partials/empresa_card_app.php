@@ -1,4 +1,4 @@
-<?php
+<?php /** Card de empresa no admin: banner da empresa, logo, dados e ações. O card inteiro abre a empresa. Espera $e (com total_vagas/vagas_abertas); opcional $retCard e $comTermo. */
 $retCard = $retCard ?? 'admin-empresas'; $comTermo = $comTermo ?? false;
 $acoes = Ui::acoesEmpresaAdmin($e, $retCard);
 ?>

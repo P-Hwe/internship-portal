@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html prefix="og: http://ogp.me/ns#" class="no-js" lang="pt-br" dir="ltr">
 
-
 <head>
     <base href="<?= BASE_URL ?>" />
     <link rel="stylesheet"
@@ -11,19 +10,19 @@
     <title><?= htmlspecialchars($titulo ?? "Vagas de Estágio") ?> - IFSP Guarulhos</title>
     <link href="<?= BASE_URL ?>images/if.png" rel="shortcut icon" type="image/x-icon" />
     <script type="application/json" class="joomla-script-options new">
-        {
-            "csrf.token": "b6b5ba187a333f7b3462578be868db42",
-            "system.paths": {
-                "root": "",
-                "base": ""
-            },
-            "rl_tabs": {
-                "use_hash": 1,
-                "reload_iframes": 0,
-                "init_timeout": 0,
-                "urlscroll": 0
-            }
+    {
+        "csrf.token": "b6b5ba187a333f7b3462578be868db42",
+        "system.paths": {
+            "root": "",
+            "base": ""
+        },
+        "rl_tabs": {
+            "use_hash": 1,
+            "reload_iframes": 0,
+            "init_timeout": 0,
+            "urlscroll": 0
         }
+    }
     </script>
     <script src="https://gru.ifsp.edu.br/media/jui/js/jquery.min.js?906785bf1ac1a55068e89dc581424ac8"
         type="text/javascript"></script>
@@ -40,38 +39,38 @@
         type="text/javascript"></script>
     <script src="https://gru.ifsp.edu.br/media/system/js/core.js" type="text/javascript"></script>
     <script type="application/ld+json">
-        {
-            "@context": "http:\/\/schema.org",
-            "@type": "Organization",
-            "name": "Instituto Federal de Educa\u00e7\u00e3o, Ci\u00eancia e Tecnologia de S\u00e3o Paulo - C\u00e2mpus Guarulhos",
-            "url": "http:\/\/ifspguarulhos.edu.br",
-            "logo": "https:\/\/gru.ifsp.edu.br\/images\/logos\/Guarulhos-02.jpg",
-            "telephone": "+551123044250",
-            "sameAs": ["https:\/\/www.facebook.com\/ifspguarulhos", "https:\/\/twitter.com\/ifspguarulhos",
-                "https:\/\/www.youtube.com\/channel\/UCj8XSt0SxLObeBBUaPTxjwQ"
-            ]
-        }
+    {
+        "@context": "http:\/\/schema.org",
+        "@type": "Organization",
+        "name": "Instituto Federal de Educa\u00e7\u00e3o, Ci\u00eancia e Tecnologia de S\u00e3o Paulo - C\u00e2mpus Guarulhos",
+        "url": "http:\/\/ifspguarulhos.edu.br",
+        "logo": "https:\/\/gru.ifsp.edu.br\/images\/logos\/Guarulhos-02.jpg",
+        "telephone": "+551123044250",
+        "sameAs": ["https:\/\/www.facebook.com\/ifspguarulhos", "https:\/\/twitter.com\/ifspguarulhos",
+            "https:\/\/www.youtube.com\/channel\/UCj8XSt0SxLObeBBUaPTxjwQ"
+        ]
+    }
     </script>
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
     <script type="text/javascript">
-        var _paq = window._paq || [];
-        _paq.push(['trackPageView']);
-        _paq.push(['enableLinkTracking']);
-        (function() {
-            var u = "https://dadosportais.ifsp.edu.br/";
-            _paq.push(['setTrackerUrl', u + 'matomo.php']);
-            _paq.push(['setSiteId', '53']);
-            var d = document,
-                g = d.createElement('script'),
-                s = d.getElementsByTagName('script')[0];
-            g.type = 'text/javascript';
-            g.async = true;
-            g.defer = true;
-            g.src = u + 'matomo.js';
-            s.parentNode.insertBefore(g, s);
-        })();
+    var _paq = window._paq || [];
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+        var u = "https://dadosportais.ifsp.edu.br/";
+        _paq.push(['setTrackerUrl', u + 'matomo.php']);
+        _paq.push(['setSiteId', '53']);
+        var d = document,
+            g = d.createElement('script'),
+            s = d.getElementsByTagName('script')[0];
+        g.type = 'text/javascript';
+        g.async = true;
+        g.defer = true;
+        g.src = u + 'matomo.js';
+        s.parentNode.insertBefore(g, s);
+    })();
     </script>
     <noscript>
         <p><img src="https://dadosportais.ifsp.edu.br/matomo.php?idsite=53&amp;rec=1" style="border:0;" alt="" /></p>
@@ -300,7 +299,6 @@
                             </nav>
                             <nav class="sobre span9">
                                 <h2>Ensino <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-
                                 <ul>
                                     <li class="item-893"><a
                                             href="https://gru.ifsp.edu.br/cae-coordenadoria-de-apoio-ao-ensino.html">Coordenadoria
@@ -414,8 +412,6 @@
                             <nav class="sobre span9">
                                 <h2>Administração <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
-
                                 <ul>
                                     <li class="item-954"><a
                                             href="https://gru.ifsp.edu.br/diretoria-adjunta-de-administra%C3%83%C2%A7%C3%83%C2%A3o.html">Diretoria
@@ -452,7 +448,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>CPA <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-
                                 <ul>
                                     <li class="item-528"><a
                                             href="https://gru.ifsp.edu.br/comissao-propria-de-avaliacao.html">Comissão
@@ -474,7 +469,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>CSP <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-
                                 <ul>
                                     <li class="item-522"><a
                                             href="https://gru.ifsp.edu.br/coordenadoria-sociopedagogica.html">Coordenadoria
@@ -500,7 +494,6 @@
                             </nav>
                             <nav class="assuntos span9">
                                 <h2>NAPNE <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-
                                 <ul>
                                     <li class="item-855"><a
                                             href="https://gru.ifsp.edu.br/apresenta%C3%83%C2%A7%C3%83%C2%A3o.html">Apresentação</a>
@@ -527,6 +520,7 @@
                             <nav class="sobre span9">
                                 <h2>Secretaria <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i>
                                 </h2>
+
                                 <ul>
                                     <li class="item-846"><a
                                             href="https://gru.ifsp.edu.br/atendimento-presencial.html">Atendimento
@@ -545,7 +539,6 @@
                             <nav class="sobre span9">
                                 <h2>Semanas Temáticas <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-                                <!-- visible-phone visible-tablet -->
 
                                 <ul>
                                     <li class="item-873"><a href="https://revista.gru.ifsp.edu.br/exatecca">EXATECCA</a>

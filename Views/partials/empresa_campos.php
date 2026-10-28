@@ -1,4 +1,5 @@
 <?php
+/** Etapas 1 a 3 (dados, endereço, contato). Usadas no cadastro e na edição do perfil. Espera $old, $erros, $modo ('cadastro'|'perfil'). */
 $c = fn(array $o) => Ui::campo($o, $old, $erros);
 $logoAtual = $old['logo'] ?? null; $bannerAtual = url_upload($old['banner'] ?? null);
 ?>
@@ -7,7 +8,7 @@ $logoAtual = $old['logo'] ?? null; $bannerAtual = url_upload($old['banner'] ?? n
   <?php if ($modo === 'cadastro'): ?>
     <?= $c(['name' => 'cnpj', 'label' => 'CNPJ', 'req' => true, 'hint' => 'Aceita o CNPJ novo, com letras e números, e também o só com números.', 'attrs' => ['maxlength' => 18, 'autocapitalize' => 'characters', 'spellcheck' => 'false', 'placeholder' => '12.ABC.345/01DE-35', 'data-mask' => 'cnpj', 'data-rev' => 'CNPJ']]) ?>
   <?php else: ?>
-    <div class="ui-field"><span class="ui-label">CNPJ</span><div><span class="ui-code"><?= e(Cnpj::formatar($old['cnpj'])) ?></span> <small class="ui-hint" style="display:inline">Não pode ser alterado. Fale com a Coordenação se precisar corrigir.</small></div></div>
+    <div class="ui-field"><span class="ui-label">CNPJ</span><div><span class="ui-code"><?= e(Cnpj::formatar($old['cnpj'])) ?></span> <small class="ui-hint">Não pode ser alterado. Fale com a Coordenação se precisar corrigir.</small></div></div>
   <?php endif; ?>
   <div class="ui-cols">
     <?= $c(['name' => 'razao_social', 'label' => 'Razão social', 'req' => true, 'attrs' => ['maxlength' => 150, 'data-rev' => 'Razão social']]) ?>

@@ -1,44 +1,22 @@
 <?php
-$edit = (bool) $atual;
-$hoje = date('Y-m-d');
+$edit = (bool) $atual; $hoje = date('Y-m-d');
 $c = fn(array $o) => Ui::campo($o, $old, $erros);
-$etapaDe = [
-    'tipo' => 0,
-    'titulo' => 0,
-    'area' => 0,
-    'modalidade' => 0,
-    'local' => 0,
-    'descricao' => 0,
-    'requisitos' => 1,
-    'bolsa' => 3,
-    'carga_horas_dia' => 4,
-    'dias' => 4,
-    'carga_turno' => 4,
-    'data_publicacao' => 5,
-    'data_limite' => 5,
-    'link_site' => 6,
-    'link_linkedin' => 6,
-    'link_plataforma' => 6,
-    'link_candidatura' => 6,
-    'contato' => 6,
-    'banner' => 6,
-];
+$etapaDe = ['tipo' => 0, 'titulo' => 0, 'area' => 0, 'modalidade' => 0, 'local' => 0, 'descricao' => 0, 'requisitos' => 1, 'bolsa' => 3, 'carga_horas_dia' => 4, 'dias' => 4, 'carga_turno' => 4,
+            'data_publicacao' => 5, 'data_limite' => 5, 'link_site' => 6, 'link_linkedin' => 6, 'link_plataforma' => 6, 'link_candidatura' => 6, 'contato' => 6, 'banner' => 6];
 $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros))) : 0;
-$areaSel = $old['area'] ?? '';
-$diasSel = (array) ($old['dias'] ?? []);
-$remTipo = ($old['remuneracao_tipo'] ?? 'valor') === 'combinar' ? 'combinar' : 'valor';
+$areaSel = $old['area'] ?? ''; $diasSel = (array) ($old['dias'] ?? []); $remTipo = ($old['remuneracao_tipo'] ?? 'valor') === 'combinar' ? 'combinar' : 'valor';
 $sug = fn(array $l) => '<div class="ui-quick" data-quick aria-label="Sugestões"><span class="ui-hint" style="margin:0">Sugestões:</span>' . implode('', array_map(fn($x) => '<button type="button">' . e($x) . '</button>', $l)) . '</div>';
 ?>
 <?php if ($edit && in_array($atual['status'], ['aprovada', 'rejeitada'], true)): ?>
-    <div class="ui-alert ui-alert-warn"><?= icon('info', 22) ?><div><strong>Alterações exigem nova aprovação</strong>
-            <p><?= $atual['status'] === 'aprovada' ? 'Se você alterar algo, esta vaga sai do ar e só volta depois que a Coordenação aprovar a nova versão.' : 'Ao salvar, a vaga é reenviada para análise.' ?>
-            </p>
-        </div>
+<div class="ui-alert ui-alert-warn"><?= icon('info', 22) ?><div><strong>Alterações exigem nova aprovação</strong>
+        <p><?= $atual['status'] === 'aprovada' ? 'Se você alterar algo, esta vaga sai do ar e só volta depois que a Coordenação aprovar a nova versão.' : 'Ao salvar, a vaga é reenviada para análise.' ?>
+        </p>
     </div>
+</div>
 <?php endif; ?>
 <?php if ($erros): ?><div class="ui-alert ui-alert-danger" role="alert">
-        <div>Corrija os campos destacados e envie de novo.</div>
-    </div><?php endif; ?>
+    <div>Corrija os campos destacados e envie de novo.</div>
+</div><?php endif; ?>
 <div class="ui-card">
     <form class="ui-form" method="post"
         action="<?= $edit ? url('vaga-editar', ['id' => $atual['id']]) : url('vaga-cadastro') ?>"
@@ -59,7 +37,7 @@ $sug = fn(array $l) => '<div class="ui-quick" data-quick aria-label="Sugestões"
                     data-area-select required data-rev="Área">
                     <option value="">Selecione</option>
                     <?php foreach ($areas as $a): ?><option <?= $areaSel === $a ? 'selected' : '' ?>><?= e($a) ?>
-                        </option><?php endforeach; ?><option value="<?= AREA_OUTRA ?>"
+                    </option><?php endforeach; ?><option value="<?= AREA_OUTRA ?>"
                         <?= $areaSel === AREA_OUTRA ? 'selected' : '' ?>>Outra área...</option>
                 </select>
                 <div data-area-outra style="margin-top:10px" hidden><label for="area_outra">Qual é a área? <span
@@ -150,8 +128,8 @@ $sug = fn(array $l) => '<div class="ui-quick" data-quick aria-label="Sugestões"
                         aria-hidden="true">*</span></span>
                 <div class="ui-checks" data-need-one="Marque ao menos um dia da semana." data-rev="Dias" data-rev-group>
                     <?php foreach (DIAS_SEMANA as $k => $r): ?><label class="ui-check"><input type="checkbox"
-                                name="dias[]" value="<?= $k ?>" <?= in_array($k, $diasSel, true) ? 'checked' : '' ?>>
-                            <?= e($r) ?></label><?php endforeach; ?></div>
+                            name="dias[]" value="<?= $k ?>" <?= in_array($k, $diasSel, true) ? 'checked' : '' ?>>
+                        <?= e($r) ?></label><?php endforeach; ?></div>
                 <small class="ui-err" data-err><?= e($erros['dias'] ?? '') ?></small>
             </div>
         </fieldset>
