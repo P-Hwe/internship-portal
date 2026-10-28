@@ -1,28 +1,5 @@
 <?php /** Ilustração e textos da página 404. Espera $modo ('publico'|'app') e $voltar (['rótulo', 'url'] do painel, ou null). */ ?>
-<style>
-.e404{--e-blob:#e6f2e9;--e-ground:#b9dcc1;--e-num:#2c6e3c;--e-num-ln:#14301c;--e-leaf1:#1f7a35;--e-leaf2:#4cc263;--e-leaf3:#0f5a27;--e-pot:#fff;--e-pot-sh:#c9d6cc;--e-skin:#e0a97f;--e-hair:#1a201c;--e-shirt:#6cc63b;--e-shirt2:#d40000;--e-pants:#1a201c;--e-wood:#7a5a3a;--e-dot:#f2b24c;
-  max-width:920px;margin:0 auto;padding:24px 16px 40px;text-align:center;color:var(--text,#1a201c)}
-[data-theme="dark"] .e404{--e-blob:#10241a;--e-ground:#1d3a28;--e-num:#3d9a52;--e-num-ln:#a7e1b3;--e-leaf1:#4cc263;--e-leaf2:#72d683;--e-leaf3:#2b8a45;--e-pot:#262e29;--e-pot-sh:#161b18;--e-skin:#c98f66;--e-hair:#0c0c0c;--e-shirt:#4cc263;--e-pants:#0c0c0c;--e-wood:#a07d57}
-.e404 svg{display:block;width:100%;height:auto;max-width:860px;margin:0 auto}
-.e404 p.e404-oops{margin:0;font-size:clamp(26px,5vw,40px);line-height:1.1;font-weight:800;letter-spacing:.04em;color:var(--e-num-ln)}
-.e404 h1.e404-t{margin:10px 0 0;line-height:1.2;font-size:clamp(22px,3.4vw,30px);font-weight:800;color:var(--e-num-ln)}
-.e404-t::after{content:"";display:block;width:84px;height:4px;border-radius:3px;margin:10px auto 0;background:var(--e-leaf1)}
-.e404 p.e404-p{max-width:560px;margin:14px auto 0;font-size:16px;line-height:1.55;color:var(--muted,#59655d)}
-.e404-acoes{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
-.e404-link{display:inline-flex;align-items:center;gap:6px;padding:12px 22px;border-radius:9px;font-weight:700;text-decoration:none;border:2px solid var(--e-leaf1);color:var(--e-leaf1);background:transparent;cursor:pointer;font-size:15px}
-.e404-link.is-main{background:var(--e-leaf1);color:#fff}
-.e404-link:hover,.e404-link:focus-visible{outline:3px solid var(--e-dot);outline-offset:2px}
-.e404 .sway{transform-box:fill-box;transform-origin:50% 100%}
-@media (prefers-reduced-motion:no-preference){
-  .e404 .sway{animation:e404-sway 4.5s ease-in-out infinite}
-  .e404 .sway.b{animation-delay:-2s}
-  .e404 .wave{transform-box:fill-box;transform-origin:0% 50%;animation:e404-wave 2.6s ease-in-out infinite}
-  .e404 .tipa{animation:e404-tip 1.3s steps(2,end) infinite}
-}
-@keyframes e404-sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
-@keyframes e404-wave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(7deg)}}
-@keyframes e404-tip{50%{opacity:.35}}
-</style>
+<link rel="stylesheet" href="<?= BASE_URL ?>public/css/error-404.css" type="text/css" />
 <section class="e404" aria-labelledby="e404-titulo">
     <p class="e404-oops">OPS...</p>
     <svg viewBox="0 0 900 480" role="img" aria-label="Ilustração: o número 404 com duas pessoas, uma em uma escada e outra sentada com um notebook">
