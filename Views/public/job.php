@@ -1,5 +1,5 @@
 <?php require __DIR__ . '/../header.php'; $ativa = 'home'; require __DIR__ . '/../partials/nav.php'; $emp = $vaga['empresa']; $selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
-
+<p style="margin-bottom:12px"><a class="vg-back" href="<?= url() ?>"><?= icon('arrow-left', 16) ?> Voltar para todas as vagas</a></p>
 <nav class="vg-crumbs" aria-label="Você está aqui"><a href="<?= url() ?>">Vagas</a> <span aria-hidden="true">›</span>
     <span><?= e($vaga['titulo']) ?></span></nav>
 <?php if (!$aberta): ?><div class="vg-flash vg-flash-info" role="status"><?= icon('info', 18) ?> <span><strong>Esta vaga
@@ -113,6 +113,5 @@
         <?php foreach ($relacionadas as $v) { $trilho = false; $chave = null; require __DIR__ . '/../partials/job-card.php'; } ?>
     </div>
 </section><?php endif; ?>
-<p><a class="vg-back" href="<?= url() ?>"><?= icon('arrow-left', 16) ?> Voltar para todas as vagas</a></p>
 </div>
 <?php require __DIR__ . '/../footer.php'; ?>

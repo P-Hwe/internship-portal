@@ -4,16 +4,27 @@ class JobController
     public function index(): void
     {
         Visits::record('home');
-        $allJobs = Vaga::publicas();
         $perPage = PAGINA_PER_PAGE;
 
         $filters = [
-            'busca' => $_GET['busca'] ?? '',
-            'tipo' => $_GET['tipo'] ?? '',
-            'area' => $_GET['area'] ?? '',
-            'modalidade' => $_GET['modalidade'] ?? '',
-            'ord' => $_GET['ord'] ?? '',
+            'busca'     => $_GET['busca'] ?? '',
+            'tipo'      => $_GET['tipo'] ?? '',
+            'area'      => $_GET['area'] ?? '',
+            'modalidade'=> $_GET['modalidade'] ?? '',
+            'ord'       => $_GET['ord'] ?? '',
         ];
+
+        $mode = $filters['ord'];
+        if ($mode === 'encerradas' || $mode === 'expiradas') {
+            $allJobs = Vaga::encerradasPublico(300); // returns both encerradas + expiradas
+            if ($mode === 'encerradas') {
+                $allJobs = array_values(array_filter($allJobs, fn($v) => $v['situacao'] === 'encerrada'));
+            } else {
+                $allJobs = array_values(array_filter($allJobs, fn($v) => $v['situacao'] === 'expirada'));
+            }
+        } else {
+            $allJobs = Vaga::publicas();
+        }
 
         $filtered = $allJobs;
         if ($filters['busca']) {
@@ -24,52 +35,56 @@ class JobController
             $filtered = array_filter($filtered, fn($v) => $v['tipo'] === $filters['tipo']);
         }
         if ($filters['area']) {
-            $filtered = array_filter($filtered, fn($v) => $v['area_exibicao'] === $filters['area'] || $filters['area'] === 'Todas');
+            $filtered = array_filter($filtered, fn($v) => ($v['area_exibicao'] ?? $v['area']) === $filters['area']);
         }
         if ($filters['modalidade']) {
             $filtered = array_filter($filtered, fn($v) => $v['modalidade'] === $filters['modalidade']);
         }
 
-        $page = max(1, (int) ($_GET['pg'] ?? 1));
+        $filtered = array_values($filtered);
+        $page  = max(1, (int) ($_GET['pg'] ?? 1));
         $total = count($filtered);
 
-        // Apply sorting
-        if ($filters['ord'] === 'salario') {
+        if ($mode === 'salario') {
             usort($filtered, fn($a, $b) => ($b['bolsa'] ?? -1) <=> ($a['bolsa'] ?? -1));
-        } elseif ($filters['ord'] === 'prazo') {
+        } elseif ($mode === 'prazo') {
             usort($filtered, fn($a, $b) => strcmp($a['data_limite'], $b['data_limite']));
         }
-        // default: already sorted newest-first from Vaga::publicas()
 
         [$offset] = Paginator::calc($total, $page, $perPage);
         $paginatedJobs = array_slice($filtered, $offset, $perPage);
 
-        $sorter = function (array $l, callable $cmp) {
-            usort($l, $cmp);
-            return $l;
-        };
-        $tracks = [
-            ['id' => 'novas',    'titulo' => 'Vagas novas',                          'icone' => 'flame',    'chave' => 'nova',    'itens' => array_slice(array_values(array_filter($filtered, fn($v) => isset($v['selos']['nova']))), 0, 12)],
-            ['id' => 'ativos',   'titulo' => 'Recrutador ativo',                     'icone' => 'user',     'chave' => 'ativo',   'sub' => 'Empresas que acessaram o painel nos últimos ' . DIAS_RECRUTADOR_ATIVO . ' dias.', 'itens' => array_slice(array_values(array_filter($filtered, fn($v) => $v['recrutador_ativo'])), 0, 12)],
-            ['id' => 'salarios', 'titulo' => 'Melhores salários',                   'icone' => 'trending',  'chave' => 'salario', 'itens' => array_slice($sorter(array_filter($filtered, fn($v) => $v['bolsa'] !== null), fn($a, $b) => $b['bolsa'] <=> $a['bolsa']), 0, 12)],
-            ['id' => 'jovem',    'titulo' => 'Jovem Aprendiz e Jovem Profissional', 'icone' => 'star',      'chave' => 'tipo',    'itens' => array_values(array_filter($filtered, fn($v) => in_array($v['tipo'], ['Jovem Aprendiz', 'Jovem Profissional'], true)))],
-            ['id' => 'trainee',  'titulo' => 'Trainee',                             'icone' => 'briefcase', 'chave' => 'tipo',    'itens' => array_values(array_filter($filtered, fn($v) => $v['tipo'] === 'Trainee'))],
-            ['id' => 'estagio',  'titulo' => 'Estágio',                             'icone' => 'building',  'chave' => 'tipo',    'itens' => array_slice(array_values(array_filter($filtered, fn($v) => $v['tipo'] === 'Estágio')), 0, 12)],
-            ['id' => 'vencendo', 'titulo' => 'Encerrando em breve',                'icone' => 'clock',     'chave' => 'vencendo', 'itens' => $sorter(array_filter($filtered, fn($v) => isset($v['selos']['vencendo'])), fn($a, $b) => strcmp($a['data_limite'], $b['data_limite']))],
-        ];
+        // Only build tracks for normal (open jobs) mode
+        $tracks = [];
+        if ($mode === '' || $mode === 'salario' || $mode === 'prazo') {
+            $sorter = function (array $l, callable $cmp) { usort($l, $cmp); return $l; };
+            $allOpen = ($mode === '') ? $allJobs : Vaga::publicas();
+            $candidates = array_values($allOpen);
+            $tracks = array_values(array_filter([
+                ['id' => 'novas',    'titulo' => 'Vagas novas',                          'icone' => 'flame',    'chave' => 'nova',    'itens' => array_slice(array_values(array_filter($candidates, fn($v) => isset($v['selos']['nova']))), 0, 12)],
+                ['id' => 'ativos',   'titulo' => 'Recrutador ativo',                     'icone' => 'user',     'chave' => 'ativo',   'sub' => 'Empresas que acessaram o painel nos últimos ' . DIAS_RECRUTADOR_ATIVO . ' dias.', 'itens' => array_slice(array_values(array_filter($candidates, fn($v) => $v['recrutador_ativo'])), 0, 12)],
+                ['id' => 'salarios', 'titulo' => 'Melhores salários',                    'icone' => 'trending', 'chave' => 'salario', 'itens' => array_slice($sorter(array_values(array_filter($candidates, fn($v) => $v['bolsa'] !== null)), fn($a, $b) => $b['bolsa'] <=> $a['bolsa']), 0, 12)],
+                ['id' => 'jovem',    'titulo' => 'Jovem Aprendiz e Jovem Profissional',  'icone' => 'star',     'chave' => 'tipo',    'itens' => array_values(array_filter($candidates, fn($v) => in_array($v['tipo'], ['Jovem Aprendiz', 'Jovem Profissional'], true)))],
+                ['id' => 'trainee',  'titulo' => 'Trainee',                              'icone' => 'briefcase','chave' => 'tipo',    'itens' => array_values(array_filter($candidates, fn($v) => $v['tipo'] === 'Trainee'))],
+                ['id' => 'estagio',  'titulo' => 'Estágio',                              'icone' => 'building', 'chave' => 'tipo',    'itens' => array_slice(array_values(array_filter($candidates, fn($v) => $v['tipo'] === 'Estágio')), 0, 12)],
+                ['id' => 'vencendo', 'titulo' => 'Encerrando em breve',                 'icone' => 'clock',    'chave' => 'vencendo','itens' => $sorter(array_values(array_filter($candidates, fn($v) => isset($v['selos']['vencendo']))), fn($a, $b) => strcmp($a['data_limite'], $b['data_limite']))],
+            ], fn($t) => !empty($t['itens'])));
+        }
+
+        $allOpen = ($mode === '' || $mode === 'salario' || $mode === 'prazo') ? $allJobs : Vaga::publicas();
 
         view('public/home', [
-            'titulo' => 'Vagas de Estágio e Primeiro Emprego',
-            'vagas' => $paginatedJobs,
-            'destaques' => Vaga::destaques($filtered),
-            'trilhos' => array_values(array_filter($tracks, fn($t) => $t['itens'])),
-            'areas' => Vaga::areasFiltro($filtered),
-            'tipos' => array_values(array_intersect(TIPOS_VAGA, array_column($filtered, 'tipo'))),
-            'modalidades' => array_values(array_intersect(MODALIDADES, array_column($filtered, 'modalidade'))),
-            'pagina' => $page,
-            'totalPaginas' => ceil($total / $perPage),
-            'totalVagas' => $total,
-            'filtros' => $filters,
+            'titulo'      => 'Vagas de Estágio e Primeiro Emprego',
+            'vagas'       => $paginatedJobs,
+            'destaques'   => Vaga::destaques(array_values($allOpen)),
+            'trilhos'     => $tracks,
+            'areas'       => Vaga::areasFiltro(array_values($allOpen)),
+            'tipos'       => array_values(array_intersect(TIPOS_VAGA, array_column(array_values($allOpen), 'tipo'))),
+            'modalidades' => array_values(array_intersect(MODALIDADES, array_column(array_values($allOpen), 'modalidade'))),
+            'pagina'      => $page,
+            'totalPaginas'=> (int) ceil($total / $perPage) ?: 1,
+            'totalVagas'  => $total,
+            'filtros'     => $filters,
         ]);
     }
 
