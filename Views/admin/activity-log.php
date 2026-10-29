@@ -16,7 +16,7 @@ $q = fn(array $x) => url('admin-atividade', $x);
 <section class="ui-card">
     <?php if (!$lista): echo Ui::vazio('Nada neste período', 'Tente um período maior.'); else: ?>
     <ul class="ui-feed">
-        <?php foreach ($lista as $h): [$quem, $verbo, $item] = Historico::frase($h);
+        <?php foreach ($lista as $h): [$quem, $verbo, $item] = AuditLog::frase($h);
           $link = $h['entidade'] === 'vaga' ? url('admin-vaga', ['id' => $h['entidade_id']]) : ($h['entidade'] === 'empresa' ? url('admin-empresa', ['id' => $h['entidade_id']]) : null); ?>
         <li><strong><?= e($quem) ?></strong> <?= e($verbo) ?>
             <?= $link && $item ? '<a href="' . e($link) . '">' . e($item) . '</a>' : e($item) ?>

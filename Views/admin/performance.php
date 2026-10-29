@@ -1,13 +1,13 @@
-<?php [$rotPeriodo, $txtAtual, $txtAnt] = Visitas::PERIODOS[$periodo];
+<?php [$rotPeriodo, $txtAtual, $txtAnt] = Visits::PERIODS[$periodo];
 $dif = function (int $a, int $b) { $d = $a - $b; return $d === 0 ? 'igual ao anterior' : ($d > 0 ? '+' : '') . $d . ' vs. período anterior'; }; ?>
 <div class="ui-row-between">
     <p class="ui-sub" style="margin:0;max-width:60ch">Veja o que os estudantes mais procuram nos <?= e($txtAtual) ?> e
         use isso para escolher quais vagas colocar em destaque e quais empresas procurar.</p>
-    <nav class="ui-period-tabs" aria-label="Período"><?php foreach (Visitas::PERIODOS as $k => $d): ?><a
+    <nav class="ui-period-tabs" aria-label="Período"><?php foreach (Visits::PERIODS as $k => $d): ?><a
             href="<?= e(url('admin-desempenho', ['periodo' => $k])) ?>"
             class="<?= $k === $periodo ? 'is-active' : '' ?>"><?= e($d[0]) ?></a><?php endforeach; ?></nav>
 </div>
-<?php if (Visitas::ignorarLogados()): ?><p class="ui-hint">Visitas de administradores e empresas logados não entram na contagem: para testar, abra o site em uma janela anônima (sem login).</p><?php endif; ?>
+<?php if (Visits::ignorarLogados()): ?><p class="ui-hint">Visitas de administradores e empresas logados não entram na contagem: para testar, abra o site em uma janela anônima (sem login).</p><?php endif; ?>
 <div class="ui-grid-2">
     <section class="ui-card">
         <h2>Vagas mais vistas</h2>
