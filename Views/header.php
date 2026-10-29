@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html prefix="og: http://ogp.me/ns#" class="no-js" lang="pt-br" dir="ltr">
-
 <head>
     <base href="<?= BASE_URL ?>" />
     <link rel="stylesheet"
@@ -284,7 +283,6 @@
                             </nav>
                             <nav class="sobre span9">
                                 <h2>Cursos <i class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-
                                 <ul>
                                     <li class="item-374 parent"><a
                                             href="https://gru.ifsp.edu.br/tecnicos.html">Técnicos</a></li>
@@ -389,7 +387,6 @@
                             <nav class="sobre span9">
                                 <h2>Direção Geral <i
                                         class="icon-chevron-up visible-phone visible-tablet pull-right"></i></h2>
-
                                 <ul>
                                     <li class="item-953 active deeper parent"><a
                                             href="https://gru.ifsp.edu.br/drg.html">Direção Geral do Campus (DRG)</a>

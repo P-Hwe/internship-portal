@@ -81,8 +81,8 @@ $hist = function (string $ent, int $id, string $acao, ?string $de, ?string $para
     Database::insert('historico', ['entidade' => $ent, 'entidade_id' => $id, 'acao' => $acao, 'de' => $de, 'para' => $para, 'ator_tipo' => $ator, 'ator_id' => $atorId, 'detalhe' => $det !== null ? mb_substr($det, 0, 300) : null, 'criado_em' => $em]);
 };
 
-$sec = Admin::criar('Secretaria (teste)', 'secretaria' . DEMO_DOMINIO, DEMO_SENHA, 'admin', false);
-$novo = Admin::criar('Novo administrador (teste)', 'novoadmin' . DEMO_DOMINIO, DEMO_SENHA, 'admin', true);
+$sec = Admin::create('Secretaria (teste)', 'secretaria' . DEMO_DOMINIO, DEMO_SENHA, 'admin', false);
+$novo = Admin::create('Novo administrador (teste)', 'novoadmin' . DEMO_DOMINIO, DEMO_SENHA, 'admin', true);
 Database::update('admins', $sec, ['criado_em' => $quando(-40), 'ultimo_acesso' => $quando(-1, 14, 20)]);
 Database::update('admins', $novo, ['criado_em' => $quando(-1)]);
 $hist('admin', $sec, 'cadastro', null, null, 'admin', $raiz, 'Secretaria (teste)', $quando(-40));
@@ -114,7 +114,7 @@ foreach ($E as $i => [$nome, $razao, $base, $seg, $porte, $resp, $cargo, $slug, 
     $primeiro = strtolower(preg_replace('/[^a-z]/i', '', iconv('UTF-8', 'ASCII//TRANSLIT', explode(' ', $resp)[0] === 'Dra.' || explode(' ', $resp)[0] === 'Eng.' ? explode(' ', $resp)[1] : explode(' ', $resp)[0])));
     $slugEmail = $slug ?: 'empresa' . $i;
     $id = Database::insert('empresas', [
-        'cnpj' => Cnpj::completar($base), 'razao_social' => $razao, 'nome' => $nome, 'descricao' => $desc, 'segmento' => $seg, 'porte' => $porte,
+        'cnpj' => Cnpj::complete($base), 'razao_social' => $razao, 'nome' => $nome, 'descricao' => $desc, 'segmento' => $seg, 'porte' => $porte,
         'endereco' => "$rua, $num - $bairro, $cidade/SP - CEP 07011-000", 'cep' => '07011000', 'logradouro' => $rua, 'numero' => $num, 'complemento' => $i % 3 === 0 ? 'Sala ' . (10 + $i) : null, 'bairro' => $bairro, 'cidade' => $cidade, 'uf' => 'SP',
         'responsavel' => $resp, 'cargo' => $cargo, 'telefone' => '1121' . str_pad((string) (3000 + ($i * 111)), 4, '0'), 'celular' => '119' . str_pad((string) (87000000 + ($i * 12345)), 8, '0', STR_PAD_LEFT),
         'email' => "$primeiro.$slugEmail" . DEMO_DOMINIO, 'email_contato' => "rh.$slugEmail" . DEMO_DOMINIO,

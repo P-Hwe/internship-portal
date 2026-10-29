@@ -33,17 +33,18 @@ class Vaga
     private static function hidratar(array $r): array
     {
         $r['empresa'] = ['id' => $r['empresa_id'], 'nome' => $r['e_nome'], 'cnpj' => $r['e_cnpj'], 'endereco' => $r['e_endereco'], 'email' => $r['e_email'], 'telefone' => $r['e_telefone'],
-            'site' => $r['e_site'], 'linkedin' => $r['e_linkedin'], 'status' => $r['e_status'], 'ultimo_acesso' => $r['e_acesso'], 'logo' => $r['e_logo'], 'banner' => $r['e_banner'],
-            'segmento' => $r['e_segmento'], 'cidade' => $r['e_cidade'], 'uf' => $r['e_uf'], 'link_principal' => $r['e_lp']];
+            'site' => $r['e_site'], 'linkedin' => $r['e_linkedin'], 'status' => $r['e_status'], 'ultimo_acesso' => $r['e_acesso'], 'logo' => $r['e_logo'], 'banner' => $r['e_banner'], 'segmento' => $r['e_segmento'],
+            'cidade' => $r['e_cidade'], 'uf' => $r['e_uf'], 'link_principal' => $r['e_lp']];
         foreach (['e_nome', 'e_cnpj', 'e_endereco', 'e_email', 'e_telefone', 'e_site', 'e_linkedin', 'e_status', 'e_acesso', 'e_logo', 'e_banner', 'e_segmento', 'e_cidade', 'e_uf', 'e_lp'] as $k) unset($r[$k]);
         foreach (['atividades', 'requisitos', 'requisitos_desejaveis', 'beneficios'] as $c) $r[$c] = self::linhas($r[$c] ?? '');
-        $r['resumo']   = resumo_da_descricao($r['descricao']);
-        $r['bolsa_txt'] = dinheiro($r['bolsa']);
+        $r['resumo'] = resumo_da_descricao($r['descricao']);          // breve descrição = primeiras linhas da descrição
+        $r['bolsa_txt'] = $r['bolsa'] === null ? 'A combinar' : ((float)$r['bolsa'] === 0.0 ? 'A divulgar' : dinheiro($r['bolsa']));
         $r['area_exibicao'] = $r['area'];
-        $r['situacao'] = Estado::situacaoVaga($r);
-        $r['dias']     = dias_restantes($r['data_limite']);
+        $r['situacao'] = Status::situacaoVaga($r);                    // calculada pelas datas, no backend
+        $r['dias'] = dias_restantes($r['data_limite']);
+        // selos do card (mesmos do site público); fora do ar só o tipo aparece
         $r['recrutador_ativo'] = $r['empresa']['ultimo_acesso'] && strtotime($r['empresa']['ultimo_acesso']) >= time() - DIAS_RECRUTADOR_ATIVO * 86400;
-        $r['selos']    = $r['situacao'] === 'publicada' ? self::selos($r) : ['tipo' => [$r['tipo'], 'vg-tag-tipo']];
+        $r['selos'] = $r['situacao'] === 'publicada' ? self::selos($r) : ['tipo' => [$r['tipo'], 'vg-tag-tipo']];
         $r['carga_txt'] = self::cargaTexto($r['carga_horas_dia'] !== null ? (int) $r['carga_horas_dia'] : null, $r['carga_dias'], $r['carga_turno']) ?: ($r['carga_horaria'] ?: '');
         return $r;
     }
@@ -52,7 +53,7 @@ class Vaga
     /** Vagas no ar: aprovadas, de empresa aprovada e dentro do período. */
     public static function publicas(): array
     {
-        [$sit, $p] = Estado::sqlSituacao('publicada');
+        [$sit, $p] = Status::sqlSituacao('publicada');
         $rows = Database::all('SELECT ' . self::SEL . ' ' . self::FROM . " WHERE $sit AND e.status = 'aprovada' ORDER BY v.data_publicacao DESC, v.id DESC", $p);
         return self::marcar(array_map([self::class, 'hidratar'], $rows));
     }
@@ -90,7 +91,7 @@ class Vaga
         if (!empty($v['recrutador_ativo'])) $s['ativo'] = ['Recrutador ativo', 'vg-tag-hot'];
         return $s;
     }
-    /** Vagas do Modo TV: só as em destaque e as bem pagas. Destaques primeiro; depois, maior bolsa. */
+    /** Vagas do Modo TV: só as em destaque e as bem pagas (selo "Melhor salário", definido em marcar()). Destaques primeiro; depois, maior bolsa. */
     public static function tv(array $publicas): array
     {
         $l = array_values(array_filter($publicas, fn($v) => !empty($v['destaque']) || !empty($v['melhor_salario'])));
@@ -99,11 +100,11 @@ class Vaga
     }
     public static function destaques(array $publicas): array { return array_slice(array_values(array_filter($publicas, fn($v) => !empty($v['destaque']))), 0, CARROSSEL_MAX); }
 
-    /** Vaga que o estudante pode abrir: no ar, expirada ou encerrada. */
+    /** Vaga que o ESTUDANTE pode abrir: no ar, expirada ou encerrada (histórico). Nunca em análise, rejeitada ou agendada. */
     public static function visivelPorId(int $id): ?array
     {
         $v = self::porId($id);
-        if (!$v || $v['empresa']['status'] !== Estado::E_APROVADA) return null;
+        if (!$v || $v['empresa']['status'] !== Status::E_APROVADA) return null;
         if (!in_array($v['situacao'], ['publicada', 'expirada', 'encerrada'], true)) return null;
         if ($v['situacao'] === 'publicada') { foreach (self::publicas() as $p) if ((int) $p['id'] === $id) return $p; }
         return $v;
@@ -117,8 +118,27 @@ class Vaga
     }
     public static function areasFiltro(array $publicas): array
     {
-        $a = array_unique(array_column($publicas, 'area_exibicao')); sort($a, SORT_LOCALE_STRING);
-        return array_values(array_merge(array_diff($a, ['Outras']), in_array('Outras', $a, true) ? ['Outras'] : []));
+        $raw    = array_column($publicas, 'area_exibicao');
+        $counts = array_count_values($raw);
+        arsort($counts);
+
+        $areas = array_filter(array_keys($counts), fn($a) => $a !== 'Outras');
+
+        $qualified = array_filter($areas, fn($a) => ($counts[$a] ?? 0) >= AREA_MIN_VAGAS);
+        if (count($qualified) >= 5) {
+            $areas = array_values($qualified);
+        } else {
+            $areas = array_values($areas);
+        }
+
+        $areas = array_slice($areas, 0, 15);
+        sort($areas, SORT_LOCALE_STRING);
+
+        if (isset($counts['Outras'])) {
+            $areas[] = 'Outras';
+        }
+
+        return $areas;
     }
 
     // ---------- painéis (empresa e admin) ----------
@@ -127,6 +147,7 @@ class Vaga
         $r = Database::one('SELECT ' . self::SEL . ' ' . self::FROM . ' WHERE v.id = :i', ['i' => $id]);
         return $r ? self::hidratar($r) : null;
     }
+    /** Ownership: só devolve a vaga se pertencer à empresa informada. */
     public static function daEmpresaPorId(int $empId, int $id): ?array
     {
         $v = self::porId($id);
@@ -148,18 +169,19 @@ class Vaga
         return array_map('intval', $r ?: []);
     }
 
+    /** Listagem com aba (situação), busca, tipo, ordem e paginação feitas no banco. @return array [linhas, total] */
     public static function listar(?int $empId, string $aba, string $busca, string $tipo, string $ordem, int $pg, int $por = POR_PAGINA, ?int $soEmpresa = null): array
     {
         $w = ['1 = 1']; $p = [];
         if ($empId) { $w[] = 'v.empresa_id = :emp'; $p['emp'] = $empId; }
-        if ($aba === 'destaque') { [$s, $sp] = Estado::sqlSituacao('publicada'); $w[] = "$s AND v.destaque = 1"; $p += $sp; }
-        elseif (in_array($aba, Estado::SITUACOES, true)) { [$s, $sp] = Estado::sqlSituacao($aba); $w[] = $s; $p += $sp; }
+        if ($aba === 'destaque') { [$s, $sp] = Status::sqlSituacao('publicada'); $w[] = "$s AND v.destaque = 1"; $p += $sp; }
+        elseif (in_array($aba, Status::SITUACOES, true)) { [$s, $sp] = Status::sqlSituacao($aba); $w[] = $s; $p += $sp; }
         if ($busca !== '') { $w[] = '(LOWER(v.titulo) LIKE :q OR LOWER(e.nome) LIKE :q OR LOWER(v.codigo) LIKE :q OR LOWER(v.area) LIKE :q)'; $p['q'] = '%' . mb_strtolower($busca) . '%'; }
         if ($tipo !== '' && in_array($tipo, TIPOS_VAGA, true)) { $w[] = 'v.tipo = :tipo'; $p['tipo'] = $tipo; }
         $where = implode(' AND ', $w);
         $ord = ['recentes' => 'v.id DESC', 'prazo' => 'v.data_limite ASC, v.id DESC', 'titulo' => 'v.titulo ASC', 'empresa' => 'e.nome ASC, v.id DESC'][$ordem] ?? 'v.id DESC';
         $total = (int) Database::val('SELECT COUNT(*) ' . self::FROM . " WHERE $where", $p);
-        [$off] = Paginador::calc($total, $pg, $por);
+        [$off] = Paginator::calc($total, $pg, $por);
         $rows = Database::all('SELECT ' . self::SEL . ' ' . self::FROM . " WHERE $where ORDER BY $ord LIMIT " . (int) $por . ' OFFSET ' . (int) $off, $p);
         return [array_map([self::class, 'hidratar'], $rows), $total];
     }
@@ -173,6 +195,7 @@ class Vaga
     {
         return mb_strtolower(strtr(trim($s), ['á'=>'a','à'=>'a','ã'=>'a','â'=>'a','é'=>'e','ê'=>'e','í'=>'i','ó'=>'o','ô'=>'o','õ'=>'o','ú'=>'u','ç'=>'c','Á'=>'a','À'=>'a','Ã'=>'a','Â'=>'a','É'=>'e','Ê'=>'e','Í'=>'i','Ó'=>'o','Ô'=>'o','Õ'=>'o','Ú'=>'u','Ç'=>'c']));
     }
+    /** "Outra área": cria (ou reaproveita) a área. @return array [nome|null, erro|null] */
     public static function resolverArea(string $escolha, string $outra): array
     {
         if ($escolha !== AREA_OUTRA) { foreach (self::areas() as $a) { if ($a === $escolha) return [$a, null]; } return [null, 'Escolha uma área.']; }
@@ -184,7 +207,7 @@ class Vaga
         return [$nome, null];
     }
 
-    // ---------- escrita ----------
+    // ---------- escrita (sempre passando pela máquina de estados + histórico) ----------
     private static function dadosGravar(array $d): array
     {
         $carga = self::cargaTexto($d['carga_horas_dia'] ?? null, $d['carga_dias'] ?? null, $d['carga_turno'] ?? null);
@@ -199,16 +222,19 @@ class Vaga
     }
     public static function criar(array $d, int $empId): int
     {
-        $id = Database::insert('vagas', self::dadosGravar($d) + ['codigo' => 'TMP' . bin2hex(random_bytes(6)), 'empresa_id' => $empId, 'status' => Estado::V_AGUARDANDO, 'versao' => 1, 'criado_em' => Database::agora()]);
+        $id = Database::insert('vagas', self::dadosGravar($d) + ['codigo' => 'TMP' . bin2hex(random_bytes(6)), 'empresa_id' => $empId, 'status' => Status::V_AGUARDANDO, 'versao' => 1, 'criado_em' => Database::agora()]);
         Database::update('vagas', $id, ['codigo' => sprintf('VG-%s-%04d', date('Y'), $id)]);
-        Historico::registrar('vaga', $id, 'criada', null, Estado::V_AGUARDANDO, 'empresa', $empId);
+        AuditLog::registrar('vaga', $id, 'criada', null, Status::V_AGUARDANDO, 'empresa', $empId);
+        // primeira publicação: o aviso "empresa aprovada" não precisa mais aparecer
         Database::update('empresas', $empId, ['aprovacao_vista' => 1]);
         return $id;
     }
 
+    /** Campos de conteúdo que mudaram entre a vaga atual e os dados novos. */
     public static function camposAlterados(array $atual, array $novo): array
     {
-        $norm = fn($v, $k) => $v === null || $v === '' ? '' : ($k === 'bolsa' ? number_format((float) $v, 2, '.', '') : trim(str_replace("\r", '', (string) $v)));
+        // bolsa vem como string (DECIMAL) ou número: compara sempre com 2 casas
+        $norm = fn($v, $k) => $v === null || $v === '' ? '' : ($k === 'bolsa' ? number_format((float) $v, 2, '.', '') : trim(str_replace("\r", '', (string) $v)));   // navegadores enviam \r\n; o banco guarda \n
         $g = self::dadosGravar($novo + ['imagem' => $atual['imagem']]); $diff = [];
         foreach (self::CONTEUDO as $k) {
             $a = $atual[$k] ?? null;
@@ -218,42 +244,44 @@ class Vaga
         return $diff;
     }
 
+    /** Empresa edita a vaga. Aprovada/rejeitada com alteração -> volta para análise (exige nova aprovação). @return array [mudou, novoStatus] */
     public static function atualizar(int $id, array $novo, int $empId): array
     {
         $v = self::porId($id);
         if (!$v || (int) $v['empresa_id'] !== $empId) throw new RuntimeException('Vaga não pertence à empresa.');
-        if ($v['status'] === Estado::V_ENCERRADA) throw new RuntimeException('Vaga encerrada não pode ser editada.');
+        if ($v['status'] === Status::V_ENCERRADA) throw new RuntimeException('Vaga encerrada não pode ser editada.');
         $dif = self::camposAlterados($v, $novo);
         if (!$dif) return [false, $v['status']];
         $dados = self::dadosGravar($novo + ['imagem' => $v['imagem']]) + ['atualizado_em' => Database::agora(), 'versao' => (int) $v['versao'] + 1];
         $para = $v['status'];
-        if (in_array($v['status'], [Estado::V_APROVADA, Estado::V_REJEITADA], true)) {
-            if (!Estado::vagaPode($v['status'], Estado::V_AGUARDANDO)) throw new RuntimeException('Transição inválida.');
-            $para = Estado::V_AGUARDANDO; $dados['status'] = $para; $dados['motivo'] = null; $dados['avaliado_em'] = null;
+        if (in_array($v['status'], [Status::V_APROVADA, Status::V_REJEITADA], true)) {
+            if (!Status::vagaPode($v['status'], Status::V_AGUARDANDO)) throw new RuntimeException('Transição inválida.');
+            $para = Status::V_AGUARDANDO; $dados['status'] = $para; $dados['motivo'] = null; $dados['avaliado_em'] = null;
         }
         Database::update('vagas', $id, $dados);
-        Historico::registrar('vaga', $id, $v['status'] === Estado::V_REJEITADA ? 'reenviada' : 'editada', $v['status'], $para, 'empresa', $empId, 'Campos: ' . implode(', ', $dif));
+        AuditLog::registrar('vaga', $id, $v['status'] === Status::V_REJEITADA ? 'reenviada' : 'editada', $v['status'], $para, 'empresa', $empId, 'Campos: ' . implode(', ', $dif));
         return [true, $para];
     }
 
+    /** Aprovar/rejeitar/encerrar com validação da transição. @return bool */
     public static function mudarStatus(int $id, string $para, ?string $motivo, string $atorTipo, ?int $atorId): bool
     {
         $v = Database::one('SELECT status FROM vagas WHERE id = :i', ['i' => $id]);
-        if (!$v || !Estado::vagaPode($v['status'], $para)) return false;
-        $d = ['status' => $para, 'motivo' => $para === Estado::V_REJEITADA ? $motivo : null];
-        if (in_array($para, [Estado::V_APROVADA, Estado::V_REJEITADA], true)) $d['avaliado_em'] = Database::agora();
-        if ($para === Estado::V_ENCERRADA) $d['aviso_encerrada'] = 1;
+        if (!$v || !Status::vagaPode($v['status'], $para)) return false;
+        $d = ['status' => $para, 'motivo' => $para === Status::V_REJEITADA ? $motivo : null];
+        if (in_array($para, [Status::V_APROVADA, Status::V_REJEITADA], true)) $d['avaliado_em'] = Database::agora();
+        if ($para === Status::V_ENCERRADA) $d['aviso_encerrada'] = 1;
         Database::update('vagas', $id, $d);
-        Historico::registrar('vaga', $id, $para === Estado::V_APROVADA ? 'aprovada' : ($para === Estado::V_REJEITADA ? 'rejeitada' : 'encerrada'), $v['status'], $para, $atorTipo, $atorId, $motivo);
+        AuditLog::registrar('vaga', $id, $para === Status::V_APROVADA ? 'aprovada' : ($para === Status::V_REJEITADA ? 'rejeitada' : 'encerrada'), $v['status'], $para, $atorTipo, $atorId, $motivo);
         return true;
     }
     public static function alternarDestaque(int $id, string $atorTipo, ?int $atorId): void
     {
         Database::run('UPDATE vagas SET destaque = 1 - destaque WHERE id = :i', ['i' => $id]);
-        Historico::registrar('vaga', $id, 'destaque', null, null, $atorTipo, $atorId);
+        AuditLog::registrar('vaga', $id, 'destaque', null, null, $atorTipo, $atorId);
     }
 
-    /** Rotina diária (cron). Envia avisos de vencimento e encerramento. */
+    /** Rotina diária (cron). NÃO muda o estado: vaga expirada continua no sistema (a situação vem das datas). Só envia avisos. @return array [expiradas avisadas, vencendo avisadas] */
     public static function rotina(): array
     {
         $h = date('Y-m-d'); $em3 = date('Y-m-d', strtotime('+3 days')); $exp = 0; $av = 0;
@@ -261,14 +289,27 @@ class Vaga
         foreach (Database::all($q . " WHERE v.status = 'aprovada' AND v.aviso_encerrada = 0 AND v.data_limite < :h", ['h' => $h]) as $r) {
             $v = self::hidratar($r);
             Database::update('vagas', (int) $v['id'], ['aviso_encerrada' => 1]);
-            Historico::registrar('vaga', (int) $v['id'], 'expirada', 'publicada', 'expirada', 'sistema', null);
-            Notificador::vagaEncerrada($v, $v['empresa']); $exp++;
+            AuditLog::registrar('vaga', (int) $v['id'], 'expirada', 'publicada', 'expirada', 'sistema', null);
+            Notifier::vagaEncerrada($v, $v['empresa']); $exp++;
         }
         foreach (Database::all($q . " WHERE v.status = 'aprovada' AND v.aviso_vencendo = 0 AND v.data_limite >= :h AND v.data_limite <= :t", ['h' => $h, 't' => $em3]) as $r) {
             $v = self::hidratar($r);
             Database::update('vagas', (int) $v['id'], ['aviso_vencendo' => 1]);
-            Notificador::vagaVencendo($v, $v['empresa']); $av++;
+            Notifier::vagaVencendo($v, $v['empresa']); $av++;
         }
         return [$exp, $av];
+    }
+
+    public static function encerrar(int $id, string $motivo): void
+    {
+        $v = self::porId($id);
+        if (!$v || $v['status'] !== Status::V_APROVADA) throw new RuntimeException('Vaga não pode ser encerrada.');
+        Database::update('vagas', $id, ['status' => Status::V_ENCERRADA, 'motivo' => $motivo, 'aviso_encerrada' => 1]);
+        AuditLog::registrar('vaga', $id, 'encerrada', Status::V_APROVADA, Status::V_ENCERRADA, 'empresa', (int) $v['empresa_id'], $motivo);
+    }
+
+    public static function dispensarAviso(int $id): void
+    {
+        Database::update('vagas', $id, ['aviso_encerrada' => 0]);
     }
 }
