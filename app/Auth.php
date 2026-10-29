@@ -1,193 +1,218 @@
 <?php
-
 class Auth
 {
-    private const MAX_TENTATIVAS = 5;
-    private const JANELA_MIN = 15;
-    private static function ocioso(string $perfil): int
-    {
-        return (int) env('SESSION_IDLE_' . strtoupper($perfil), $perfil === 'admin' ? 1800 : 7200);
-    }
-    private const ABSOLUTO = 43200;
+    private const MAX_ATTEMPTS      = 5;
+    private const RATE_WINDOW_MIN   = 15;  
+    private const ABSOLUTE_LIMIT    = 86400; 
 
-    public static function log(string $perfil, ?int $uid, ?string $email, string $evento): void
+    private static function idleTimeout(string $profile): int
+    {
+        return (int) env('SESSION_IDLE_' . strtoupper($profile), $profile === 'admin' ? 1800 : 7200);
+    }
+
+    public static function log(string $profile, ?int $uid, ?string $email, string $event): void
     {
         try {
             Database::insert('acessos_log', [
-                'perfil' => $perfil,
+                'perfil'     => $profile,
                 'usuario_id' => $uid,
-                'email' => $email ? mb_substr($email, 0, 120) : null,
-                'evento' => $evento,
-                'ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'cli'), 0, 45),
-                'agente' => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 160),
-                'criado_em' => Database::agora()
+                'email'      => $email ? mb_substr($email, 0, 120) : null,
+                'evento'     => $event,
+                'ip'         => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'cli'), 0, 45),
+                'agente'     => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 160),
+                'criado_em'  => Database::now(),
             ]);
-        } catch (Throwable $t) { /* log nunca derruba a requisição */
-        }
+        } catch (Throwable $e) { }
     }
 
     public static function empresa(): ?array
     {
         $id = (int) ($_SESSION['empresa_id'] ?? 0);
-        if (!$id) {
-            return null;
-        }
-        $e = Empresa::porId($id);
-        if (!$e || $e['status'] === Estado::E_BLOQUEADA) {
+        if (!$id) return null;
+        $company = Company::porId($id);
+        if (!$company || $company['status'] === Status::E_BLOQUEADA) {
             unset($_SESSION['empresa_id']);
             return null;
         }
-        return $e;
+        return $company;
     }
+
     public static function admin(): ?array
     {
         $id = (int) ($_SESSION['admin_id'] ?? 0);
-        if (!$id) {
-            return null;
-        }
-        $a = Admin::porId($id);
-        if (!$a || !(int) $a['ativo']) {
+        if (!$id) return null;
+        $admin = Admin::findById($id);
+        if (!$admin || !(int) $admin['ativo']) {
             unset($_SESSION['admin_id']);
             return null;
         }
-        return $a;
+        return $admin;
     }
-    public static function perfil(): ?string
+
+    public static function role(): ?string
     {
         return self::admin() ? 'admin' : (self::empresa() ? 'empresa' : null);
     }
 
-    public static function normalizar(): void
+    /** @deprecated Use role() */
+    public static function perfil(): ?string { return self::role(); }
+
+    public static function normalize(): void
     {
         if (!empty($_SESSION['admin_id']) && !empty($_SESSION['empresa_id'])) {
             unset($_SESSION['empresa_id']);
         }
-        $perfil = !empty($_SESSION['admin_id']) ? 'admin' : (!empty($_SESSION['empresa_id']) ? 'empresa' : null);
-        if (!$perfil) {
-            return;
-        }
-        $agora = time();
-        $ult = (int) ($_SESSION['_ultima'] ?? $agora);
-        $ini = (int) ($_SESSION['_inicio'] ?? $agora);
-        if ($agora - $ult > self::ocioso($perfil) || $agora - $ini > self::ABSOLUTO) {
-            self::log($perfil, (int) $_SESSION[$perfil . '_id'], null, 'timeout');
+        $profile = !empty($_SESSION['admin_id']) ? 'admin' : (!empty($_SESSION['empresa_id']) ? 'empresa' : null);
+        if (!$profile) return;
+        $now          = time();
+        $lastActivity = (int) ($_SESSION['_ultima'] ?? $now);
+        $sessionStart = (int) ($_SESSION['_inicio'] ?? $now);
+        if ($now - $lastActivity > self::idleTimeout($profile) || $now - $sessionStart > self::ABSOLUTE_LIMIT) {
+            self::log($profile, (int) $_SESSION[$profile . '_id'], null, 'timeout');
             unset($_SESSION['admin_id'], $_SESSION['empresa_id'], $_SESSION['_ultima'], $_SESSION['_inicio']);
             session_regenerate_id(true);
             flash('info', 'Sua sessão expirou. Entre novamente.');
             return;
         }
-        $_SESSION['_ultima'] = $agora;
-        $_SESSION['_inicio'] = $ini;
+        $_SESSION['_ultima'] = $now;
+        $_SESSION['_inicio'] = $sessionStart;
     }
 
-    public static function bloquearSeOutroPerfil(string $quero): void
+    /** @deprecated Use normalize() */
+    public static function normalizar(): void { self::normalize(); }
+
+    public static function blockIfWrongRole(string $wanted): void
     {
-        $atual = self::perfil();
-        if ($atual && $atual !== $quero) {
-            self::log($atual, (int) ($_SESSION[$atual . '_id'] ?? 0), null, 'negado');
-            flash('info', $atual === 'admin'
+        $current = self::role();
+        if ($current && $current !== $wanted) {
+            self::log($current, (int) ($_SESSION[$current . '_id'] ?? 0), null, 'negado');
+            flash('info', $current === 'admin'
                 ? 'Você está conectado como administrador. Saia da conta para entrar ou cadastrar como empresa.'
                 : 'Você está conectado como empresa. Saia da conta para entrar como administrador.');
-            redirect($atual === 'admin' ? 'admin' : 'painel');
+            redirect($current === 'admin' ? 'admin' : 'painel');
         }
     }
-    public static function exigirEmpresa(): array
+
+    /** @deprecated Use blockIfWrongRole() */
+    public static function bloquearSeOutroPerfil(string $wanted): void { self::blockIfWrongRole($wanted); }
+
+    public static function requireCompany(): array
     {
-        self::bloquearSeOutroPerfil('empresa');
-        $e = self::empresa();
-        if (!$e) {
+        self::blockIfWrongRole('empresa');
+        $company = self::empresa();
+        if (!$company) {
             flash('info', 'Entre com a conta da empresa para continuar.');
             redirect('empresa-login', ['next' => $_GET['p'] ?? 'painel']);
         }
-        return $e;
+        return $company;
     }
-    /** $paginaDeTroca = true só na própria tela de troca de senha (senão o admin com senha inicial é levado até ela antes de tudo). */
-    public static function exigirAdmin(bool $paginaDeTroca = false): array
+
+    /** @deprecated Use requireCompany() */
+    public static function exigirEmpresa(): array { return self::requireCompany(); }
+
+    public static function requireAdmin(bool $passwordChangePage = false): array
     {
-        self::bloquearSeOutroPerfil('admin');
-        $a = self::admin();
-        if (!$a) {
+        self::blockIfWrongRole('admin');
+        $admin = self::admin();
+        if (!$admin) {
             flash('info', 'Acesso restrito à Coordenação/Secretaria.');
             redirect('admin-login');
         }
-        if ((int) ($a['trocar_senha'] ?? 0) && !$paginaDeTroca) {
+        if ((int) ($admin['trocar_senha'] ?? 0) && !$passwordChangePage) {
             redirect('admin-senha');
         }
-        return $a;
+        return $admin;
     }
-    public static function recusar(string $motivo = 'recurso'): void
+
+    /** @deprecated Use requireAdmin() */
+    public static function exigirAdmin(bool $paginaDeTroca = false): array { return self::requireAdmin($paginaDeTroca); }
+
+    public static function deny(string $resource = 'resource'): void
     {
-        $p = self::perfil() ?? 'anonimo';
-        self::log($p, (int) ($_SESSION[$p . '_id'] ?? 0) ?: null, null, 'negado');
+        $role = self::role() ?? 'anonimo';
+        self::log($role, (int) ($_SESSION[$role . '_id'] ?? 0) ?: null, null, 'negado');
         http_response_code(404);
-        $perfil = self::perfil();
-        render('erro', ['titulo' => 'Não encontrado', 'msg' => 'O item não existe ou você não tem acesso a ele.', 'area' => $perfil ?? 'empresa', 'secao' => '', 'emp' => self::empresa() ?? [], 'adm' => self::admin() ?? []], $perfil ? 'app' : 'auth');
+        $currentRole = self::role();
+        render('shared/error', ['titulo' => 'Não encontrado', 'msg' => 'O item não existe ou você não tem acesso a ele.', 'area' => $currentRole ?? 'empresa', 'secao' => '', 'emp' => self::empresa() ?? [], 'adm' => self::admin() ?? []], $currentRole ? 'app' : 'auth');
         exit;
     }
 
-    public static function entrar(string $perfil, string $email, string $senha): array
+    /** @deprecated Use deny() */
+    public static function recusar(string $motivo = 'recurso'): void { self::deny($motivo); }
+
+    public static function login(string $profile, string $email, string $password): array
     {
-        $atual = self::perfil();
-        if ($atual && $atual !== $perfil) {
-            return [null, 'Já existe um login ativo como ' . ($atual === 'admin' ? 'administrador' : 'empresa') . '. Saia primeiro.'];
+        $current = self::role();
+        if ($current && $current !== $profile) {
+            return [null, 'Já existe um login ativo como ' . ($current === 'admin' ? 'administrador' : 'empresa') . '. Saia primeiro.'];
         }
         $email = mb_strtolower(trim($email));
-        $chave = hash('sha256', $perfil . '|' . $email . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'cli'));
-        if (self::tentativas($chave) >= self::MAX_TENTATIVAS) {
-            self::log($perfil, null, $email, 'bloqueado');
-            return [null, 'Muitas tentativas. Aguarde ' . self::JANELA_MIN . ' minutos e tente de novo.'];
+        $key   = hash('sha256', $profile . '|' . $email . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'cli'));
+        if (self::loginAttempts($key) >= self::MAX_ATTEMPTS) {
+            self::log($profile, null, $email, 'bloqueado');
+            return [null, 'Muitas tentativas. Aguarde ' . self::RATE_WINDOW_MIN . ' minutos e tente de novo.'];
         }
-        $u = $perfil === 'admin' ? Admin::porEmail($email) : Empresa::porEmail($email);
-        $hash = $u['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';   // tempo constante
-        if (!$u || !password_verify($senha, $hash)) {
-            Database::insert('login_tentativas', ['chave' => $chave, 'criado_em' => Database::agora()]);
-            self::log($perfil, $u ? (int) $u['id'] : null, $email, 'login_falha');
+        $user = $profile === 'admin' ? Admin::findByEmail($email) : Company::porEmail($email);
+        $hash = $user['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';
+        if (!$user || !password_verify($password, $hash)) {
+            Database::insert('login_tentativas', ['chave' => $key, 'criado_em' => Database::now()]);
+            self::log($profile, $user ? (int) $user['id'] : null, $email, 'login_falha');
             return [null, 'E-mail ou senha incorretos.'];
         }
-        if ($perfil === 'admin' && !(int) $u['ativo']) {
-            self::log($perfil, (int) $u['id'], $email, 'negado');
+        if ($profile === 'admin' && !(int) $user['ativo']) {
+            self::log($profile, (int) $user['id'], $email, 'negado');
             return [null, 'Esta conta está desativada. Fale com a Coordenação.'];
         }
-        if ($perfil === 'empresa' && $u['status'] === Estado::E_BLOQUEADA) {
-            self::log($perfil, (int) $u['id'], $email, 'negado');
+        if ($profile === 'empresa' && $user['status'] === Status::E_BLOQUEADA) {
+            self::log($profile, (int) $user['id'], $email, 'negado');
             return [null, 'Esta conta está bloqueada. Fale com a Coordenação.'];
         }
-
-        Database::run('DELETE FROM login_tentativas WHERE chave = :c', ['c' => $chave]);
-        $anterior = $u['ultimo_acesso'];
+        Database::run('DELETE FROM login_tentativas WHERE chave = :c', ['c' => $key]);
+        $previousAccess = $user['ultimo_acesso'];
         session_regenerate_id(true);
-        $_SESSION[$perfil === 'admin' ? 'admin_id' : 'empresa_id'] = (int) $u['id'];
+        $_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'] = (int) $user['id'];
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
-        Database::update($perfil === 'admin' ? 'admins' : 'empresas', (int) $u['id'], ['ultimo_acesso' => Database::agora()]);
-        if ($perfil === 'empresa' && $u['status'] === Estado::E_APROVADA && !(int) $u['aprovacao_vista'] && $anterior && $u['avaliado_em'] && $anterior >= $u['avaliado_em']) {
-            Database::update('empresas', (int) $u['id'], ['aprovacao_vista' => 1]);
+        Database::update($profile === 'admin' ? 'admins' : 'empresas', (int) $user['id'], ['ultimo_acesso' => Database::now()]);
+        if ($profile === 'empresa' && $user['status'] === Status::E_APROVADA && !(int) $user['aprovacao_vista'] && $previousAccess && $user['avaliado_em'] && $previousAccess >= $user['avaliado_em']) {
+            Database::update('empresas', (int) $user['id'], ['aprovacao_vista' => 1]);
         }
-        self::log($perfil, (int) $u['id'], $email, 'login_ok');
-        return [$u, null];
+        self::log($profile, (int) $user['id'], $email, 'login_ok');
+        return [$user, null];
     }
 
-    public static function iniciarSessao(string $perfil, int $id, ?string $email = null): void
+    /** @deprecated Use login() */
+    public static function entrar(string $perfil, string $email, string $senha): array { return self::login($perfil, $email, $senha); }
+
+    public static function startSession(string $profile, int $id, ?string $email = null): void
     {
         session_regenerate_id(true);
-        $_SESSION[$perfil === 'admin' ? 'admin_id' : 'empresa_id'] = $id;
+        $_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'] = $id;
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
-        Database::update($perfil === 'admin' ? 'admins' : 'empresas', $id, ['ultimo_acesso' => Database::agora()]);
-        self::log($perfil, $id, $email, 'login_ok');
+        Database::update($profile === 'admin' ? 'admins' : 'empresas', $id, ['ultimo_acesso' => Database::now()]);
+        self::log($profile, $id, $email, 'login_ok');
     }
 
-    public static function sair(string $perfil): void
+    /** @deprecated Use startSession() */
+    public static function iniciarSessao(string $perfil, int $id, ?string $email = null): void { self::startSession($perfil, $id, $email); }
+
+    public static function logout(string $profile): void
     {
-        self::log($perfil, (int) ($_SESSION[$perfil . '_id'] ?? 0) ?: null, null, 'logout');
-        unset($_SESSION[$perfil === 'admin' ? 'admin_id' : 'empresa_id'], $_SESSION['_ultima'], $_SESSION['_inicio']);
+        self::log($profile, (int) ($_SESSION[$profile . '_id'] ?? 0) ?: null, null, 'logout');
+        unset($_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'], $_SESSION['_ultima'], $_SESSION['_inicio']);
         session_regenerate_id(true);
     }
-    private static function tentativas(string $chave): int
+
+    /** @deprecated Use logout() */
+    public static function sair(string $perfil): void { self::logout($perfil); }
+
+    private static function loginAttempts(string $key): int
     {
-        $desde = date('Y-m-d H:i:s', time() - self::JANELA_MIN * 60);
-        return (int) Database::val('SELECT COUNT(*) FROM login_tentativas WHERE chave = :c AND criado_em >= :d', ['c' => $chave, 'd' => $desde]);
+        $since = date('Y-m-d H:i:s', time() - self::RATE_WINDOW_MIN * 60);
+        return (int) Database::val('SELECT COUNT(*) FROM login_tentativas WHERE chave = :c AND criado_em >= :d', ['c' => $key, 'd' => $since]);
     }
-    public static function hash(string $senha): string
+
+    public static function hash(string $password): string
     {
-        return password_hash($senha, PASSWORD_DEFAULT);
+        return password_hash($password, PASSWORD_DEFAULT);
     }
 }

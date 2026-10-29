@@ -96,7 +96,7 @@ function migrar(): array
     foreach (migrations() as $m) {
         if (in_array($m['nome'], $aplicadas, true)) continue;
         if (!$novo) { ($m['up'])($pdo); $feitas[] = $m['nome']; }   // banco antigo: executa a migration
-        Database::insert('migracoes', ['nome' => $m['nome'], 'aplicada_em' => Database::agora()]);   // banco novo: esquema final já contempla
+        Database::insert('migracoes', ['nome' => $m['nome'], 'aplicada_em' => Database::now()]);   // banco novo: esquema final já contempla
     }
     foreach (schema_sql() as $sql) {
         if (stripos($sql, 'CREATE INDEX') === 0) { try { $pdo->exec($sql); } catch (PDOException $e) { /* já existe */ } }
