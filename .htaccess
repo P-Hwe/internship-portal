@@ -4,7 +4,7 @@ DirectoryIndex index.php
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteRule ^(app|Controllers|Models|Views|database|cron|storage|tests|docs)(/|$) - [F,L]
-  # URLs limpas (/tv, /admin/login, /vaga/12): tudo que não é arquivo/pasta vai para o index.php, que descobre a página (veja app/Rota.php)
+  # URLs limpas (/tv, /admin/login, /vaga/12): tudo que não é arquivo/pasta vai para o index.php
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [L,QSA]
@@ -15,4 +15,5 @@ DirectoryIndex index.php
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Content-Type "text/html; charset=utf-8" "expr=%{CONTENT_TYPE} =~ m#^text/html#"
 </IfModule>
