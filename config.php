@@ -32,13 +32,19 @@ define('DIAS_VAGA_VENCENDO', max(1, (int) env('DIAS_VAGA_VENCENDO', 7)));
 define('AREA_MIN_VAGAS', max(1, (int) env('AREA_MIN_VAGAS', 3)));      
 define('DIAS_RECRUTADOR_ATIVO', max(1, (int) env('DIAS_RECRUTADOR_ATIVO', 7))); 
 define('UPLOAD_MAX_MB', max(1, (int) env('UPLOAD_MAX_MB', 10)));
-define('TIPOS_VAGA', ['Estágio', 'Trainee', 'Jovem Aprendiz', 'Jovem Profissional']);
-define('MODALIDADES', ['Presencial', 'Híbrido', 'Remoto']);
+define('JOB_TYPES', ['Estágio', 'Trainee', 'Jovem Aprendiz', 'Jovem Profissional']);
+define('MODALITIES', ['Presencial', 'Híbrido', 'Remoto']);
+define('TIPOS_VAGA',  JOB_TYPES);
+define('MODALIDADES', MODALITIES);
 define('AREA_OUTRA', '__outra__');
-define('SEGMENTOS', ['Tecnologia da Informação', 'Indústria', 'Comércio', 'Serviços', 'Educação', 'Saúde', 'Logística e Transporte', 'Financeiro', 'Marketing e Comunicação', 'Construção', 'Alimentação', 'Agronegócio', 'Outros']);
-define('PORTES', ['MEI', 'Microempresa', 'Pequena empresa', 'Média empresa', 'Grande empresa']);
-define('TURNOS', ['manha' => 'Manhã', 'tarde' => 'Tarde', 'noite' => 'Noite', 'integral' => 'Integral', 'flexivel' => 'Horário flexível']);
-define('DIAS_SEMANA', ['seg' => 'Seg', 'ter' => 'Ter', 'qua' => 'Qua', 'qui' => 'Qui', 'sex' => 'Sex', 'sab' => 'Sáb']);
+define('SEGMENTS', ['Tecnologia da Informação', 'Indústria', 'Comércio', 'Serviços', 'Educação', 'Saúde', 'Logística e Transporte', 'Financeiro', 'Marketing e Comunicação', 'Construção', 'Alimentação', 'Agronegócio', 'Outros']);
+define('COMPANY_SIZES', ['MEI', 'Microempresa', 'Pequena empresa', 'Média empresa', 'Grande empresa']);
+define('SEGMENTOS', SEGMENTS);
+define('PORTES',    COMPANY_SIZES);
+define('SHIFTS',    ['manha' => 'Manhã', 'tarde' => 'Tarde', 'noite' => 'Noite', 'integral' => 'Integral', 'flexivel' => 'Horário flexível']);
+define('WEEK_DAYS', ['seg' => 'Seg', 'ter' => 'Ter', 'qua' => 'Qua', 'qui' => 'Qui', 'sex' => 'Sex', 'sab' => 'Sáb']);
+define('TURNOS',    SHIFTS);
+define('DIAS_SEMANA', WEEK_DAYS);
 define('POR_PAGINA', max(1, (int) env('POR_PAGINA', 12)));   // 12 fecha linhas de 2, 3, 4 e 6 cards; use 16 se a sua tela sempre mostra 4 colunas
 define('PAGINA_PER_PAGE', max(1, (int) env('PAGINA_PER_PAGE', 9)));  // Número de vagas por página na home
 define('UFS', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);

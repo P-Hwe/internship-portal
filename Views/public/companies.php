@@ -35,13 +35,20 @@
             <?php if ($pg > 1): ?>
                 <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg - 1])) ?>"><?= icon('chevron-left', 16) ?> Anterior</a>
             <?php endif; ?>
-            <?php
-            $pStart = max(1, $pg - 2); $pEnd = min($totalPaginas, $pg + 2);
-            if ($pStart > 1): ?><a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => 1])) ?>">1</a><?php if ($pStart > 2): ?><span class="vg-p-ellipsis">…</span><?php endif; endif;
-            for ($i = $pStart; $i <= $pEnd; $i++): ?><a class="vg-p-btn <?= $i === $pg ? 'is-active' : '' ?>" href="<?= e(url('empresas', ['pg' => $i])) ?>" <?= $i === $pg ? 'aria-current="page"' : '' ?>><?= $i ?></a><?php endfor;
-            if ($pEnd < $totalPaginas): if ($pEnd < $totalPaginas - 1): ?><span class="vg-p-ellipsis">…</span><?php endif; ?><a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $totalPaginas])) ?>"><?= $totalPaginas ?></a><?php endif; ?>
+            <?php if ($pg > 1): ?>
+                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg - 1])) ?>"><?= $pg - 1 ?></a>
+            <?php endif; ?>
+            <a class="vg-p-btn is-active" href="<?= e(url('empresas', ['pg' => $pg])) ?>" aria-current="page"><?= $pg ?></a>
+            <?php if ($pg < $totalPaginas): ?>
+                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg + 1])) ?>"><?= $pg + 1 ?></a>
+            <?php endif; ?>
             <?php if ($pg < $totalPaginas): ?>
                 <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg + 1])) ?>">Próxima <?= icon('chevron-right', 16) ?></a>
+            <?php endif; ?>
+            <?php if ($pg < $totalPaginas): ?>
+                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $totalPaginas])) ?>">Última (<?= $totalPaginas ?>)</a>
+            <?php else: ?>
+                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => 1])) ?>">Primeira</a>
             <?php endif; ?>
         </div>
     </nav>

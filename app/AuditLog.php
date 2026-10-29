@@ -1,7 +1,7 @@
 <?php
 class AuditLog
 {
-    public static function registrar(string $entity, int $id, string $action, ?string $from, ?string $to, string $actorType, ?int $actorId, ?string $detail = null): void
+    public static function record(string $entity, int $id, string $action, ?string $from, ?string $to, string $actorType, ?int $actorId, ?string $detail = null): void
     {
         Database::insert('historico', [
             'entidade'    => $entity,
@@ -18,7 +18,7 @@ class AuditLog
 
     private const ACTOR_JOIN = "LEFT JOIN admins aa ON (h.ator_tipo = 'admin' AND aa.id = h.ator_id) LEFT JOIN empresas ae ON (h.ator_tipo = 'empresa' AND ae.id = h.ator_id)";
 
-    public static function da(string $entity, int $id, int $limit = 30): array
+    public static function forEntity(string $entity, int $id, int $limit = 30): array
     {
         return Database::all(
             'SELECT h.*, aa.nome AS ator_admin, ae.nome AS ator_empresa, ae.responsavel AS ator_responsavel
@@ -29,7 +29,7 @@ class AuditLog
         );
     }
 
-    public static function recentes(int $limit = 10): array
+    public static function recent(int $limit = 10): array
     {
         return Database::all(
             "SELECT h.*, v.titulo AS v_titulo, e.nome AS e_nome, aa.nome AS ator_admin, ae.nome AS ator_empresa, ae.responsavel AS ator_responsavel
@@ -40,7 +40,7 @@ class AuditLog
         );
     }
 
-    public static function listar(?string $since, int $limit, int $offset): array
+    public static function list(?string $since, int $limit, int $offset): array
     {
         $where  = $since ? 'WHERE h.criado_em >= :i' : '';
         $params = $since ? ['i' => $since . ' 00:00:00'] : [];
@@ -54,7 +54,7 @@ class AuditLog
         );
     }
 
-    public static function contar(?string $since): int
+    public static function count(?string $since): int
     {
         return (int) Database::val(
             'SELECT COUNT(*) FROM historico h ' . ($since ? 'WHERE h.criado_em >= :i' : ''),
@@ -62,7 +62,7 @@ class AuditLog
         );
     }
 
-    public static function quem(array $entry): string
+    public static function actorName(array $entry): string
     {
         if ($entry['ator_tipo'] === 'admin') return $entry['ator_admin'] ?: 'Administrador removido';
         if ($entry['ator_tipo'] === 'empresa') {
@@ -83,7 +83,7 @@ class AuditLog
         'expirada' => 'teve o prazo encerrado:',
     ];
 
-    public static function frase(array $entry): array
+    public static function phrase(array $entry): array
     {
         $item = $entry['entidade'] === 'vaga'
             ? (string) ($entry['v_titulo'] ?? '')
@@ -96,10 +96,10 @@ class AuditLog
         if ($entry['acao'] === 'cadastro') {
             $verb = $entry['entidade'] === 'admin' ? 'criou o administrador' : 'cadastrou a empresa';
         }
-        return [self::quem($entry), $verb, $item];
+        return [self::actorName($entry), $verb, $item];
     }
 
-    public static function ator(): array
+    public static function actor(): array
     {
         if (!empty($_SESSION['admin_id']))   return ['admin',   (int) $_SESSION['admin_id']];
         if (!empty($_SESSION['empresa_id'])) return ['empresa', (int) $_SESSION['empresa_id']];
@@ -114,5 +114,22 @@ class AuditLog
         'expirada' => 'Prazo encerrado',
     ];
 
-    public static function rotulo(array $entry): string { return self::ACTION_LABELS[$entry['acao']] ?? $entry['acao']; }
+    public static function label(array $entry): string { return self::ACTION_LABELS[$entry['acao']] ?? $entry['acao']; }
+
+    /** @deprecated Use record() */
+    public static function registrar(string $entity, int $id, string $action, ?string $from, ?string $to, string $actorType, ?int $actorId, ?string $detail = null): void { self::record($entity, $id, $action, $from, $to, $actorType, $actorId, $detail); }
+    /** @deprecated Use forEntity() */
+    public static function da(string $entity, int $id, int $limit = 30): array { return self::forEntity($entity, $id, $limit); }
+    /** @deprecated Use recent() */
+    public static function recentes(int $limit = 10): array { return self::recent($limit); }
+    /** @deprecated Use list() */
+    public static function listar(?string $since, int $limit, int $offset): array { return self::list($since, $limit, $offset); }
+    /** @deprecated Use count() */
+    public static function contar(?string $since): int { return self::count($since); }
+    /** @deprecated Use actorName() */
+    public static function quem(array $entry): string { return self::actorName($entry); }
+    /** @deprecated Use phrase() */
+    public static function frase(array $entry): array { return self::phrase($entry); }
+    /** @deprecated Use label() */
+    public static function rotulo(array $entry): string { return self::label($entry); }
 }

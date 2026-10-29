@@ -105,16 +105,20 @@
             <?php if ($pagina > 1): ?>
                 <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina - 1]))) ?>"><?= icon('chevron-left', 16) ?> Anterior</a>
             <?php endif; ?>
-            <?php
-            $start = max(1, $pagina - 2);
-            $end   = min($totalPaginas, $pagina + 2);
-            if ($start > 1): ?><a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => 1]))) ?>">1</a><?php if ($start > 2): ?><span class="vg-p-ellipsis">…</span><?php endif; endif;
-            for ($i = $start; $i <= $end; $i++): ?>
-                <a class="vg-p-btn <?= $i === $pagina ? 'is-active' : '' ?>" href="<?= e(url('home', array_merge($filtros, ['pg' => $i]))) ?>" <?= $i === $pagina ? 'aria-current="page"' : '' ?>><?= $i ?></a>
-            <?php endfor;
-            if ($end < $totalPaginas): if ($end < $totalPaginas - 1): ?><span class="vg-p-ellipsis">…</span><?php endif; ?><a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $totalPaginas]))) ?>"><?= $totalPaginas ?></a><?php endif; ?>
+            <?php if ($pagina > 1): ?>
+                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina - 1]))) ?>"><?= $pagina - 1 ?></a>
+            <?php endif; ?>
+            <a class="vg-p-btn is-active" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina]))) ?>" aria-current="page"><?= $pagina ?></a>
+            <?php if ($pagina < $totalPaginas): ?>
+                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina + 1]))) ?>"><?= $pagina + 1 ?></a>
+            <?php endif; ?>
             <?php if ($pagina < $totalPaginas): ?>
                 <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina + 1]))) ?>">Próxima <?= icon('chevron-right', 16) ?></a>
+            <?php endif; ?>
+            <?php if ($pagina < $totalPaginas): ?>
+                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $totalPaginas]))) ?>">Última (<?= $totalPaginas ?>)</a>
+            <?php else: ?>
+                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => 1]))) ?>">Primeira</a>
             <?php endif; ?>
         </div>
     </nav>
