@@ -1,177 +1,144 @@
 <?php
-
 class Empresa
 {
-    public static function porId(int $id): ?array
+    public static function porId(int $id): ?array        { return Database::one('SELECT * FROM empresas WHERE id = :i', ['i' => $id]); }
+    public static function porEmail(string $email): ?array { return Database::one('SELECT * FROM empresas WHERE email = :e', ['e' => mb_strtolower($email)]); }
+    public static function porCnpj(string $c): ?array    { return Database::one('SELECT * FROM empresas WHERE cnpj = :c', ['c' => Cnpj::clean($c)]); }
+
+    public static function comporEndereco(array $data): string
     {
-        return Database::one('SELECT * FROM empresas WHERE id = :i', ['i' => $id]);
-    }
-    public static function porEmail(string $e): ?array
-    {
-        return Database::one('SELECT * FROM empresas WHERE email = :e', ['e' => mb_strtolower($e)]);
-    }
-    public static function porCnpj(string $c): ?array
-    {
-        return Database::one('SELECT * FROM empresas WHERE cnpj = :c', ['c' => Cnpj::limpar($c)]);
+        $cep = preg_replace('/\D/', '', (string) ($data['cep'] ?? ''));
+        $rua = trim($data['logradouro'] . ', ' . $data['numero'] . (($data['complemento'] ?? '') !== '' ? ', ' . $data['complemento'] : ''));
+        return mb_substr($rua . ' - ' . $data['bairro'] . ', ' . $data['cidade'] . '/' . strtoupper($data['uf']) . ' - CEP ' . substr($cep, 0, 5) . '-' . substr($cep, 5), 0, 200);
     }
 
-    public static function comporEndereco(array $d): string
+    private static function campos(array $data): array
     {
-        $cep = preg_replace('/\D/', '', (string) ($d['cep'] ?? ''));
-        $rua = trim($d['logradouro'] . ', ' . $d['numero'] . (($d['complemento'] ?? '') !== '' ? ', ' . $d['complemento'] : ''));
-        return mb_substr($rua . ' - ' . $d['bairro'] . ', ' . $d['cidade'] . '/' . strtoupper($d['uf']) . ' - CEP ' . substr($cep, 0, 5) . '-' . substr($cep, 5), 0, 200);
-    }
-
-    private static function campos(array $d): array
-    {
-        $n = fn($k) => (($d[$k] ?? '') !== '') ? $d[$k] : null;
+        $nullable = fn($k) => (($data[$k] ?? '') !== '') ? $data[$k] : null;
         return [
-            'razao_social' => $d['razao_social'], 'nome' => $d['nome'], 'descricao' => $d['descricao'], 'segmento' => $d['segmento'], 'porte' => $d['porte'],
-            'endereco' => self::comporEndereco($d), 'cep' => preg_replace('/\D/', '', $d['cep']), 'logradouro' => $d['logradouro'], 'numero' => $d['numero'],
-            'complemento' => $n('complemento'), 'bairro' => $d['bairro'], 'cidade' => $d['cidade'], 'uf' => strtoupper($d['uf']),
-            'responsavel' => $d['responsavel'], 'cargo' => $d['cargo'], 'telefone' => preg_replace('/\D/', '', $d['telefone']),
-            'celular' => $n('celular') ? preg_replace('/\D/', '', $d['celular']) : null, 'email_contato' => $n('email_contato') ? mb_strtolower($d['email_contato']) : null,
-            'site' => $n('site'), 'linkedin' => $n('linkedin'), 'link_principal' => $d['link_principal'] ?? 'site',
+            'razao_social' => $data['razao_social'], 'nome' => $data['nome'], 'descricao' => $data['descricao'], 'segmento' => $data['segmento'], 'porte' => $data['porte'],
+            'endereco' => self::comporEndereco($data), 'cep' => preg_replace('/\D/', '', $data['cep']), 'logradouro' => $data['logradouro'], 'numero' => $data['numero'],
+            'complemento' => $nullable('complemento'), 'bairro' => $data['bairro'], 'cidade' => $data['cidade'], 'uf' => strtoupper($data['uf']),
+            'responsavel' => $data['responsavel'], 'cargo' => $data['cargo'], 'telefone' => preg_replace('/\D/', '', $data['telefone']),
+            'celular' => $nullable('celular') ? preg_replace('/\D/', '', $data['celular']) : null,
+            'email_contato' => $nullable('email_contato') ? mb_strtolower($data['email_contato']) : null,
+            'site' => $nullable('site'), 'linkedin' => $nullable('linkedin'), 'link_principal' => $data['link_principal'] ?? 'site',
         ];
     }
 
-    public static function criar(array $d): int
+    public static function criar(array $data): int
     {
-        $id = Database::insert('empresas', self::campos($d) + [
-            'cnpj' => Cnpj::limpar($d['cnpj']), 'email' => mb_strtolower($d['email']), 'senha_hash' => Auth::hash($d['senha']),
-            'logo' => $d['logo'] ?? null, 'banner' => $d['banner'] ?? null, 'termo_arquivo' => $d['termo_arquivo'], 'termos_aceitos_em' => Database::agora(),
-            'status' => Estado::E_PENDENTE, 'criado_em' => Database::agora(),
+        $id = Database::insert('empresas', self::campos($data) + [
+            'cnpj' => Cnpj::clean($data['cnpj']), 'email' => mb_strtolower($data['email']), 'senha_hash' => Auth::hash($data['senha']),
+            'logo' => $data['logo'] ?? null, 'banner' => $data['banner'] ?? null, 'termo_arquivo' => $data['termo_arquivo'], 'termos_aceitos_em' => Database::now(),
+            'status' => Status::E_PENDENTE, 'criado_em' => Database::now(),
         ]);
-        Historico::registrar('empresa', $id, 'cadastro', null, Estado::E_PENDENTE, 'empresa', $id);
+        AuditLog::registrar('empresa', $id, 'cadastro', null, Status::E_PENDENTE, 'empresa', $id);
         return $id;
     }
 
-    public static function atualizarPerfil(int $id, array $d): void
+    public static function atualizarPerfil(int $id, array $data): void
     {
-        $dados = self::campos($d);
-        if (array_key_exists('logo', $d)) $dados['logo'] = $d['logo'];
-        if (array_key_exists('banner', $d)) $dados['banner'] = $d['banner'];
-        Database::update('empresas', $id, $dados);
-        Historico::registrar('empresa', $id, 'perfil', null, null, 'empresa', $id);
+        $fields = self::campos($data);
+        if (array_key_exists('logo',   $data)) $fields['logo']   = $data['logo'];
+        if (array_key_exists('banner', $data)) $fields['banner'] = $data['banner'];
+        Database::update('empresas', $id, $fields);
+        AuditLog::registrar('empresa', $id, 'perfil', null, null, 'empresa', $id);
     }
 
-    public static function mudarStatus(int $id, string $para, ?string $motivo, string $atorTipo, ?int $atorId): bool
+    public static function mudarStatus(int $id, string $to, ?string $reason, string $actorType, ?int $actorId): bool
     {
-        $e = self::porId($id);
-        if (!$e || !Estado::empresaPode($e['status'], $para)) {
-            return false;
+        $company = self::porId($id);
+        if (!$company || !Status::empresaPode($company['status'], $to)) return false;
+        $data = ['status' => $to, 'motivo' => in_array($to, [Status::E_REPROVADA, Status::E_BLOQUEADA], true) ? $reason : null];
+        if (in_array($to, [Status::E_APROVADA, Status::E_REPROVADA], true) && $company['status'] === Status::E_PENDENTE) {
+            $data['avaliado_em'] = Database::now(); $data['aprovacao_vista'] = 0;
         }
-        $dados = ['status' => $para, 'motivo' => in_array($para, [Estado::E_REPROVADA, Estado::E_BLOQUEADA], true) ? $motivo : null];
-        if (in_array($para, [Estado::E_APROVADA, Estado::E_REPROVADA], true) && $e['status'] === Estado::E_PENDENTE) {
-            $dados['avaliado_em'] = Database::agora();
-            $dados['aprovacao_vista'] = 0;
-        }
-        if ($para === Estado::E_PENDENTE) {
-            $dados['avaliado_em'] = null;
-        }
-        Database::update('empresas', $id, $dados);
-        $acao = [Estado::E_APROVADA => $e['status'] === Estado::E_BLOQUEADA ? 'desbloqueada' : 'aprovada', Estado::E_REPROVADA => 'reprovada', Estado::E_BLOQUEADA => 'bloqueada', Estado::E_PENDENTE => 'reenviada'][$para];
-        Historico::registrar('empresa', $id, $acao, $e['status'], $para, $atorTipo, $atorId, $motivo);
+        if ($to === Status::E_PENDENTE) $data['avaliado_em'] = null;
+        Database::update('empresas', $id, $data);
+        $action = [Status::E_APROVADA => $company['status'] === Status::E_BLOQUEADA ? 'desbloqueada' : 'aprovada', Status::E_REPROVADA => 'reprovada', Status::E_BLOQUEADA => 'bloqueada', Status::E_PENDENTE => 'reenviada'][$to];
+        AuditLog::registrar('empresa', $id, $action, $company['status'], $to, $actorType, $actorId, $reason);
         return true;
     }
-    public static function dispensarAviso(int $id): void
+
+    public static function dispensarAviso(int $id): void  { Database::update('empresas', $id, ['aprovacao_vista' => 1]); }
+
+    public static function mostrarAvisoAprovacao(array $company): bool
     {
-        Database::update('empresas', $id, ['aprovacao_vista' => 1]);
+        if ($company['status'] !== Status::E_APROVADA || (int) $company['aprovacao_vista'] || !$company['avaliado_em']) return false;
+        if (strtotime($company['avaliado_em']) < time() - 7 * 86400) return false;
+        return !Database::val('SELECT 1 FROM vagas WHERE empresa_id = :e LIMIT 1', ['e' => $company['id']]);
     }
 
-    public static function mostrarAvisoAprovacao(array $e): bool
-    {
-        if ($e['status'] !== Estado::E_APROVADA || (int) $e['aprovacao_vista'] || !$e['avaliado_em']) {
-            return false;
-        }
-        if (strtotime($e['avaliado_em']) < time() - 7 * 86400) {
-            return false;
-        }
-        return !Database::val('SELECT 1 FROM vagas WHERE empresa_id = :e LIMIT 1', ['e' => $e['id']]);
-    }
-
-    public static function pendentes(): array
-    {
-        return Database::all("SELECT * FROM empresas WHERE status = 'pendente' ORDER BY criado_em");
-    }
+    public static function pendentes(): array { return Database::all("SELECT * FROM empresas WHERE status = 'pendente' ORDER BY criado_em"); }
 
     private const SUBS = '(SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id) AS total_vagas,
         (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status = \'aprovada\' AND v.data_publicacao <= :hoje AND v.data_limite >= :hoje) AS vagas_abertas';
 
     public static function abasAdmin(): array
     {
-        $h = date('Y-m-d');
-        $trinta = date('Y-m-d H:i:s', time() - 30 * 86400);
+        $thirtyAgo = date('Y-m-d H:i:s', time() - 30 * 86400);
         $q = fn(string $w, array $p = []) => (int) Database::val("SELECT COUNT(*) FROM empresas e WHERE $w", $p);
         return [
             'pendentes' => ['Pendentes', $q("status = 'pendente'")], 'aprovadas' => ['Aprovadas', $q("status = 'aprovada'")],
-            'ativas' => ['Ativas (30 dias)', $q("status = 'aprovada' AND ultimo_acesso >= :t", ['t' => $trinta])],
-            'com_vagas' => ['Com vagas', $q('EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)')], 'sem_vagas' => ['Sem vagas', $q('NOT EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)')],
-            'bloqueadas' => ['Bloqueadas', $q("status = 'bloqueada'")], 'reprovadas' => ['Reprovadas', $q("status = 'reprovada'")], 'todas' => ['Todas', $q('1 = 1')],
+            'ativas' => ['Ativas (30 dias)', $q("status = 'aprovada' AND ultimo_acesso >= :t", ['t' => $thirtyAgo])],
+            'com_vagas' => ['Com vagas', $q('EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)')],
+            'sem_vagas' => ['Sem vagas', $q('NOT EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)')],
+            'bloqueadas' => ['Bloqueadas', $q("status = 'bloqueada'")], 'reprovadas' => ['Reprovadas', $q("status = 'reprovada'")],
+            'todas' => ['Todas', $q('1 = 1')],
         ];
     }
-    public static function listarAdmin(string $aba, string $busca, int $pg, int $por = POR_PAGINA): array
+
+    public static function listarAdmin(string $tab, string $search, int $pg, int $perPage = POR_PAGINA): array
     {
-        $w = ['1 = 1'];
-        $p = ['hoje' => date('Y-m-d')];
-        switch ($aba) {
-            case 'pendentes': $w[] = "e.status = 'pendente'";
-                break;
-            case 'aprovadas': $w[] = "e.status = 'aprovada'";
-                break;
-            case 'bloqueadas': $w[] = "e.status = 'bloqueada'";
-                break;
-            case 'reprovadas': $w[] = "e.status = 'reprovada'";
-                break;
-            case 'ativas': $w[] = "e.status = 'aprovada' AND e.ultimo_acesso >= :t30";
-                $p['t30'] = date('Y-m-d H:i:s', time() - 30 * 86400);
-                break;
-            case 'com_vagas': $w[] = 'EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)';
-                break;
-            case 'sem_vagas': $w[] = 'NOT EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)';
-                break;
+        $where  = ['1 = 1'];
+        $params = ['hoje' => date('Y-m-d')];
+        switch ($tab) {
+            case 'pendentes':  $where[] = "e.status = 'pendente'"; break;
+            case 'aprovadas':  $where[] = "e.status = 'aprovada'"; break;
+            case 'bloqueadas': $where[] = "e.status = 'bloqueada'"; break;
+            case 'reprovadas': $where[] = "e.status = 'reprovada'"; break;
+            case 'ativas':     $where[] = "e.status = 'aprovada' AND e.ultimo_acesso >= :t30"; $params['t30'] = date('Y-m-d H:i:s', time() - 30 * 86400); break;
+            case 'com_vagas':  $where[] = 'EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)'; break;
+            case 'sem_vagas':  $where[] = 'NOT EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)'; break;
         }
-        if ($busca !== '') {
-            $w[] = '(LOWER(e.nome) LIKE :q OR LOWER(e.razao_social) LIKE :q OR e.cnpj LIKE :qc OR LOWER(e.email) LIKE :q)';
-            $p['q'] = '%' . mb_strtolower($busca) . '%';
-            $p['qc'] = '%' . Cnpj::limpar($busca) . '%';
+        if ($search !== '') {
+            $where[] = '(LOWER(e.nome) LIKE :q OR LOWER(e.razao_social) LIKE :q OR e.cnpj LIKE :qc OR LOWER(e.email) LIKE :q)';
+            $params['q']  = '%' . mb_strtolower($search) . '%';
+            $params['qc'] = '%' . Cnpj::clean($search) . '%';
         }
-        $where = implode(' AND ', $w);
-        $tp = array_diff_key($p, ['hoje' => 1]);
-        $total = (int) Database::val("SELECT COUNT(*) FROM empresas e WHERE $where", $tp);
-        [$off] = Paginador::calc($total, $pg, $por);
-        $l = Database::all('SELECT e.*, ' . self::SUBS . " FROM empresas e WHERE $where ORDER BY e.criado_em DESC, e.id DESC LIMIT " . (int) $por . ' OFFSET ' . (int) $off, $p);
-        return [$l, $total];
+        $wc     = implode(' AND ', $where);
+        $total  = (int) Database::val("SELECT COUNT(*) FROM empresas e WHERE $wc", array_diff_key($params, ['hoje' => 1]));
+        [$off]  = Paginator::calc($total, $pg, $perPage);
+        $list   = Database::all('SELECT e.*, ' . self::SUBS . " FROM empresas e WHERE $wc ORDER BY e.criado_em DESC, e.id DESC LIMIT " . (int) $perPage . ' OFFSET ' . (int) $off, $params);
+        return [$list, $total];
     }
+
     public static function comContagem(int $id): ?array
     {
         return Database::one('SELECT e.*, ' . self::SUBS . ' FROM empresas e WHERE e.id = :id', ['hoje' => date('Y-m-d'), 'id' => $id]);
     }
 
-    public static function parceiras(string $ordem, int $n = 12): array
+    public static function parceiras(string $order, int $n = 12): array
     {
-        $ord = ['recentes' => 'e.avaliado_em DESC, e.id DESC', 'frequentes' => 'total_vagas DESC, e.nome', 'abertas' => 'vagas_abertas DESC, e.nome'][$ordem] ?? 'e.nome';
-        $extra = $ordem === 'frequentes' ? ' AND (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status IN (\'aprovada\',\'encerrada\')) > 0' : '';
-        $extra .= $ordem === 'abertas' ? ' AND (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status = \'aprovada\' AND v.data_publicacao <= :hoje AND v.data_limite >= :hoje) > 0' : '';
+        $ord   = ['recentes' => 'e.avaliado_em DESC, e.id DESC', 'frequentes' => 'total_vagas DESC, e.nome', 'abertas' => 'vagas_abertas DESC, e.nome'][$order] ?? 'e.nome';
+        $extra = $order === 'frequentes' ? " AND (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status IN ('aprovada','encerrada')) > 0" : '';
+        $extra .= $order === 'abertas'   ? ' AND (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status = \'aprovada\' AND v.data_publicacao <= :hoje AND v.data_limite >= :hoje) > 0' : '';
         return Database::all('SELECT e.*, ' . self::SUBS . " FROM empresas e WHERE e.status = 'aprovada'$extra ORDER BY $ord LIMIT " . (int) $n, ['hoje' => date('Y-m-d')]);
     }
+
     public static function parceiraPorId(int $id): ?array
     {
-        $e = self::comContagem($id);
-        return ($e && $e['status'] === Estado::E_APROVADA) ? $e : null;
+        $company = self::comContagem($id);
+        return ($company && $company['status'] === Status::E_APROVADA) ? $company : null;
     }
-    public static function linkExterno(array $e): ?string
+
+    public static function linkExterno(array $company): ?string
     {
-        $ordem = ($e['link_principal'] ?? 'site') === 'linkedin' ? ['linkedin', 'site'] : ['site', 'linkedin'];
-        foreach ($ordem as $k) {
-            if (!empty($e[$k]) && Link::valido($e[$k])) {
-                return $e[$k];
-            }
-        }
+        $order = ($company['link_principal'] ?? 'site') === 'linkedin' ? ['linkedin', 'site'] : ['site', 'linkedin'];
+        foreach ($order as $k) { if (!empty($company[$k]) && Link::isValid($company[$k])) return $company[$k]; }
         return null;
     }
-    public static function segmentoTxt(array $e): string
-    {
-        return $e['segmento'] ?: 'Segmento não informado';
-    }
+
+    public static function segmentoTxt(array $company): string { return $company['segmento'] ?: 'Segmento não informado'; }
 }

@@ -6,7 +6,7 @@ define('ROOT_PATH', __DIR__);
     foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
         if ($l[0] === '#' || strpos($l, '=') === false) continue;
         [$k, $v] = explode('=', $l, 2);
-        $_ENV[trim($k)] = trim($v, " \t\r\"'");
+        $_ENV[trim($k)] = trim($v, " \t\r\"'");   
     }
 })();
 function app_env(): string
@@ -16,7 +16,6 @@ function app_env(): string
     $h = strtolower((string) ($_SERVER['HTTP_HOST'] ?? (parse_url((string) env('APP_URL', ''), PHP_URL_HOST) ?: 'prod.invalido')));
     return preg_match('/^(localhost|127\.|\[?::1)/', $h) ? 'dev' : 'prod';
 }
-
 function env(string $k, $padrao = null)
 {
     $v = getenv($k);
@@ -27,20 +26,27 @@ function env(string $k, $padrao = null)
 $dir = PHP_SAPI === 'cli' ? rtrim((string) env('APP_BASE_PATH', (string) parse_url((string) env('APP_URL', ''), PHP_URL_PATH)), '/') : rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
 define('BASE_URL', $dir . '/');
 
-define('CARROSSEL_MAX', max(1, (int) env('CARROSSEL_MAX', 5)));
-define('DIAS_VAGA_NOVA', max(1, (int) env('DIAS_VAGA_NOVA', 7)));
-define('DIAS_VAGA_VENCENDO', max(1, (int) env('DIAS_VAGA_VENCENDO', 7)));
-define('AREA_MIN_VAGAS', max(1, (int) env('AREA_MIN_VAGAS', 3)));
-define('DIAS_RECRUTADOR_ATIVO', max(1, (int) env('DIAS_RECRUTADOR_ATIVO', 7)));
-define('UPLOAD_MAX_MB', max(1, (int) env('UPLOAD_MAX_MB', 5)));
-define('TIPOS_VAGA', ['Estágio', 'Trainee', 'Jovem Aprendiz', 'Jovem Profissional']);
-define('MODALIDADES', ['Presencial', 'Híbrido', 'Remoto']);
+define('CARROSSEL_MAX', max(1, (int) env('CARROSSEL_MAX', 5)));       
+define('DIAS_VAGA_NOVA', max(1, (int) env('DIAS_VAGA_NOVA', 7)));      
+define('DIAS_VAGA_VENCENDO', max(1, (int) env('DIAS_VAGA_VENCENDO', 7))); 
+define('AREA_MIN_VAGAS', max(1, (int) env('AREA_MIN_VAGAS', 3)));      
+define('DIAS_RECRUTADOR_ATIVO', max(1, (int) env('DIAS_RECRUTADOR_ATIVO', 7))); 
+define('UPLOAD_MAX_MB', max(1, (int) env('UPLOAD_MAX_MB', 10)));
+define('JOB_TYPES', ['Estágio', 'Trainee', 'Jovem Aprendiz', 'Jovem Profissional']);
+define('MODALITIES', ['Presencial', 'Híbrido', 'Remoto']);
+define('TIPOS_VAGA',  JOB_TYPES);
+define('MODALIDADES', MODALITIES);
 define('AREA_OUTRA', '__outra__');
-define('SEGMENTOS', ['Tecnologia da Informação', 'Indústria', 'Comércio', 'Serviços', 'Educação', 'Saúde', 'Logística e Transporte', 'Financeiro', 'Marketing e Comunicação', 'Construção', 'Alimentação', 'Agronegócio', 'Outros']);
-define('PORTES', ['MEI', 'Microempresa', 'Pequena empresa', 'Média empresa', 'Grande empresa']);
-define('TURNOS', ['manha' => 'Manhã', 'tarde' => 'Tarde', 'noite' => 'Noite', 'integral' => 'Integral', 'flexivel' => 'Horário flexível']);
-define('DIAS_SEMANA', ['seg' => 'Seg', 'ter' => 'Ter', 'qua' => 'Qua', 'qui' => 'Qui', 'sex' => 'Sex', 'sab' => 'Sáb']);
+define('SEGMENTS', ['Tecnologia da Informação', 'Indústria', 'Comércio', 'Serviços', 'Educação', 'Saúde', 'Logística e Transporte', 'Financeiro', 'Marketing e Comunicação', 'Construção', 'Alimentação', 'Agronegócio', 'Outros']);
+define('COMPANY_SIZES', ['MEI', 'Microempresa', 'Pequena empresa', 'Média empresa', 'Grande empresa']);
+define('SEGMENTOS', SEGMENTS);
+define('PORTES',    COMPANY_SIZES);
+define('SHIFTS',    ['manha' => 'Manhã', 'tarde' => 'Tarde', 'noite' => 'Noite', 'integral' => 'Integral', 'flexivel' => 'Horário flexível']);
+define('WEEK_DAYS', ['seg' => 'Seg', 'ter' => 'Ter', 'qua' => 'Qua', 'qui' => 'Qui', 'sex' => 'Sex', 'sab' => 'Sáb']);
+define('TURNOS',    SHIFTS);
+define('DIAS_SEMANA', WEEK_DAYS);
 define('POR_PAGINA', max(1, (int) env('POR_PAGINA', 12)));   // 12 fecha linhas de 2, 3, 4 e 6 cards; use 16 se a sua tela sempre mostra 4 colunas
+define('PAGINA_PER_PAGE', max(1, (int) env('PAGINA_PER_PAGE', 9)));  // Número de vagas por página na home
 define('UFS', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);
 
 date_default_timezone_set('America/Sao_Paulo');
@@ -70,7 +76,7 @@ function e($v): string
 
 function url(string $pagina = 'home', array $params = []): string
 {
-    if (Rota::ativo() && ($c = Rota::caminho($pagina, $params)) !== null) return BASE_URL . $c . ($params ? '?' . http_build_query($params) : '');
+    if (Router::ativo() && ($path = Router::caminho($pagina, $params)) !== null) return BASE_URL . $path . ($params ? '?' . http_build_query($params) : '');
     $params = array_merge(['p' => $pagina], $params);
     if ($pagina === 'home') {
         unset($params['p']);
@@ -113,7 +119,6 @@ function dinheiro($v): string
     return $v === null || $v === '' ? 'A combinar' : 'R$ ' . number_format((float) $v, 2, ',', '.');
 }
 
-
 function parse_dinheiro(string $s): ?float
 {
     $s = trim(str_replace(['R$', ' '], '', $s));
@@ -122,6 +127,11 @@ function parse_dinheiro(string $s): ?float
     return is_numeric($s) && $s >= 0 ? round((float) $s, 2) : null;
 }
 
+/** Alias for parse_dinheiro() — accepts "1.234,56" or "1234.56" formats. */
+function parse_money(string $s): ?float
+{
+    return parse_dinheiro($s);
+}
 
 function fone_fmt(string $d): string
 {
@@ -133,12 +143,12 @@ function fone_fmt(string $d): string
 
 function resumo_da_descricao(string $desc, int $linhas = 3, int $max = 220): string
 {
-    $partes = array_values(array_filter(array_map('trim', preg_split('/\R/u', $desc)), 'strlen'));
-    $txt = implode(' ', array_slice($partes, 0, $linhas));
-    if (mb_strlen($txt) <= $max) return $txt;
-    $corte = mb_substr($txt, 0, $max);
-    $esp = mb_strrpos($corte, ' ');
-    return rtrim(mb_substr($corte, 0, $esp ?: $max), " ,.;:") . '…';
+    $parts = array_values(array_filter(array_map('trim', preg_split('/\R/u', $desc)), 'strlen'));
+    $text = implode(' ', array_slice($parts, 0, $linhas));
+    if (mb_strlen($text) <= $max) return $text;
+    $cut = mb_substr($text, 0, $max);
+    $space = mb_strrpos($cut, ' ');
+    return rtrim(mb_substr($cut, 0, $space ?: $max), " ,.;:") . '…';
 }
 
 function vaga_imagem(array $v, string $classe = ''): string
@@ -167,7 +177,6 @@ function empresa_capa_attr(array $e): string
     return $u ? ' has-img" style="--bn:url(\'' . e($u) . '\')' : '';
 }
 
-
 function saudacao(): string
 {
     $h = (int) date('G');
@@ -180,28 +189,28 @@ function primeiro_nome(string $nome): string
 
 function tempo_atras(string $dt): string
 {
-    $s = time() - strtotime($dt);
-    if ($s < 90) return 'agora há pouco';
-    if ($s < 3600) return 'há ' . floor($s / 60) . ' min';
-    if ($s < 86400 && date('Y-m-d', strtotime($dt)) === date('Y-m-d')) return 'há ' . floor($s / 3600) . ($s < 7200 ? ' hora' : ' horas');
+    $seconds = time() - strtotime($dt);
+    if ($seconds < 90) return 'agora há pouco';
+    if ($seconds < 3600) return 'há ' . floor($seconds / 60) . ' min';
+    if ($seconds < 86400 && date('Y-m-d', strtotime($dt)) === date('Y-m-d')) return 'há ' . floor($seconds / 3600) . ($seconds < 7200 ? ' hora' : ' horas');
     if (date('Y-m-d', strtotime($dt)) === date('Y-m-d', time() - 86400)) return 'ontem às ' . date('H:i', strtotime($dt));
     return date('d/m', strtotime($dt)) . ' às ' . date('H:i', strtotime($dt));
 }
 
 function iniciais(string $nome): string
 {
-    $i = '';
-    foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $p) {
-        if (preg_match('/./u', $p, $m)) $i .= mb_strtoupper($m[0]);
+    $initials = '';
+    foreach (array_slice(preg_split('/\s+/', trim($nome)), 0, 2) as $parts) {
+        if (preg_match('/./u', $parts, $m)) $initials .= mb_strtoupper($m[0]);
     }
-    return $i;
+    return $initials;
 }
 
 function selo_prazo(array $v): array
 {
-    $d = dias_restantes($v['data_limite']);
-    if ($d <= 0) return ['Encerra hoje', 'vg-badge-warn'];
-    if ($d <= DIAS_VAGA_VENCENDO) return ['Encerra em ' . $d . ($d === 1 ? ' dia' : ' dias'), 'vg-badge-warn'];
+    $days = dias_restantes($v['data_limite']);
+    if ($days <= 0) return ['Encerra hoje', 'vg-badge-warn'];
+    if ($days <= DIAS_VAGA_VENCENDO) return ['Encerra em ' . $days . ($days === 1 ? ' dia' : ' dias'), 'vg-badge-warn'];
     return ['Até ' . date('d/m', strtotime($v['data_limite'])), 'vg-badge-soft'];
 }
 
@@ -266,35 +275,33 @@ function flash(string $tipo, string $msg): void
     $_SESSION['flash'][] = [$tipo, $msg];
 }
 
-
 function view(string $nome, array $dados = []): void
 {
     extract($dados, EXTR_SKIP);
     require ROOT_PATH . "/Views/$nome.php";
 }
-
 function pagina_404(): void
 {
     http_response_code(404);
-    $c = Rota::caminhoAtual();
-    $p = (string) ($_GET['p'] ?? '');
-    $noAdmin = preg_match('#^admin(/|$)#', $c) || str_starts_with($p, 'admin');
-    $noPainel = preg_match('#^painel(/|$)#', $c) || in_array($p, ['painel', 'empresa-vagas', 'empresa-perfil', 'empresa-vaga', 'vaga-cadastro', 'vaga-editar'], true);
+    $currentPath = Router::caminhoAtual();
+    $pageParam = (string) ($_GET['p'] ?? '');
+    $isAdminPath = preg_match('#^admin(/|$)#', $currentPath) || str_starts_with($pageParam, 'admin');
+    $isPanelPath = preg_match('#^painel(/|$)#', $currentPath) || in_array($pageParam, ['painel', 'empresa-vagas', 'empresa-perfil', 'empresa-vaga', 'vaga-cadastro', 'vaga-editar'], true);
     try {
-        $adm = $noAdmin ? Auth::admin() : null;
-        $emp = $noPainel ? Auth::empresa() : null;
+        $admin = $isAdminPath ? Auth::admin() : null;
+        $company = $isPanelPath ? Auth::empresa() : null;
     } catch (Throwable $t) {
-        $adm = $emp = null;
-    }   // sem banco/sessão: cai na página pública
-    if ($adm) {
-        render('erro_404', ['titulo' => 'Página não encontrada', 'modo' => 'app', 'area' => 'admin', 'secao' => '', 'adm' => $adm, 'emp' => [], 'voltar' => ['Voltar ao painel', url('admin')]], 'app');
+        $admin = $company = null;
+    }
+    if ($admin) {
+        render('shared/error-404', ['titulo' => 'Página não encontrada', 'modo' => 'app', 'area' => 'admin', 'secao' => '', 'adm' => $admin, 'emp' => [], 'voltar' => ['Voltar ao painel', url('admin')]], 'app');
         return;
     }
-    if ($emp) {
-        render('erro_404', ['titulo' => 'Página não encontrada', 'modo' => 'app', 'area' => 'empresa', 'secao' => '', 'adm' => [], 'emp' => $emp, 'voltar' => ['Voltar ao painel', url('painel')]], 'app');
+    if ($company) {
+        render('shared/error-404', ['titulo' => 'Página não encontrada', 'modo' => 'app', 'area' => 'empresa', 'secao' => '', 'adm' => [], 'emp' => $company, 'voltar' => ['Voltar ao painel', url('painel')]], 'app');
         return;
     }
-    view('erro_404', ['titulo' => 'Página não encontrada', 'modo' => 'publico', 'voltar' => null]);
+    view('shared/error-404', ['titulo' => 'Página não encontrada', 'modo' => 'publico', 'voltar' => null]);
 }
 function render(string $nome, array $dados, string $layout): void
 {
@@ -304,26 +311,23 @@ function render(string $nome, array $dados, string $layout): void
     $conteudo = ob_get_clean();
     require ROOT_PATH . "/Views/layouts/$layout.php";
 }
-/** URL pública da vaga (o QR Code do modo TV usa esta). PRETTY_URLS=1 exige o .htaccess (/vaga/123). */
 function url_vaga(int $id): string
 {
     return url('vaga', ['id' => $id]);
 }
-/** Campo oculto "p" dos formulários GET: só é preciso quando os links usam "?p=" (o GET descarta a query do action). */
 function campo_rota(string $pagina): string
 {
-    return Rota::ativo() ? '' : '<input type="hidden" name="p" value="' . e($pagina) . '">';
+    return Router::ativo() ? '' : '<input type="hidden" name="p" value="' . e($pagina) . '">';
 }
 function url_vaga_abs(int $id): string
 {
     return origem_publica() . url_vaga($id);
 }
-/** Trim em strings; mantém arrays de strings (checkboxes). */
 function limpar_post(array $p): array
 {
-    $o = [];
-    foreach ($p as $k => $v) $o[$k] = is_array($v) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $v), 'strlen')) : (is_string($v) ? trim($v) : '');
-    return $o;
+    $output = [];
+    foreach ($p as $key => $val) $output[$key] = is_array($val) ? array_values(array_filter(array_map(fn($x) => is_string($x) ? trim($x) : '', $val), 'strlen')) : (is_string($val) ? trim($val) : '');
+    return $output;
 }
 function dias_txt(int $d): string
 {
