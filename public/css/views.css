@@ -234,3 +234,18 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+
+.vg .vg-pagination {
+  display: flex !important;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vg .vg-pagination .vg-pagination-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
