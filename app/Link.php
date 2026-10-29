@@ -1,67 +1,50 @@
 <?php
-
 class Link
 {
     public const PLATAFORMAS = [
-        'gupy' => 'Gupy',
+        'gupy'     => 'Gupy',
         'linkedin' => 'LinkedIn',
-        'site' => 'Site da empresa',
-        'email' => 'E-mail',
-        'outro' => 'Outro sistema',
+        'site'     => 'Site da empresa',
+        'email'    => 'E-mail',
+        'outro'    => 'Outro sistema',
     ];
 
-    public static function normalizar(?string $u): ?string
+    public static function normalize(?string $url): ?string
     {
-        $u = trim((string) $u);
-
-        if ($u === '') {
-            return null;
+        $url = trim((string) $url);
+        if ($url === '') return null;
+        if (!preg_match('#^[a-z][a-z0-9+.-]*:#i', $url)) {
+            $url = 'https://' . $url;
         }
-
-        if (!preg_match('#^[a-z][a-z0-9+.-]*:#i', $u)) {
-            $u = 'https://' . $u;
-        }
-
-        return $u;
+        return $url;
     }
 
-    public static function valido(?string $u, ?string $plataforma = null): bool
+    public static function isValid(?string $url, ?string $platform = null): bool
     {
-        if ($u === null || $u === '' || strlen($u) > 250 || preg_match('/[\s<>"\']/', $u)) {
+        if ($url === null || $url === '' || strlen($url) > 250 || preg_match('/[\s<>"\']/', $url)) {
             return false;
         }
-
-        $p = parse_url($u);
-
-        if (
-            !$p
-            || !in_array(strtolower($p['scheme'] ?? ''), ['http', 'https'], true)
-            || empty($p['host'])
-            || isset($p['user'])
-            || isset($p['pass'])
-        ) {
+        $parts = parse_url($url);
+        if (!$parts || !in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)
+            || empty($parts['host']) || isset($parts['user']) || isset($parts['pass'])) {
             return false;
         }
-
-        $h = strtolower($p['host']);
-
-        if (!preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/', $h)) {
-            return false;
-        }
-
-        if ($plataforma === 'gupy') {
-            return (bool) preg_match('/(^|\.)gupy\.io$/', $h);
-        }
-
-        if ($plataforma === 'linkedin') {
-            return (bool) preg_match('/(^|\.)linkedin\.com$/', $h);
-        }
-
+        $host = strtolower($parts['host']);
+        if (!preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/', $host)) return false;
+        if ($platform === 'gupy')     return (bool) preg_match('/(^|\.)gupy\.io$/', $host);
+        if ($platform === 'linkedin') return (bool) preg_match('/(^|\.)linkedin\.com$/', $host);
         return true;
     }
 
-    public static function dominio(string $u): string
+    public static function domain(string $url): string
     {
-        return strtolower((string) parse_url($u, PHP_URL_HOST));
+        return strtolower((string) parse_url($url, PHP_URL_HOST));
     }
+
+    /** @deprecated Use normalize() */
+    public static function normalizar(?string $u): ?string  { return self::normalize($u); }
+    /** @deprecated Use isValid() */
+    public static function valido(?string $u, ?string $plataforma = null): bool { return self::isValid($u, $plataforma); }
+    /** @deprecated Use domain() */
+    public static function dominio(string $u): string       { return self::domain($u); }
 }
