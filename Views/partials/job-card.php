@@ -1,5 +1,4 @@
 <?php
-// Espera $v. Opcional: $chave (selo prioritário do carrossel) e $trilho (true = card de carrossel)
 $chave = $chave ?? null; $trilho = $trilho ?? false;
 $selos = $v['selos'] ?? [];
 if ($chave && isset($selos[$chave])) { $selos = [$chave => $selos[$chave]] + $selos; }
@@ -14,7 +13,7 @@ $prazo = selo_prazo($v); $img = url_upload($v['imagem'] ?? null);
       <?php foreach ($selos as $k => [$txt, $cls]): ?><li class="vg-tag <?= e($cls) ?>"><?= e($txt) ?></li><?php endforeach; ?>
     </ul>
   </div>
-  <div class="vg-card-body">
+  <div class="vg-card-body" role="button" tabindex="0" onclick="window.location.href='<?= url('vaga', ['id' => $v['id']]) ?>'">
     <div class="vg-card-emp"><span class="vg-avatar" aria-hidden="true"><?= e(iniciais($v['empresa']['nome'])) ?></span><span class="vg-card-company"><?= e($v['empresa']['nome']) ?></span></div>
     <h3 class="vg-card-title"><a class="vg-stretched" href="<?= url('vaga', ['id' => $v['id']]) ?>"><?= e($v['titulo']) ?></a></h3>
     <ul class="vg-meta">

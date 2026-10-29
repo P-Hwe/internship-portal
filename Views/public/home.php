@@ -56,7 +56,12 @@
 
 <section id="todas" aria-labelledby="vg-lista-titulo">
     <div class="vg-list-head">
-        <h2 id="vg-lista-titulo">Todas as vagas abertas <span class="vg-count" data-count><?= count($vagas) ?></span></h2>
+        <h2 id="vg-lista-titulo">
+            <?php if (($filtros['ord'] ?? '') === 'encerradas'): ?>Vagas encerradas
+            <?php elseif (($filtros['ord'] ?? '') === 'expiradas'): ?>Vagas expiradas
+            <?php else: ?>Todas as vagas abertas<?php endif; ?>
+            <span class="vg-count" data-count><?= $totalVagas ?></span>
+        </h2>
     </div>
 
     <?php if ($tipos): ?>
@@ -80,11 +85,13 @@
             <option value="">Toda modalidade</option>
             <?php foreach ($modalidades as $m): ?><option <?= ($filtros['modalidade'] ?? '') === $m ? 'selected' : '' ?>><?= e($m) ?></option><?php endforeach; ?>
         </select>
-        <label class="vg-sr" for="f-ord">Ordenar</label>
+        <label class="vg-sr" for="f-ord">Ordenar / Exibir</label>
         <select id="f-ord" name="ord">
-            <option value="" <?= empty($filtros['ord'] ?? '') ? 'selected' : '' ?>>Mais recentes</option>
+            <option value=""   <?= empty($filtros['ord'])                   ? 'selected' : '' ?>>Mais recentes</option>
             <option value="salario" <?= ($filtros['ord'] ?? '') === 'salario' ? 'selected' : '' ?>>Maior salário</option>
-            <option value="prazo" <?= ($filtros['ord'] ?? '') === 'prazo' ? 'selected' : '' ?>>Encerram em breve</option>
+            <option value="prazo"   <?= ($filtros['ord'] ?? '') === 'prazo'   ? 'selected' : '' ?>>Encerram em breve</option>
+            <option value="encerradas" <?= ($filtros['ord'] ?? '') === 'encerradas' ? 'selected' : '' ?>>Vagas encerradas</option>
+            <option value="expiradas"  <?= ($filtros['ord'] ?? '') === 'expiradas'  ? 'selected' : '' ?>>Vagas expiradas</option>
         </select>
     </form>
 
@@ -93,24 +100,23 @@
     </div>
 
     <?php if ($totalPaginas > 1): ?>
-    <nav class="vg-pagination" aria-label="Paginação de vagas">
+    <nav class="vg-pagination" aria-label="Paginação de vagas" data-pagination-anchor="todas">
         <div class="vg-pagination-btns">
             <?php if ($pagina > 1): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina - 1]))) ?>#todas"><?= icon('chevron-left', 16) ?> Anterior</a>
+                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina - 1]))) ?>"><?= icon('chevron-left', 16) ?> Anterior</a>
             <?php endif; ?>
             <?php
             $start = max(1, $pagina - 2);
             $end   = min($totalPaginas, $pagina + 2);
-            if ($start > 1): ?><a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => 1]))) ?>#todas">1</a><?php if ($start > 2): ?><span class="vg-p-ellipsis">…</span><?php endif; endif;
+            if ($start > 1): ?><a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => 1]))) ?>">1</a><?php if ($start > 2): ?><span class="vg-p-ellipsis">…</span><?php endif; endif;
             for ($i = $start; $i <= $end; $i++): ?>
-                <a class="vg-p-btn <?= $i === $pagina ? 'is-active' : '' ?>" href="<?= e(url('home', array_merge($filtros, ['pg' => $i]))) ?>#todas" <?= $i === $pagina ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                <a class="vg-p-btn <?= $i === $pagina ? 'is-active' : '' ?>" href="<?= e(url('home', array_merge($filtros, ['pg' => $i]))) ?>" <?= $i === $pagina ? 'aria-current="page"' : '' ?>><?= $i ?></a>
             <?php endfor;
-            if ($end < $totalPaginas): if ($end < $totalPaginas - 1): ?><span class="vg-p-ellipsis">…</span><?php endif; ?><a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $totalPaginas]))) ?>#todas"><?= $totalPaginas ?></a><?php endif; ?>
+            if ($end < $totalPaginas): if ($end < $totalPaginas - 1): ?><span class="vg-p-ellipsis">…</span><?php endif; ?><a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $totalPaginas]))) ?>"><?= $totalPaginas ?></a><?php endif; ?>
             <?php if ($pagina < $totalPaginas): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina + 1]))) ?>#todas">Próxima <?= icon('chevron-right', 16) ?></a>
+                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina + 1]))) ?>">Próxima <?= icon('chevron-right', 16) ?></a>
             <?php endif; ?>
         </div>
-        <p class="vg-pagination-info"><?= $totalVagas ?> vagas · página <?= $pagina ?> de <?= $totalPaginas ?></p>
     </nav>
     <?php endif; ?>
 

@@ -7,7 +7,7 @@ $dif = function (int $a, int $b) { $d = $a - $b; return $d === 0 ? 'igual ao ant
             href="<?= e(url('admin-desempenho', ['periodo' => $k])) ?>"
             class="<?= $k === $periodo ? 'is-active' : '' ?>"><?= e($d[0]) ?></a><?php endforeach; ?></nav>
 </div>
-<?php if (Visits::ignorarLogados()): ?><p class="ui-hint">Visitas de administradores e empresas logados não entram na contagem: para testar, abra o site em uma janela anônima (sem login).</p><?php endif; ?>
+<?php if (Visits::ignoreLoggedIn()): ?><p class="ui-hint">Visitas de administradores e empresas logados não entram na contagem: para testar, abra o site em uma janela anônima (sem login).</p><?php endif; ?>
 <div class="ui-grid-2">
     <section class="ui-card">
         <h2>Vagas mais vistas</h2>
@@ -17,7 +17,7 @@ $dif = function (int $a, int $b) { $d = $a - $b; return $d === 0 ? 'igual ao ant
                 <div class="t"><a
                         href="<?= url('admin-vaga', ['id' => $v['id']]) ?>"><?= e($v['titulo']) ?></a><small><?= e($v['empresa']) ?>
                         ·
-                        <?= e(Estado::rotuloSituacao($v['situacao'])) ?><?= (int) $v['destaque'] ? ' · em destaque' : ($v['situacao'] === 'publicada' ? ' · boa candidata a destaque' : '') ?></small>
+                        <?= e(Status::rotuloSituacao($v['situacao'])) ?><?= (int) $v['destaque'] ? ' · em destaque' : ($v['situacao'] === 'publicada' ? ' · boa candidata a destaque' : '') ?></small>
                 </div>
                 <div class="v"><?= (int) $v['views'] ?> <small><?= (int) $v['uniq'] ?> pessoas ·
                         <?= e($dif($v['views'], $v['anterior'])) ?></small></div>

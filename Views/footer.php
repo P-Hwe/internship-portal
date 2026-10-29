@@ -1,3 +1,4 @@
+</div>
 <span class="hide">Fim do conteúdo da página</span>
 </section>
 </div>

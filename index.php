@@ -6,6 +6,10 @@ header('Content-Type: text/html; charset=utf-8');
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
+if (Auth::role()) {
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
+}
 
 $rotas = [
 

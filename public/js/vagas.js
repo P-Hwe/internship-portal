@@ -1,11 +1,9 @@
-/* Site público de vagas (IF): carrosséis, filtros, copiar código, QR Code e Modo TV. Formulários e áreas logadas usam app.js. */
 (function () {
   'use strict';
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var reduzMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Carrossel grande de destaques ---------- */
   $$('[data-carousel]').forEach(function (car) {
     var slides = $$('.vg-slide', car), dots = $$('[data-dot]', car), i = 0, timer;
     if (slides.length < 2) return;
@@ -30,7 +28,6 @@
     play();
   });
 
-  /* ---------- Trilhos (carrosséis por tema) ---------- */
   $$('[data-rail]').forEach(function (rail) {
     var trilho = $('[data-rail-track]', rail), ant = $('[data-rail-prev]', rail), prox = $('[data-rail-next]', rail);
     function passo() { return Math.max(240, trilho.clientWidth * 0.85); }
@@ -48,7 +45,6 @@
     window.addEventListener('resize', estado); estado();
   });
 
-  /* ---------- Filtros da lista (chips de tipo + busca + área + modalidade) ---------- */
   var filtros = $('[data-filters]');
   if (filtros) {
     var cards = $$('[data-grid] .vg-card'), busca = $('[data-f-busca]'), area = $('[data-f-area]'), mod = $('[data-f-mod]');
@@ -57,18 +53,15 @@
     var aplicar = function () {
       var q = normaliza(busca.value.trim()), n = 0;
       cards.forEach(function (c) {
-        // Verificar se é filtro de vagas encerradas
         var isEncerradas = c.dataset.chip === 'encerradas';
         var showCard = !isEncerradas;
 
         if (!isEncerradas) {
-          // Filtros normais para vagas abertas
           showCard = (!q || normaliza(c.dataset.busca).indexOf(q) > -1) &&
                      (!tipo || c.dataset.tipo === tipo) &&
                      (!area.value || c.dataset.area === area.value) &&
                      (!mod.value || c.dataset.modalidade === mod.value);
         } else {
-          // Mostrar todas as vagas (abertas e encerradas) quando filtro encerradas está ativo
           showCard = true;
         }
 
@@ -85,7 +78,6 @@
     });
   }
 
-  /* ---------- Copiar código da vaga ---------- */
   $$('[data-copy]').forEach(function (b) {
     b.addEventListener('click', function () {
       var txt = b.dataset.copy, orig = b.innerHTML;
@@ -95,7 +87,6 @@
     });
   });
 
-  /* ---------- QR Code por vaga (Modo TV): fundo branco, quiet zone e contraste máximo ---------- */
   $$('[data-qr]').forEach(function (el) {
     try {
       var q = window.qrcode(0, 'M'); q.addData(el.dataset.qr); q.make();
@@ -104,7 +95,6 @@
     } catch (e) { el.hidden = true; }
   });
 
-  /* ---------- Modo TV ---------- */
   var tv = $('[data-tv]');
   if (tv) {
     var telas = $$('.vg-tv-slide'), n = 0, cont = $('[data-tv-count]');
@@ -122,9 +112,6 @@
   }
 })();
 
-/* ---------- Menu lateral do portal no celular (botão "Menu" e títulos que abrem/fecham) ----------
-   Fica local para funcionar mesmo se o script do portal (template.js) não carregar. A fase de captura impede
-   que o script do portal alterne de novo o mesmo menu (o que anularia o clique). */
 (function () {
   'use strict';
   document.addEventListener('click', function (ev) {
@@ -146,8 +133,6 @@
   }, true);
 })();
 
-/* ---------- Âncoras da página (#topo, #content...) ----------
-   O <base href> do portal faz "#topo" apontar para a página inicial; aqui a rolagem acontece na própria página. */
 (function () {
   'use strict';
   document.addEventListener('click', function (ev) {
@@ -163,4 +148,50 @@
     if (!alvo.hasAttribute('tabindex')) alvo.setAttribute('tabindex', '-1');
     alvo.focus({ preventScroll: true });
   });
+})();
+
+(function () {
+  'use strict';
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    // If the page was rendered with auth-gated links, reload to revalidate.
+    if (document.querySelector('[data-nav-auth]') || document.querySelector('[data-nav-role]')) {
+      window.location.reload();
+    }
+  });
+})();
+
+/* ---------- Pagination smooth scroll ----------
+   When a [data-pagination-anchor] nav has page links, intercept clicks:
+   navigate to the new URL, then smooth-scroll to the anchor section.
+   This avoids the abrupt hard-jump caused by a #hash in the URL. */
+(function () {
+  'use strict';
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest ? ev.target.closest('.vg-p-btn') : null;
+    if (!btn) return;
+    var nav = btn.closest('[data-pagination-anchor]');
+    if (!nav) return;
+    var anchorId = nav.dataset.paginationAnchor;
+    var anchor = anchorId ? document.getElementById(anchorId) : null;
+    if (!anchor) return;
+    // Let the browser navigate, but after load scroll smoothly to anchor.
+    // We store the anchor id in sessionStorage so the new page can scroll on load.
+    try { sessionStorage.setItem('vg-scroll-to', anchorId); } catch (e) {}
+  });
+
+  // On page load, if there's a stored anchor, scroll to it smoothly.
+  (function () {
+    var id;
+    try { id = sessionStorage.getItem('vg-scroll-to'); } catch (e) {}
+    if (!id) return;
+    try { sessionStorage.removeItem('vg-scroll-to'); } catch (e) {}
+    var el = document.getElementById(id);
+    if (!el) return;
+    // Small delay so the page fully renders before scrolling.
+    setTimeout(function () {
+      el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    }, 80);
+  })();
 })();

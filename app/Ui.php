@@ -30,17 +30,36 @@ class Ui
         }
         return $h . '</nav>';
     }
-    public static function paginacao(int $pagina, int $paginas, string $rota, array $params = []): string
+    public static function paginacao(int $pagina, int $paginas, string $rota, array $params = [], string $anchor = ''): string
     {
-        if ($paginas <= 1) {
-            return '';
+        if ($paginas <= 1) return '';
+        $u = fn(int $p) => e(url($rota, array_merge($params, ['pg' => $p])));
+        $btn = fn(int $p, string $t, bool $ativo = false) =>
+            '<a class="vg-p-btn' . ($ativo ? ' is-active' : '') . '" href="' . $u($p) . '"'
+            . ($ativo ? ' aria-current="page"' : '') . '>' . $t . '</a>';
+
+        $btns = '';
+        if ($pagina > 1) $btns .= $btn($pagina - 1, icon('chevron-left', 14) . ' Anterior');
+
+        $start = max(1, $pagina - 2);
+        $end   = min($paginas, $pagina + 2);
+
+        if ($start > 1) {
+            $btns .= $btn(1, '1');
+            if ($start > 2) $btns .= '<span class="vg-p-ellipsis">…</span>';
         }
-        $l = fn(int $p, string $t, bool $on = true, string $c = '') => $on ? '<a class="' . $c . '" href="' . e(url($rota, array_merge($params, ['pg' => $p]))) . '">' . $t . '</a>' : '<span class="is-off ' . $c . '">' . $t . '</span>';
-        $h = '<nav class="ui-pages" aria-label="Paginação">' . $l($pagina - 1, 'Anterior', $pagina > 1);
-        for ($p = max(1, $pagina - 2); $p <= min($paginas, $pagina + 2); $p++) {
-            $h .= $l($p, (string) $p, $p !== $pagina, $p === $pagina ? 'is-cur' : '');
+        for ($p = $start; $p <= $end; $p++) {
+            $btns .= $btn($p, (string) $p, $p === $pagina);
         }
-        return $h . $l($pagina + 1, 'Próxima', $pagina < $paginas) . '</nav>';
+        if ($end < $paginas) {
+            if ($end < $paginas - 1) $btns .= '<span class="vg-p-ellipsis">…</span>';
+            $btns .= $btn($paginas, (string) $paginas);
+        }
+        if ($pagina < $paginas) $btns .= $btn($pagina + 1, 'Próxima ' . icon('chevron-right', 14));
+
+        $anchorAttr = $anchor ? ' data-pagination-anchor="' . e($anchor) . '"' : '';
+        return '<nav class="vg-pagination" aria-label="Paginação"' . $anchorAttr . '>'
+            . '<div class="vg-pagination-btns">' . $btns . '</div></nav>';
     }
     public static function metrica(string $rotulo, $valor, string $icone = 'briefcase', ?string $href = null, string $tom = ''): string
     {
