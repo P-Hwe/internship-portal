@@ -1,3 +1,4 @@
+</div>
 <span class="hide">Fim do conteúdo da página</span>
 </section>
 </div>
@@ -7,7 +8,7 @@
 <footer>
     <div class="footer-atalhos">
         <div class="container">
-            <div class="pull-right voltar-ao-topo"><a href="#topo"><i class="icon-chevron-up"></i>&nbsp;Voltar para o
+            <div class="pull-right voltar-ao-topo"><a href="#topo" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});return false;"><i class="icon-chevron-up"></i>&nbsp;Voltar para o
                     topo</a></div>
         </div>
     </div>
@@ -129,7 +130,18 @@
 
             <div class="">
                 <nav class="row  nav">
-                    <?php require __DIR__ . '/../../public/css/footer.css'; ?>
+                    <style type="text/css">
+
+                    .phocadownloadfile32 {
+                        background: url(http://portal.ifspguarulhos.edu.br/media/plg_content_phocadownload/images/icon-download-32.png) 5px 50% no-repeat transparent;
+                    }
+
+                    ul.nomarkerli {
+                        list-style: none inside;
+                        list-style-type: none;
+                        list-style-position: inside;
+                    }
+                    </style>
                 </nav>
             </div>
 
@@ -151,7 +163,7 @@
     <div class="footer-atalhos visible-phone">
         <div class="container">
             <span class="hide">Fim do conteúdo da página</span>
-            <div class="pull-right voltar-ao-topo"><a href="#topo"><i class="icon-chevron-up"></i>&nbsp;Voltar para o
+            <div class="pull-right voltar-ao-topo"><a href="#topo" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'});return false;"><i class="icon-chevron-up"></i>&nbsp;Voltar para o
                     topo</a></div>
         </div>
     </div>
