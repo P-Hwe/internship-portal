@@ -30,12 +30,15 @@ $feitos = count(array_filter($checks, fn($c) => $c[1])); $pct = (int) round($fei
     </div>
 </div>
 <?php endif; ?>
-<?php if (!empty($cont['rejeitada'])): ?><div class="ui-alert ui-alert-danger"><?= icon('info', 22) ?><div>
+<?php if (!empty($cont['rejeitada'])): ?><div class="ui-alert ui-alert-danger" id="alerta-rejeitadas"><?= icon('info', 22) ?><div>
         <strong><?= (int) $cont['rejeitada'] ?> vaga(s) rejeitada(s)</strong>
         <p>Veja o motivo, corrija e reenvie para análise. <a
-                href="<?= url('empresa-vagas', ['aba' => 'rejeitada']) ?>" onclick="this.closest('.ui-alert').style.display='none'">Ver vagas rejeitadas</a></p>
+                href="<?= url('empresa-vagas', ['aba' => 'rejeitada']) ?>">Ver vagas rejeitadas</a></p>
     </div>
-</div><?php endif; ?>
+    <button type="button" class="ui-btn-icon" onclick="document.getElementById('alerta-rejeitadas').hidden=true;sessionStorage.setItem('hide-alerta-rejeitadas-<?= (int) $emp['id'] ?>','1')" aria-label="Fechar aviso"><?= icon('x', 16) ?></button>
+</div>
+<script>if(sessionStorage.getItem('hide-alerta-rejeitadas-<?= (int) $emp['id'] ?>')){var a=document.getElementById('alerta-rejeitadas');if(a)a.hidden=true;}</script>
+<?php endif; ?>
 <?php foreach ($vencendo as $v): ?><div class="ui-alert ui-alert-warn"><?= icon('clock', 22) ?><div>
         <strong><?= e($v['titulo']) ?>: <?= e(dias_txt($v['dias'])) ?></strong>
         <p>Depois de <?= data_br($v['data_limite']) ?> a vaga sai do ar. Para estender o prazo, edite a data final (a

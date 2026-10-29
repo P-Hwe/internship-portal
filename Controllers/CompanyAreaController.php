@@ -77,7 +77,7 @@ class CompanyAreaController
                 elseif ($emp['banner'] && $dados['banner'] !== $emp['banner']) @unlink(ROOT_PATH . '/' . $emp['banner']);
                 Company::atualizarPerfil((int) $emp['id'], $dados);
                 flash('ok', 'Perfil atualizado.');
-                redirect('empresa-perfil');
+                redirect('empresa-perfil', ['saved' => '1']);
             }
         }
         $this->page('company/profile', [
@@ -140,7 +140,7 @@ class CompanyAreaController
             'old'   => $old,
             'erros' => $erros,
             'areas' => Vaga::areas(),
-        ], 'vagas', $atual ? 'Editar vaga' : 'Publicar vaga');
+        ], $atual ? 'vagas' : 'publicar', $atual ? 'Editar vaga' : 'Publicar vaga');
     }
 
     /** POST /painel/vagas/{id}/encerrar */

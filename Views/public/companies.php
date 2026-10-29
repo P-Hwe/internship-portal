@@ -29,15 +29,15 @@
     <nav class="vg-pagination" aria-label="Paginação de empresas">
         <div class="vg-pagination-btns">
             <?php if ($pg > 1): ?>
-                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg - 1])) ?>"><?= icon('chevron-left', 16) ?> Anterior</a>
+                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg - 1])) ?>#todas-emp"><?= icon('chevron-left', 16) ?> Anterior</a>
             <?php endif; ?>
             <?php
             $pStart = max(1, $pg - 2); $pEnd = min($totalPaginas, $pg + 2);
-            if ($pStart > 1): ?><a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => 1])) ?>">1</a><?php if ($pStart > 2): ?><span class="vg-p-ellipsis">…</span><?php endif; endif;
-            for ($i = $pStart; $i <= $pEnd; $i++): ?><a class="vg-p-btn <?= $i === $pg ? 'is-active' : '' ?>" href="<?= e(url('empresas', ['pg' => $i])) ?>"><?= $i ?></a><?php endfor;
-            if ($pEnd < $totalPaginas): if ($pEnd < $totalPaginas - 1): ?><span class="vg-p-ellipsis">…</span><?php endif; ?><a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $totalPaginas])) ?>"><?= $totalPaginas ?></a><?php endif; ?>
+            if ($pStart > 1): ?><a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => 1])) ?>#todas-emp">1</a><?php if ($pStart > 2): ?><span class="vg-p-ellipsis">…</span><?php endif; endif;
+            for ($i = $pStart; $i <= $pEnd; $i++): ?><a class="vg-p-btn <?= $i === $pg ? 'is-active' : '' ?>" href="<?= e(url('empresas', ['pg' => $i])) ?>#todas-emp" <?= $i === $pg ? 'aria-current="page"' : '' ?>><?= $i ?></a><?php endfor;
+            if ($pEnd < $totalPaginas): if ($pEnd < $totalPaginas - 1): ?><span class="vg-p-ellipsis">…</span><?php endif; ?><a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $totalPaginas])) ?>#todas-emp"><?= $totalPaginas ?></a><?php endif; ?>
             <?php if ($pg < $totalPaginas): ?>
-                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg + 1])) ?>">Próxima <?= icon('chevron-right', 16) ?></a>
+                <a class="vg-p-btn" href="<?= e(url('empresas', ['pg' => $pg + 1])) ?>#todas-emp">Próxima <?= icon('chevron-right', 16) ?></a>
             <?php endif; ?>
         </div>
         <p class="vg-pagination-info"><?= $total ?> empresas · página <?= $pg ?> de <?= $totalPaginas ?></p>

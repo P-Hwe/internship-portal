@@ -35,7 +35,7 @@
             <div class="vg-tv-qr">
                 <div data-qr="<?= e($link) ?>" class="vg-tv-qrimg"></div>
                 <small><?= e(preg_replace('#^https?://#', '', $link)) ?></small>
-                <img class="vg-tv-logo" src="<?= BASE_URL ?>images/if.png" alt="Instituto Federal de São Paulo - Campus Guarulhos">
+                <img class="vg-tv-logo" src="<?= BASE_URL ?>public/img/ifsp/if.png" alt="Instituto Federal de São Paulo - Campus Guarulhos">
             </div>
         </div>
     </section>
