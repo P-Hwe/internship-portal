@@ -1,64 +1,85 @@
 <?php
-// Fallbacks para scripts CLI que não incluem database/schema.php diretamente.
-// Os guards em schema.php garantem que não há redeclaração em nenhuma ordem de include.
-
 if (!function_exists('tabela_existe')) {
-    function tabela_existe(string $t): bool
+    function tabela_existe(string $table): bool
     {
-        try { Database::pdo()->query("SELECT 1 FROM $t WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
+        try { Database::pdo()->query("SELECT 1 FROM $table WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
     }
 }
+if (!function_exists('table_exists')) {
+    function table_exists(string $table): bool { return tabela_existe($table); }
+}
+
 if (!function_exists('coluna_existe')) {
-    function coluna_existe(string $t, string $c): bool
+    function coluna_existe(string $table, string $column): bool
     {
-        try { Database::pdo()->query("SELECT $c FROM $t WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
+        try { Database::pdo()->query("SELECT $column FROM $table WHERE 1 = 0"); return true; } catch (PDOException $e) { return false; }
     }
 }
+if (!function_exists('column_exists')) {
+    function column_exists(string $table, string $column): bool { return coluna_existe($table, $column); }
+}
+
 if (!function_exists('add_coluna')) {
-    function add_coluna(string $t, string $c, string $def): void
+    function add_coluna(string $table, string $column, string $definition): void
     {
-        if (!coluna_existe($t, $c)) Database::pdo()->exec("ALTER TABLE $t ADD COLUMN $c $def");
+        if (!coluna_existe($table, $column)) Database::pdo()->exec("ALTER TABLE $table ADD COLUMN $column $definition");
     }
 }
+if (!function_exists('add_column')) {
+    function add_column(string $table, string $column, string $definition): void { add_coluna($table, $column, $definition); }
+}
+
 if (!function_exists('indice_existe')) {
-    function indice_existe(string $tabela, string $nome): bool
+    function indice_existe(string $table, string $name): bool
     {
         try {
-            return (bool) Database::pdo()->query("SHOW INDEXES FROM `$tabela` WHERE Key_name = '$nome'")->fetchColumn();
+            return (bool) Database::pdo()->query("SHOW INDEXES FROM `$table` WHERE Key_name = '$name'")->fetchColumn();
         } catch (PDOException $e) { return false; }
     }
 }
+if (!function_exists('index_exists')) {
+    function index_exists(string $table, string $name): bool { return indice_existe($table, $name); }
+}
+
 if (!function_exists('criar_indice')) {
-    function criar_indice(string $tabela, string $nome, string $colunas): void
+    function criar_indice(string $table, string $name, string $columns): void
     {
-        if (!indice_existe($tabela, $nome)) {
-            Database::pdo()->exec("CREATE INDEX `$nome` ON `$tabela` (`$colunas`)");
-        }
+        if (!indice_existe($table, $name)) Database::pdo()->exec("CREATE INDEX `$name` ON `$table` (`$columns`)");
     }
 }
+if (!function_exists('create_index')) {
+    function create_index(string $table, string $name, string $columns): void { criar_indice($table, $name, $columns); }
+}
+
 if (!function_exists('migrations')) {
     function migrations(): array
     {
-        $l = [];
-        foreach (glob(__DIR__ . '/../database/migrations/*.php') as $f) {
-            $m = require $f; $m['nome'] = basename($f, '.php'); $l[] = $m;
+        $list = [];
+        foreach (glob(__DIR__ . '/../database/migrations/*.php') as $file) {
+            $migration = require $file;
+            $migration['nome'] = basename($file, '.php');
+            $list[] = $migration;
         }
-        usort($l, fn($a, $b) => strcmp($a['nome'], $b['nome']));
-        return $l;
+        usort($list, fn($a, $b) => strcmp($a['nome'], $b['nome']));
+        return $list;
     }
 }
+
 if (!function_exists('desfazer_ultima')) {
     function desfazer_ultima(): ?string
     {
-        $u = Database::one('SELECT * FROM migracoes ORDER BY id DESC LIMIT 1');
-        if (!$u) return null;
-        foreach (migrations() as $m) {
-            if ($m['nome'] !== $u['nome']) continue;
-            if (empty($m['down'])) throw new RuntimeException("A migration {$m['nome']} não possui rollback.");
-            ($m['down'])(Database::pdo());
-            Database::run('DELETE FROM migracoes WHERE id = :i', ['i' => $u['id']]);
-            return $m['nome'];
+        $last = Database::one('SELECT * FROM migracoes ORDER BY id DESC LIMIT 1');
+        if (!$last) return null;
+        foreach (migrations() as $migration) {
+            if ($migration['nome'] !== $last['nome']) continue;
+            if (empty($migration['down'])) throw new RuntimeException("Migration {$migration['nome']} has no rollback.");
+            ($migration['down'])(Database::pdo());
+            Database::run('DELETE FROM migracoes WHERE id = :i', ['i' => $last['id']]);
+            return $migration['nome'];
         }
         return null;
     }
+}
+if (!function_exists('rollback_last')) {
+    function rollback_last(): ?string { return desfazer_ultima(); }
 }

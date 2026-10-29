@@ -57,9 +57,22 @@
     var aplicar = function () {
       var q = normaliza(busca.value.trim()), n = 0;
       cards.forEach(function (c) {
-        var ok = (!q || normaliza(c.dataset.busca).indexOf(q) > -1) && (!tipo || c.dataset.tipo === tipo) &&
-                 (!area.value || c.dataset.area === area.value) && (!mod.value || c.dataset.modalidade === mod.value);
-        c.hidden = !ok; if (ok) n++;
+        // Verificar se é filtro de vagas encerradas
+        var isEncerradas = c.dataset.chip === 'encerradas';
+        var showCard = !isEncerradas;
+
+        if (!isEncerradas) {
+          // Filtros normais para vagas abertas
+          showCard = (!q || normaliza(c.dataset.busca).indexOf(q) > -1) &&
+                     (!tipo || c.dataset.tipo === tipo) &&
+                     (!area.value || c.dataset.area === area.value) &&
+                     (!mod.value || c.dataset.modalidade === mod.value);
+        } else {
+          // Mostrar todas as vagas (abertas e encerradas) quando filtro encerradas está ativo
+          showCard = true;
+        }
+
+        c.hidden = !showCard; if (showCard) n++;
       });
       contador.textContent = n; vazio.hidden = n > 0;
       vazio.textContent = 'Nenhuma vaga encontrada. Tente limpar os filtros.';
