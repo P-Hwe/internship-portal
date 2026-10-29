@@ -7,11 +7,11 @@ class Ui
     }
     public static function situacao(string $s): string
     {
-        return self::badge(Estado::rotuloSituacao($s), Estado::tomSituacao($s));
+        return self::badge(Status::rotuloSituacao($s), Status::tomSituacao($s));
     }
     public static function statusEmpresa(string $s): string
     {
-        [$t, $c] = Estado::STATUS_EMPRESA[$s] ?? [$s, 'mute'];
+        [$t, $c] = Status::STATUS_EMPRESA[$s] ?? [$s, 'mute'];
         return self::badge($t, $c);
     }
 
@@ -30,17 +30,36 @@ class Ui
         }
         return $h . '</nav>';
     }
-    public static function paginacao(int $pagina, int $paginas, string $rota, array $params = []): string
+    public static function paginacao(int $pagina, int $paginas, string $rota, array $params = [], string $anchor = ''): string
     {
-        if ($paginas <= 1) {
-            return '';
+        if ($paginas <= 1) return '';
+        $u = fn(int $p) => e(url($rota, array_merge($params, ['pg' => $p])));
+        $btn = fn(int $p, string $t, bool $ativo = false) =>
+            '<a class="vg-p-btn' . ($ativo ? ' is-active' : '') . '" href="' . $u($p) . '"'
+            . ($ativo ? ' aria-current="page"' : '') . '>' . $t . '</a>';
+
+        $btns = '';
+        if ($pagina > 1) $btns .= $btn($pagina - 1, icon('chevron-left', 14) . ' Anterior');
+
+        $start = max(1, $pagina - 2);
+        $end   = min($paginas, $pagina + 2);
+
+        if ($start > 1) {
+            $btns .= $btn(1, '1');
+            if ($start > 2) $btns .= '<span class="vg-p-ellipsis">…</span>';
         }
-        $l = fn(int $p, string $t, bool $on = true, string $c = '') => $on ? '<a class="' . $c . '" href="' . e(url($rota, array_merge($params, ['pg' => $p]))) . '">' . $t . '</a>' : '<span class="is-off ' . $c . '">' . $t . '</span>';
-        $h = '<nav class="ui-pages" aria-label="Paginação">' . $l($pagina - 1, 'Anterior', $pagina > 1);
-        for ($p = max(1, $pagina - 2); $p <= min($paginas, $pagina + 2); $p++) {
-            $h .= $l($p, (string) $p, $p !== $pagina, $p === $pagina ? 'is-cur' : '');
+        for ($p = $start; $p <= $end; $p++) {
+            $btns .= $btn($p, (string) $p, $p === $pagina);
         }
-        return $h . $l($pagina + 1, 'Próxima', $pagina < $paginas) . '</nav>';
+        if ($end < $paginas) {
+            if ($end < $paginas - 1) $btns .= '<span class="vg-p-ellipsis">…</span>';
+            $btns .= $btn($paginas, (string) $paginas);
+        }
+        if ($pagina < $paginas) $btns .= $btn($pagina + 1, 'Próxima ' . icon('chevron-right', 14));
+
+        $anchorAttr = $anchor ? ' data-pagination-anchor="' . e($anchor) . '"' : '';
+        return '<nav class="vg-pagination" aria-label="Paginação"' . $anchorAttr . '>'
+            . '<div class="vg-pagination-btns">' . $btns . '</div></nav>';
     }
     public static function metrica(string $rotulo, $valor, string $icone = 'briefcase', ?string $href = null, string $tom = ''): string
     {
@@ -115,10 +134,10 @@ class Ui
         $c = ['tipo' => 'vaga', 'id' => $v['id'], 'ret' => $ret] + ($retId ? ['ret_id' => $retId] : []);
         $a = url('admin-acao');
         $h = '<div class="ui-actions">';
-        if ($v['status'] === Estado::V_AGUARDANDO) {
+        if ($v['status'] === Status::V_AGUARDANDO) {
             $h .= self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar esta vaga?', 'A vaga "' . $v['titulo'] . '" será publicada de ' . data_br($v['data_publicacao']) . ' até ' . data_br($v['data_limite']) . ' e a empresa receberá um e-mail.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary');
             $h .= self::formMotivo($a, $c + ['acao' => 'rejeitar'], 'Rejeitar', 'Rejeitar esta vaga');
-        } elseif ($v['status'] === Estado::V_APROVADA) {
+        } elseif ($v['status'] === Status::V_APROVADA) {
             if ($v['situacao'] === 'publicada') {
                 $h .= '<form method="post" action="' . e($a) . '">' . csrf_field() . '<input type="hidden" name="acao" value="destaque">' . implode('', array_map(fn($k, $x) => '<input type="hidden" name="' . e($k) . '" value="' . e((string) $x) . '">', array_keys($c), $c)) . '<button class="ui-btn ui-btn-sm" type="submit">' . ($v['destaque'] ? 'Tirar do destaque' : 'Destacar') . '</button></form>';
             }
@@ -132,12 +151,12 @@ class Ui
         $c = ['tipo' => 'empresa', 'id' => $e['id'], 'ret' => $ret] + ($retId ? ['ret_id' => $retId] : []);
         $a = url('admin-acao');
         $h = '<div class="ui-actions">';
-        if ($e['status'] === Estado::E_PENDENTE) {
+        if ($e['status'] === Status::E_PENDENTE) {
             $h .= self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar a empresa?', $e['nome'] . ' poderá publicar vagas e receberá um e-mail de confirmação.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary');
             $h .= self::formMotivo($a, $c + ['acao' => 'reprovar'], 'Reprovar', 'Reprovar o cadastro');
-        } elseif ($e['status'] === Estado::E_APROVADA) {
+        } elseif ($e['status'] === Status::E_APROVADA) {
             $h .= self::formMotivo($a, $c + ['acao' => 'bloquear'], 'Bloquear', 'Bloquear a empresa', 'ui-btn ui-btn-sm ui-btn-danger-o');
-        } elseif ($e['status'] === Estado::E_BLOQUEADA) {
+        } elseif ($e['status'] === Status::E_BLOQUEADA) {
             $h .= self::formConfirmar($a, $c + ['acao' => 'desbloquear'], 'Desbloquear', 'Desbloquear a empresa?', 'A empresa volta a acessar a plataforma e as vagas aprovadas voltam ao ar nas datas previstas.', 'primary', 'ui-btn ui-btn-sm');
         }
         return $h . '</div>';
@@ -170,7 +189,6 @@ class Ui
             . '<text x="60" y="58" text-anchor="middle" style="font:700 20px system-ui;fill:var(--text)">' . (int) $total . '</text><text x="60" y="73" text-anchor="middle" style="font:11px system-ui;fill:var(--muted)">' . e($centro) . '</text></svg><ul>' . $li . '</ul></div>';
     }
 
-    /** Barras do período atual ao lado do anterior. $linhas = [['rot'=>'05/10','atual'=>3,'anterior'=>1]]. */
     public static function comparar(array $linhas, string $descricao): string
     {
         return self::barras($linhas, [['atual', 'Período atual', 'var(--chart-1)'], ['anterior', 'Período anterior', 'var(--chart-prev)']], $descricao);

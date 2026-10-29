@@ -124,6 +124,7 @@ h3 {
   display: none !important;
 }
 
+/* ===== estrutura (empresa/admin) ===== */
 .app-shell {
   display: grid;
   grid-template-columns: var(--side) minmax(0, 1fr);
@@ -278,6 +279,7 @@ h3 {
   display: none;
 }
 
+/* ===== entrada (login/cadastro) ===== */
 .auth-body {
   display: flex;
   flex-direction: column;
@@ -329,6 +331,7 @@ h3 {
   text-align: center;
 }
 
+/* ===== componentes ===== */
 .ui-btn {
   display: inline-flex;
   align-items: center;
@@ -485,6 +488,7 @@ h3 {
   gap: 18px;
 }
 
+/* números: uma faixa só, sem caixinhas nem ícones coloridos */
 .ui-metrics {
   display: flex;
   flex-wrap: wrap;
@@ -857,6 +861,7 @@ a.is-active .ui-count {
   color: var(--bg);
 }
 
+/* sem banner: fundo de cor com as iniciais (mesmo recurso do site público) */
 .vg-fallback {
   display: flex;
   flex-direction: column;
@@ -899,6 +904,8 @@ a.is-active .ui-count {
   background: linear-gradient(135deg, #134e4a, #3bb3a7);
 }
 
+/* cards de vaga: o mesmo desenho do site de vagas (banner inteiro à vista, selos, empresa, dados) + ações do admin/empresa.
+   O card inteiro é clicável (o título carrega um link esticado); botões ficam acima dele. */
 .ui-vcard {
   position: relative;
   display: flex;
@@ -935,7 +942,7 @@ a.is-active .ui-count {
 .ui-vcard-media.is-cover img {
   object-fit: cover;
 }
-
+/* banner da vaga no detalhe (admin): largura total e a mesma proporção do site público (900 × 400), sem sobra ao lado */
 .ui-vbanner {
   position: relative;
   width: 100%;
@@ -1088,7 +1095,7 @@ a.is-active .ui-count {
 .ui-vcard-foot .ui-actions {
   gap: 6px;
 }
-
+/* card de empresa: banner da empresa em cima e logo sobreposto */
 .ui-ccard-media {
   position: relative;
   aspect-ratio: 2/1;
@@ -1106,7 +1113,7 @@ a.is-active .ui-count {
   position: relative;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: contain;   /* o banner inteiro aparece, sem corte */
   display: block;
 }
 .ui-ccard-logo {
@@ -1125,7 +1132,8 @@ a.is-active .ui-count {
   border-radius: 9px;
 }
 .ui-ccard-body {
-  padding: 40px 14px 10px;
+  padding: 40px 14px 10px;   /* espaço para o logo sobreposto ao banner não cobrir o nome */
+  display: flex;
   flex-direction: column;
   gap: 5px;
   flex: 1;
@@ -1142,7 +1150,7 @@ a.is-active .ui-count {
   color: var(--muted);
   font-size: 13.5px;
 }
-
+/* capa da empresa nas telas de detalhe */
 .ui-cover {
   position: relative;
   aspect-ratio: 3/1;
@@ -1296,6 +1304,7 @@ a.is-active .ui-count {
   font-size: 12.5px;
 }
 
+/* formulários */
 .ui-form {
   max-width: 780px;
 }
@@ -1573,6 +1582,7 @@ a.is-active .ui-count {
   border-color: var(--primary);
 }
 
+/* stepper (cadastros em etapas) */
 .ui-stepper {
   display: none;
   list-style: none;
@@ -1767,6 +1777,7 @@ a.is-active .ui-count {
   min-height: 90px;
 }
 
+/* gráficos (SVG gerado no servidor, com tokens) */
 .ui-chart {
   width: 100%;
   height: auto;
@@ -1974,7 +1985,7 @@ a.is-active .ui-count {
 .ui-ledger li {
   align-items: baseline;
 }
-
+/* Sininho: cada aviso é um link para a solicitação */
 .ui-notif {
   display: flex;
   flex-direction: column;
@@ -2009,6 +2020,7 @@ a.is-active .ui-count {
   align-items: center;
 }
 
+/* modais (<dialog>): esqueci a senha */
 .ui-modal {
   width: min(440px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
@@ -2019,26 +2031,8 @@ a.is-active .ui-count {
   border-radius: 14px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
-.ui-modal::backdrop {
-  background: var(--scrim, rgba(0, 0, 0, 0.6));
-}
-.ui-modal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-.ui-modal-head h2 {
-  margin: 0;
-  font-size: 20px;
-}
-.ui-modal-foot {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
-}
-.ui-modal .ui-alert {
-  margin: 10px 0;
-}
+.ui-modal::backdrop { background: var(--scrim, rgba(0, 0, 0, 0.6)); }
+.ui-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.ui-modal-head h2 { margin: 0; font-size: 20px; }
+.ui-modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.ui-modal .ui-alert { margin: 10px 0; }

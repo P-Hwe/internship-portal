@@ -68,3 +68,5 @@ database/README-SEED.md
 # PHP CS Fixer configuration
 /.php-cs-fixer.cache
 /.php-cs-fixer.php
+.kiro/
+uploads/
