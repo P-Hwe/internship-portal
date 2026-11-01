@@ -75,6 +75,7 @@
         <p><img src="https://dadosportais.ifsp.edu.br/matomo.php?idsite=53&amp;rec=1" style="border:0;" alt="" /></p>
     </noscript>
     <link rel="stylesheet" href="<?= BASE_URL ?>public/css/vagas.css" type="text/css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/board.css?v=<?= @filemtime(ROOT_PATH . '/public/css/board.css') ?>" type="text/css" />
 </head>
 
 <body>
