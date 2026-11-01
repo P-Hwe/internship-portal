@@ -1,148 +1,111 @@
-<?php require __DIR__ . '/../header.php'; $ativa = 'home'; require __DIR__ . '/../partials/nav.php'; ?>
-
-<div class="vg-hero">
-    <h1>Vagas de Estágio e Primeiro Emprego</h1>
-    <p>Oportunidades divulgadas por empresas parceiras do IFSP Campus Guarulhos. Escolha uma vaga, veja os detalhes e
-        fale direto com a empresa.</p>
+<?php require __DIR__ . '/../header.php'; $ativa = 'home'; require __DIR__ . '/../partials/nav.php';
+$order = (string) ($filtros['ord'] ?? '');
+$viewMode = ($_GET['vista'] ?? '') === 'lista' ? 'lista' : 'cards';
+$activeFilters = array_filter(['busca' => $filtros['busca'] ?? '', 'tipo' => $filtros['tipo'] ?? '', 'area' => $filtros['area'] ?? '', 'modalidade' => $filtros['modalidade'] ?? '']);
+$filterLabels = ['busca' => 'Busca', 'tipo' => 'Tipo', 'area' => 'Área', 'modalidade' => 'Modalidade'];
+$sortOptions = ['' => 'Mais recentes', 'salario' => 'Maior remuneração', 'prazo' => 'Encerram em breve', 'encerradas' => 'Encerradas', 'expiradas' => 'Expiradas'];
+$isArchive = in_array($order, ['encerradas', 'expiradas'], true);
+$listTitle = $isArchive ? ($order === 'encerradas' ? 'Vagas encerradas' : 'Vagas expiradas') : ($activeFilters ? 'Resultado da busca' : 'Vagas abertas');
+$baseParams = array_filter(array_merge($filtros, ['vista' => $viewMode === 'lista' ? 'lista' : '']));
+?>
+<div class="vb-intro">
+  <h1>Vagas de estágio e primeiro emprego</h1>
+  <p>Oportunidades de empresas parceiras analisadas pela Coordenação do IFSP Guarulhos. A candidatura é feita direto com a empresa.</p>
 </div>
 
 <?php if ($destaques): ?>
-<section class="vg-carousel" data-carousel aria-roledescription="carrossel" aria-label="Vagas em destaque">
-    <div class="vg-slides">
-        <?php foreach ($destaques as $i => $v): ?>
-        <a class="vg-slide <?= $i === 0 ? 'is-active' : '' ?>" href="<?= url('vaga', ['id' => $v['id']]) ?>"
-            aria-label="<?= ($i + 1) ?> de <?= count($destaques) ?>: <?= e($v['titulo']) ?> - <?= e($v['empresa']['nome']) ?>">
-            <?= vaga_imagem($v) ?>
-            <span class="vg-slide-caption">
-                <span class="vg-slide-tag"><?= e($v['tipo']) ?> · Destaque</span>
-                <strong><?= e($v['titulo']) ?></strong>
-                <span><?= e($v['empresa']['nome']) ?> · <?= e($v['modalidade']) ?> · <?= e($v['bolsa_txt']) ?></span>
-            </span>
-        </a>
-        <?php endforeach; ?>
-    </div>
-    <?php if (count($destaques) > 1): ?>
-    <button type="button" class="vg-car-btn vg-prev" data-prev
-        aria-label="Vaga anterior"><?= icon('chevron-left', 22) ?></button>
-    <button type="button" class="vg-car-btn vg-next" data-next
-        aria-label="Próxima vaga"><?= icon('chevron-right', 22) ?></button>
-    <div class="vg-dots" role="tablist" aria-label="Escolher slide">
-        <?php foreach ($destaques as $i => $v): ?><button type="button" class="<?= $i === 0 ? 'is-active' : '' ?>"
-            data-dot="<?= $i ?>" aria-label="Ir para a vaga <?= $i + 1 ?>"></button><?php endforeach; ?>
-    </div>
-    <?php endif; ?>
+<section class="vg-carousel vb-carousel" data-carousel aria-roledescription="carrossel" aria-label="Vagas em destaque">
+  <div class="vg-slides">
+    <?php foreach ($destaques as $i => $v): ?>
+    <a class="vg-slide <?= $i === 0 ? 'is-active' : '' ?>" href="<?= url('vaga', ['id' => $v['id']]) ?>"
+       aria-label="<?= $i + 1 ?> de <?= count($destaques) ?>: <?= e($v['titulo']) ?> - <?= e($v['empresa']['nome']) ?>">
+      <span class="vb-slide-media"><?= vaga_imagem($v) ?></span>
+      <span class="vg-slide-caption">
+        <span class="vg-slide-tag"><?= icon('star', 12) ?> Destaque · <?= e($v['tipo']) ?></span>
+        <strong><?= e($v['titulo']) ?></strong>
+        <span class="vb-slide-meta"><?= Ui::logo($v['empresa'], 28) ?> <?= e($v['empresa']['nome']) ?> · <?= e($v['modalidade']) ?> · <?= e($v['bolsa_txt']) ?></span>
+      </span>
+    </a>
+    <?php endforeach; ?>
+  </div>
+  <?php if (count($destaques) > 1): ?>
+  <button type="button" class="vg-car-btn vg-prev" data-prev aria-label="Vaga anterior"><?= icon('chevron-left', 22) ?></button>
+  <button type="button" class="vg-car-btn vg-next" data-next aria-label="Próxima vaga"><?= icon('chevron-right', 22) ?></button>
+  <div class="vg-dots" role="tablist" aria-label="Escolher vaga em destaque">
+    <?php foreach ($destaques as $i => $v): ?><button type="button" class="<?= $i === 0 ? 'is-active' : '' ?>" data-dot="<?= $i ?>" aria-label="Ir para a vaga <?= $i + 1 ?>"></button><?php endforeach; ?>
+  </div>
+  <?php endif; ?>
 </section>
 <?php endif; ?>
 
-<?php foreach ($trilhos as $t): ?>
-<section class="vg-rail" data-rail aria-labelledby="rail-<?= e($t['id']) ?>">
-    <div class="vg-rail-head">
-        <div>
-            <h2 id="rail-<?= e($t['id']) ?>"><?= icon($t['icone'], 20) ?> <?= e($t['titulo']) ?></h2>
-            <?php if (!empty($t['sub'])): ?><p><?= e($t['sub']) ?></p><?php endif; ?>
-        </div>
-        <div class="vg-rail-ctrl">
-            <button type="button" class="vg-rail-btn" data-rail-prev
-                aria-label="Voltar em <?= e($t['titulo']) ?>"><?= icon('chevron-left', 20) ?></button>
-            <button type="button" class="vg-rail-btn" data-rail-next
-                aria-label="Avançar em <?= e($t['titulo']) ?>"><?= icon('chevron-right', 20) ?></button>
-        </div>
-    </div>
-    <div class="vg-rail-track" data-rail-track tabindex="0">
-        <?php foreach ($t['itens'] as $v) { $chave = $t['chave']; $trilho = true; require __DIR__ . '/../partials/job-card.php'; } ?>
-    </div>
-</section>
-<?php endforeach; ?>
+<form class="vb-search" method="get" action="<?= url('home') ?>" role="search" data-autosubmit>
+  <?= campo_rota('home') ?>
+  <?php if ($order !== ''): ?><input type="hidden" name="ord" value="<?= e($order) ?>"><?php endif; ?>
+  <?php if ($viewMode === 'lista'): ?><input type="hidden" name="vista" value="lista"><?php endif; ?>
+  <div class="vb-search-main">
+    <label class="vg-sr" for="f-busca">Buscar vaga</label>
+    <span class="vb-search-input"><?= icon('search', 18) ?><input id="f-busca" type="search" name="busca" value="<?= e($filtros['busca'] ?? '') ?>" placeholder="Cargo, empresa ou palavra-chave"></span>
+    <button class="vb-btn vb-btn-primary" type="submit">Buscar vagas</button>
+  </div>
+  <div class="vb-search-filters">
+    <label><span>Tipo</span>
+      <select name="tipo"><option value="">Todos</option><?php foreach ($tipos as $t): ?><option <?= ($filtros['tipo'] ?? '') === $t ? 'selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?></select></label>
+    <label><span>Área</span>
+      <select name="area"><option value="">Todas</option><?php foreach ($areas as $a): ?><option <?= ($filtros['area'] ?? '') === $a ? 'selected' : '' ?>><?= e($a) ?></option><?php endforeach; ?></select></label>
+    <label><span>Modalidade</span>
+      <select name="modalidade"><option value="">Todas</option><?php foreach ($modalidades as $m): ?><option <?= ($filtros['modalidade'] ?? '') === $m ? 'selected' : '' ?>><?= e($m) ?></option><?php endforeach; ?></select></label>
+  </div>
+  <?php if ($activeFilters): ?>
+  <div class="vb-active">
+    <?php foreach ($activeFilters as $key => $value): ?>
+      <a class="vb-chip" href="<?= e(url('home', array_diff_key($baseParams, [$key => 1]))) ?>" aria-label="Remover filtro <?= e($filterLabels[$key]) ?>: <?= e($value) ?>"><?= e($filterLabels[$key]) ?>: <strong><?= e($value) ?></strong> <?= icon('x', 13) ?></a>
+    <?php endforeach; ?>
+    <a class="vb-clear" href="<?= e(url('home', array_intersect_key($baseParams, ['vista' => 1]))) ?>">Limpar filtros</a>
+  </div>
+  <?php endif; ?>
+</form>
 
-<section id="todas" aria-labelledby="vg-lista-titulo">
-    <div class="vg-list-head">
-        <h2 id="vg-lista-titulo">
-            <?php if (($filtros['ord'] ?? '') === 'encerradas'): ?>Vagas encerradas
-            <?php elseif (($filtros['ord'] ?? '') === 'expiradas'): ?>Vagas expiradas
-            <?php else: ?>Todas as vagas abertas<?php endif; ?>
-            <span class="vg-count" data-count><?= $totalVagas ?></span>
-        </h2>
+<section class="vb-section" id="todas" aria-labelledby="vb-list-title">
+  <div class="vb-list-head">
+    <h2 id="vb-list-title" class="vb-section-title"><?= e($listTitle) ?> <span class="vb-count"><?= (int) $totalVagas ?></span></h2>
+    <div class="vb-view" role="group" aria-label="Modo de exibição">
+      <a href="<?= e(url('home', array_diff_key($baseParams, ['vista' => 1, 'pg' => 1]) + ($pagina > 1 ? ['pg' => $pagina] : []))) ?>" class="<?= $viewMode === 'cards' ? 'is-active' : '' ?>" aria-label="Ver em cards"<?= $viewMode === 'cards' ? ' aria-current="true"' : '' ?>><?= icon('grid', 16) ?> Cards</a>
+      <a href="<?= e(url('home', array_merge($baseParams, ['vista' => 'lista'], $pagina > 1 ? ['pg' => $pagina] : []))) ?>" class="<?= $viewMode === 'lista' ? 'is-active' : '' ?>" aria-label="Ver em lista"<?= $viewMode === 'lista' ? ' aria-current="true"' : '' ?>><?= icon('menu', 16) ?> Lista</a>
     </div>
+  </div>
+  <nav class="vb-sort" aria-label="Ordenar vagas">
+    <?php foreach ($sortOptions as $key => $label): ?>
+      <a href="<?= e(url('home', array_filter(array_merge($baseParams, ['ord' => $key, 'pg' => ''])))) ?>" class="<?= $order === $key ? 'is-active' : '' ?>"<?= $order === $key ? ' aria-current="true"' : '' ?>><?= e($label) ?></a>
+    <?php endforeach; ?>
+  </nav>
 
-    <?php if ($tipos): ?>
-    <div class="vg-chips" role="group" aria-label="Filtrar por tipo de vaga">
-        <button type="button" class="vg-chip is-active" data-chip="">Todas</button>
-        <?php foreach ($tipos as $t): ?><button type="button" class="vg-chip" data-chip="<?= e($t) ?>"><?= e($t) ?></button><?php endforeach; ?>
-    </div>
+  <?php if ($vagas): ?>
+    <?php if ($viewMode === 'lista'): ?>
+      <div class="vb-list"><?php foreach ($vagas as $v) { $withSummary = true; require __DIR__ . '/../partials/job-row.php'; } ?></div>
+    <?php else: ?>
+      <div class="vb-cards"><?php foreach ($vagas as $v) require __DIR__ . '/../partials/job-card.php'; ?></div>
     <?php endif; ?>
-
-    <form class="vg-filters" data-filters role="search" method="get" action="<?= url('home') ?>">
-        <?= campo_rota('home') ?>
-        <label class="vg-sr" for="f-busca">Buscar vaga</label>
-        <input id="f-busca" type="search" name="busca" value="<?= e($filtros['busca'] ?? '') ?>" placeholder="Buscar por cargo, empresa ou palavra-chave" data-f-busca>
-        <label class="vg-sr" for="f-area">Área</label>
-        <select id="f-area" name="area" data-f-area>
-            <option value="">Todas as áreas</option>
-            <?php foreach ($areas as $a): ?><option <?= ($filtros['area'] ?? '') === $a ? 'selected' : '' ?>><?= e($a) ?></option><?php endforeach; ?>
-        </select>
-        <label class="vg-sr" for="f-mod">Modalidade</label>
-        <select id="f-mod" name="modalidade" data-f-mod>
-            <option value="">Toda modalidade</option>
-            <?php foreach ($modalidades as $m): ?><option <?= ($filtros['modalidade'] ?? '') === $m ? 'selected' : '' ?>><?= e($m) ?></option><?php endforeach; ?>
-        </select>
-        <label class="vg-sr" for="f-ord">Ordenar / Exibir</label>
-        <select id="f-ord" name="ord">
-            <option value=""   <?= empty($filtros['ord'])                   ? 'selected' : '' ?>>Mais recentes</option>
-            <option value="salario" <?= ($filtros['ord'] ?? '') === 'salario' ? 'selected' : '' ?>>Maior salário</option>
-            <option value="prazo"   <?= ($filtros['ord'] ?? '') === 'prazo'   ? 'selected' : '' ?>>Encerram em breve</option>
-            <option value="encerradas" <?= ($filtros['ord'] ?? '') === 'encerradas' ? 'selected' : '' ?>>Vagas encerradas</option>
-            <option value="expiradas"  <?= ($filtros['ord'] ?? '') === 'expiradas'  ? 'selected' : '' ?>>Vagas expiradas</option>
-        </select>
-    </form>
-
-    <div class="vg-grid" data-grid>
-        <?php foreach ($vagas as $v) { $trilho = false; $chave = null; require __DIR__ . '/../partials/job-card.php'; } ?>
+    <?php $pgCur = $pagina; $pgTotal = $totalPaginas; $pgRoute = 'home'; $pgParams = $baseParams; require __DIR__ . '/../partials/board-pagination.php'; ?>
+  <?php else: ?>
+    <div class="vb-empty">
+      <strong><?= $activeFilters ? 'Nenhuma vaga com esses filtros' : 'Nenhuma vaga aberta no momento' ?></strong>
+      <p><?= $activeFilters ? 'Remova algum filtro ou busque por outro termo.' : 'Novas vagas aparecem aqui assim que a Coordenação aprova.' ?></p>
+      <?php if ($activeFilters): ?><a class="vb-btn" href="<?= url('home') ?>">Ver todas as vagas</a><?php endif; ?>
     </div>
-
-    <?php if ($totalPaginas > 1): ?>
-    <nav class="vg-pagination" aria-label="Paginação de vagas" data-pagination-anchor="todas">
-        <div class="vg-pagination-btns">
-            <?php if ($pagina > 1): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina - 1]))) ?>"><?= icon('chevron-left', 16) ?> Anterior</a>
-            <?php endif; ?>
-            <?php if ($pagina > 1): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina - 1]))) ?>"><?= $pagina - 1 ?></a>
-            <?php endif; ?>
-            <a class="vg-p-btn is-active" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina]))) ?>" aria-current="page"><?= $pagina ?></a>
-            <?php if ($pagina < $totalPaginas): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina + 1]))) ?>"><?= $pagina + 1 ?></a>
-            <?php endif; ?>
-            <?php if ($pagina < $totalPaginas): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $pagina + 1]))) ?>">Próxima <?= icon('chevron-right', 16) ?></a>
-            <?php endif; ?>
-            <?php if ($pagina < $totalPaginas): ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => $totalPaginas]))) ?>">Última (<?= $totalPaginas ?>)</a>
-            <?php else: ?>
-                <a class="vg-p-btn" href="<?= e(url('home', array_merge($filtros, ['pg' => 1]))) ?>">Primeira</a>
-            <?php endif; ?>
-        </div>
-    </nav>
-    <?php endif; ?>
-
-    <p class="vg-empty" data-empty <?= $vagas ? 'hidden' : '' ?>>
-        <?= $vagas ? 'Nenhuma vaga encontrada. Tente limpar os filtros.' : 'Nenhuma vaga aberta no momento. Volte em breve!' ?>
-    </p>
+  <?php endif; ?>
 </section>
 
 <?php if (!Auth::role()): ?>
-<aside class="vg-cta-box">
-    <div>
-        <h2>É uma empresa parceira?</h2>
-        <p>Cadastre sua empresa e, depois de aprovada pela Coordenação, publique suas vagas.</p>
-    </div>
-    <div class="vg-cta-actions">
-        <a class="vg-btn vg-btn-lg" href="<?= url('empresa-cadastro') ?>"><?= icon('building', 18) ?> Cadastrar minha
-            empresa</a>
-        <a class="vg-btn-link" href="<?= url('empresa-login') ?>">Já sou parceira: entrar
-            <?= icon('arrow-right', 16) ?></a>
-    </div>
+<aside class="vb-cta">
+  <div>
+    <h2>Sua empresa quer contratar estudantes do IFSP?</h2>
+    <p>Cadastre a empresa, aguarde a aprovação da Coordenação e publique as vagas para os estudantes do câmpus.</p>
+  </div>
+  <div class="vb-cta-actions">
+    <a class="vb-btn vb-btn-primary" href="<?= url('empresa-cadastro') ?>">Cadastrar empresa</a>
+    <a class="vb-btn" href="<?= url('empresa-login') ?>">Já sou parceira</a>
+  </div>
 </aside>
 <?php endif; ?>
 </div>
-
 <?php require __DIR__ . '/../footer.php'; ?>

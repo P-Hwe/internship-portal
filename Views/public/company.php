@@ -1,40 +1,34 @@
 <?php require __DIR__ . '/../header.php'; $ativa = 'empresas'; require __DIR__ . '/../partials/nav.php'; $ext = Company::linkExterno($e); ?>
-<p style="margin-bottom:12px"><a class="vg-back" href="<?= url('empresas') ?>"><?= icon('arrow-left', 16) ?> Voltar para empresas parceiras</a></p>
-<nav class="vg-crumbs" aria-label="Você está aqui"><a href="<?= url('empresas') ?>">Empresas parceiras</a> <span aria-hidden="true">›</span> <span><?= e($e['nome']) ?></span></nav>
-<article class="vg-detail">
-    <div class="vg-detail-banner vg-comp-banner"><?= empresa_banner($e) ?></div>
-    <div class="vg-detail-head vg-comp-page"><?= Ui::logo($e, 84) ?><div>
-            <div class="vg-badges"><?php if ($e['segmento']): ?><span class="vg-badge vg-badge-soft"><?= e($e['segmento']) ?></span><?php endif; ?><?php if ($e['porte']): ?><span class="vg-badge vg-badge-soft"><?= e($e['porte']) ?></span><?php endif; ?></div>
-            <h1><?= e($e['nome']) ?></h1>
-            <p class="vg-detail-company"><?= icon('pin', 18) ?> <?= e($e['cidade'] ? $e['cidade'] . '/' . $e['uf'] : 'Localização não informada') ?></p>
-        </div>
+<nav class="vb-crumbs" aria-label="Você está aqui"><a href="<?= url('empresas') ?>">Empresas parceiras</a><span aria-hidden="true">/</span><span><?= e($e['nome']) ?></span></nav>
+
+<div class="vb-panel vb-org-page">
+  <div class="vb-org-cover<?= empresa_capa_attr($e) ?>"><?= empresa_banner($e) ?></div>
+  <div class="vb-org-identity">
+    <span class="vb-org-avatar"><?= Ui::logo($e, 88) ?></span>
+    <div class="vb-org-name">
+      <h1><?= e($e['nome']) ?></h1>
+      <p><?= e(implode(' · ', array_filter([$e['segmento'] ?? '', $e['porte'] ?? '', $e['cidade'] ? $e['cidade'] . '/' . $e['uf'] : '']))) ?></p>
     </div>
-    <?php if ($e['descricao']): ?><section class="vg-block">
-        <h2>Sobre a empresa</h2>
-        <p><?= nl2br(e($e['descricao'])) ?></p>
-    </section><?php endif; ?>
-    <dl class="vg-facts" style="margin-top:18px">
-        <div><dt>Vagas abertas</dt><dd><?= (int) $e['vagas_abertas'] ?></dd></div>
-        <div><dt>Vagas já publicadas</dt><dd><?= (int) $e['total_vagas'] ?></dd></div>
-        <div><dt>Contato</dt><dd><?= e($e['email_contato'] ?: '-') ?></dd></div>
-    </dl>
-    <?php if ($ext): ?><section class="vg-apply">
-        <div>
-            <h2>Conheça a empresa</h2>
-            <p>Os links abaixo levam para fora do sistema.</p>
-        </div>
-        <div class="vg-apply-actions">
-            <a class="vg-btn" href="<?= url('externo', ['id' => $e['id']]) ?>"><?= icon('external', 16) ?> <?= $e['link_principal'] === 'linkedin' && $e['linkedin'] ? 'LinkedIn da empresa' : 'Site da empresa' ?></a>
-        </div>
-    </section><?php endif; ?>
-</article>
-<section aria-labelledby="vg-ev">
-    <div class="vg-list-head">
-        <h2 id="vg-ev">Vagas abertas desta empresa</h2>
-    </div>
-    <?php if (!$vagas): ?><p class="vg-empty">Nenhuma vaga aberta no momento.</p><?php else: ?><div class="vg-grid">
-        <?php foreach ($vagas as $v) { $trilho = false; $chave = null; require __DIR__ . '/../partials/job-card.php'; } ?>
-    </div><?php endif; ?>
+    <?php if ($ext): ?><a class="vb-btn vb-btn-primary" href="<?= url('externo', ['id' => $e['id']]) ?>"><?= icon('external', 15) ?> <?= $e['link_principal'] === 'linkedin' && $e['linkedin'] ? 'LinkedIn da empresa' : 'Site da empresa' ?></a><?php endif; ?>
+  </div>
+  <dl class="vb-org-stats">
+    <div><dt>Vagas abertas</dt><dd><?= (int) $e['vagas_abertas'] ?></dd></div>
+    <div><dt>Vagas publicadas</dt><dd><?= (int) $e['total_vagas'] ?></dd></div>
+    <div><dt>Contato</dt><dd><?= $e['email_contato'] ? '<a href="mailto:' . e($e['email_contato']) . '">' . e($e['email_contato']) . '</a>' : 'Não informado' ?></dd></div>
+  </dl>
+</div>
+
+<?php if ($e['descricao']): ?>
+<section class="vb-panel vb-prose"><h2>Sobre</h2><p><?= nl2br(e($e['descricao'])) ?></p></section>
+<?php endif; ?>
+
+<section class="vb-section" aria-labelledby="vb-org-jobs">
+  <h2 id="vb-org-jobs" class="vb-section-title">Vagas abertas <span class="vb-count"><?= count($vagas) ?></span></h2>
+  <?php if (!$vagas): ?>
+    <div class="vb-empty"><strong>Nenhuma vaga aberta agora</strong><p>As próximas vagas desta empresa aparecem aqui.</p></div>
+  <?php else: ?>
+    <div class="vb-cards"><?php foreach ($vagas as $v) require __DIR__ . '/../partials/job-card.php'; ?></div>
+  <?php endif; ?>
 </section>
 </div>
 <?php require __DIR__ . '/../footer.php'; ?>

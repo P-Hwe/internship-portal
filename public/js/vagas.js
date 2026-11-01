@@ -97,18 +97,45 @@
 
   var tv = $('[data-tv]');
   if (tv) {
-    var telas = $$('.vg-tv-slide'), n = 0, cont = $('[data-tv-count]');
+    var slideMs = 12000;
+    var telas = $$('.tv-slide'), n = 0, cont = $('[data-tv-count]'), next = $('[data-tv-next]'), bar = $('[data-tv-progress]'), timer;
+    var clock = $('[data-tv-time]'), day = $('[data-tv-date]');
+    var tick = function () {
+      var d = new Date();
+      if (clock) clock.textContent = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      if (day) day.textContent = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+    };
+    tick(); setInterval(tick, 15000);
+    var restartBar = function () {
+      if (!bar || reduzMovimento) return;
+      bar.style.transition = 'none'; bar.style.width = '0';
+      void bar.offsetWidth;
+      bar.style.transition = 'width ' + slideMs + 'ms linear'; bar.style.width = '100%';
+    };
     var mostra = function (k) {
       n = (k + telas.length) % telas.length;
       telas.forEach(function (s, j) { s.classList.toggle('is-active', j === n); });
-      cont.textContent = 'Vaga ' + (n + 1) + ' de ' + telas.length;
+      if (cont) cont.textContent = (n + 1) + ' de ' + telas.length;
+      if (next) next.textContent = telas.length > 1 ? 'A seguir: ' + telas[(n + 1) % telas.length].dataset.title : '';
+      restartBar();
+      clearTimeout(timer);
+      if (telas.length > 1) timer = setTimeout(function () { mostra(n + 1); }, slideMs);
     };
-    if (telas.length) { mostra(0); if (telas.length > 1) setInterval(function () { mostra(n + 1); }, 9000); }
+    if (telas.length) mostra(0);
     document.addEventListener('keydown', function (e) {
       if (e.key === 'f' || e.key === 'F') { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
-      if (e.key === 'ArrowRight') mostra(n + 1); if (e.key === 'ArrowLeft') mostra(n - 1);
+      if (e.key === 'ArrowRight') mostra(n + 1);
+      if (e.key === 'ArrowLeft') mostra(n - 1);
     });
-    setTimeout(function () { location.reload(); }, 30 * 60 * 1000); // recarrega a cada 30 min p/ refletir vagas novas/vencidas
+    var touchX = null;
+    tv.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+    tv.addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) mostra(dx < 0 ? n + 1 : n - 1);
+      touchX = null;
+    });
+    setTimeout(function () { location.reload(); }, 30 * 60 * 1000);
   }
 })();
 
@@ -194,4 +221,23 @@
       el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
     }, 80);
   })();
+})();
+
+(function () {
+  'use strict';
+  Array.prototype.forEach.call(document.querySelectorAll('form[data-autosubmit]'), function (form) {
+    Array.prototype.forEach.call(form.querySelectorAll('select'), function (select) {
+      select.addEventListener('change', function () {
+        Array.prototype.forEach.call(form.querySelectorAll('input, select'), function (field) {
+          if (field.name && field.value === '') field.disabled = true;
+        });
+        form.submit();
+      });
+    });
+    form.addEventListener('submit', function () {
+      Array.prototype.forEach.call(form.querySelectorAll('input, select'), function (field) {
+        if (field.name && field.value === '') field.disabled = true;
+      });
+    });
+  });
 })();
