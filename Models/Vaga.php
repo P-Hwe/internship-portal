@@ -95,6 +95,7 @@ class Vaga
     public static function tv(array $publicas): array
     {
         $l = array_values(array_filter($publicas, fn($v) => !empty($v['destaque']) || !empty($v['melhor_salario'])));
+        if (!$l) $l = array_values($publicas);
         usort($l, fn($a, $b) => (!empty($b['destaque']) <=> !empty($a['destaque'])) ?: (($b['bolsa'] ?? 0) <=> ($a['bolsa'] ?? 0)));
         return $l;
     }

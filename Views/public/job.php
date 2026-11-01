@@ -1,117 +1,102 @@
-<?php require __DIR__ . '/../header.php'; $ativa = 'home'; require __DIR__ . '/../partials/nav.php'; $emp = $vaga['empresa']; $selos = $aberta ? array_slice($vaga['selos'], 0, 4, true) : []; ?>
-<p style="margin-bottom:12px"><a class="vg-back" href="<?= url() ?>"><?= icon('arrow-left', 16) ?> Voltar para todas as vagas</a></p>
-<nav class="vg-crumbs" aria-label="Você está aqui"><a href="<?= url() ?>">Vagas</a> <span aria-hidden="true">›</span>
-    <span><?= e($vaga['titulo']) ?></span></nav>
-<?php if (!$aberta): ?><div class="vg-flash vg-flash-info" role="status"><?= icon('info', 18) ?> <span><strong>Esta vaga
-            não recebe mais inscrições.</strong>
-        <?= $vaga['situacao'] === 'encerrada' ? 'Foi encerrada pela empresa.' : 'O prazo terminou em ' . data_br($vaga['data_limite']) . '.' ?>
-        As informações abaixo ficam disponíveis como histórico.</span></div><?php endif; ?>
+<?php require __DIR__ . '/../header.php'; $ativa = 'home'; require __DIR__ . '/../partials/nav.php';
+$emp = $vaga['empresa'];
+$badges = $aberta ? array_slice(array_diff_key($vaga['selos'], ['tipo' => 1]), 0, 3, true) : [];
+$platform = Link::PLATAFORMAS[$vaga['link_plataforma'] ?? ''] ?? null;
+$mailto = $vaga['contato'] ? 'mailto:' . $vaga['contato'] . '?subject=' . rawurlencode('Candidatura ' . $vaga['codigo'] . ' - ' . $vaga['titulo']) : null;
+$applyUrl = $vaga['link_candidatura'] ?: $mailto;
+$daysLeft = dias_restantes($vaga['data_limite']);
+$facts = [
+    ['money', $vaga['tipo'] === 'Estágio' ? 'Bolsa-auxílio' : 'Salário', $vaga['bolsa_txt']],
+    ['clock', 'Carga horária', $vaga['carga_txt'] ?: 'A combinar'],
+    ['pin', 'Local', $vaga['local'] . ' · ' . $vaga['modalidade']],
+    ['briefcase', 'Área', $vaga['area']],
+];
+?>
+<nav class="vb-crumbs" aria-label="Você está aqui"><a href="<?= url() ?>">Vagas</a><span aria-hidden="true">/</span><span><?= e($vaga['titulo']) ?></span></nav>
 
-<article class="vg-detail">
-    <div class="vg-detail-banner"><?= vaga_imagem($vaga) ?>
-        <ul class="vg-tags-print"><?php foreach ($selos as [$txt, $cls]): ?><li class="vg-tag <?= e($cls) ?>">
-                <?= e($txt) ?></li><?php endforeach; ?><?php if (!$aberta): ?><li class="vg-tag vg-tag-tipo">Encerrada
-            </li><?php endif; ?></ul>
-    </div>
-    <div class="vg-detail-head">
+<?php if (!$aberta): ?>
+<div class="vb-notice" role="status"><?= icon('info', 18) ?><p><strong>Esta vaga não recebe mais candidaturas.</strong>
+  <?= $vaga['situacao'] === 'encerrada' ? 'A empresa encerrou o processo.' : 'O prazo terminou em ' . data_br($vaga['data_limite']) . '.' ?> As informações ficam disponíveis como histórico.</p></div>
+<?php endif; ?>
+
+<article class="vb-detail">
+  <div class="vb-panel vb-detail-head">
+    <?php $coverImage = url_upload($vaga['imagem'] ?? null); ?>
+    <div class="vb-detail-cover<?= $coverImage ? ' has-img' : '' ?>"<?= $coverImage ? ' style="--bn:url(\'' . e($coverImage) . '\')"' : '' ?>><?= vaga_imagem($vaga) ?></div>
+    <div class="vb-detail-top">
+      <a class="vb-detail-logo" href="<?= url('empresa', ['id' => $emp['id']]) ?>"><?= Ui::logo($emp, 64) ?></a>
+      <div class="vb-detail-title">
+        <a class="vb-detail-company" href="<?= url('empresa', ['id' => $emp['id']]) ?>"><?= e($emp['nome']) ?></a>
         <h1><?= e($vaga['titulo']) ?></h1>
-        <p class="vg-detail-company">
-            <?= icon('building', 16) ?> <a href="<?= url('empresa', ['id' => $emp['id']]) ?>" style="color:inherit"><?= e($emp['nome']) ?></a>
-            <span class="vg-detail-meta-sep" aria-hidden="true">·</span><span class="vg-detail-meta-tag"><?= e($vaga['tipo']) ?></span>
-            <span class="vg-detail-meta-sep" aria-hidden="true">·</span><span class="vg-detail-meta-tag"><?= e($vaga['modalidade']) ?></span>
-            <span class="vg-detail-meta-sep" aria-hidden="true">·</span><span class="vg-detail-meta-tag"><?= e($vaga['area']) ?></span>
+        <p class="vb-job-meta">
+          <span><?= icon('pin', 14) ?> <?= e($vaga['local']) ?></span>
+          <span><?= e($vaga['tipo']) ?> · <?= e($vaga['modalidade']) ?></span>
+          <span>Publicada em <?= e(data_br($vaga['data_publicacao'])) ?></span>
         </p>
+        <?php if ($badges): ?><ul class="vb-badges"><?php foreach ($badges as [$txt, $cls]): ?><li class="vb-badge <?= e($cls) ?>"><?= e($txt) ?></li><?php endforeach; ?></ul><?php endif; ?>
+      </div>
     </div>
-    <dl class="vg-facts">
-        <div>
-            <dt><?= $vaga['tipo'] === 'Estágio' ? 'Bolsa-auxílio' : 'Salário' ?></dt>
-            <dd><?= e($vaga['bolsa_txt']) ?></dd>
-        </div>
-        <div>
-            <dt>Carga horária</dt>
-            <dd><?= e($vaga['carga_txt'] ?: 'A combinar') ?></dd>
-        </div>
-        <div>
-            <dt>Local</dt>
-            <dd><?= e($vaga['local']) ?></dd>
-        </div>
-        <div>
-            <dt>Publicada em</dt>
-            <dd><?= data_br($vaga['data_publicacao']) ?></dd>
-        </div>
-        <div>
-            <dt><?= $aberta ? 'Inscrições até' : 'Inscrições encerradas em' ?></dt>
-            <dd><?= data_br($vaga['data_limite']) ?></dd>
-        </div>
-        <div>
-            <dt>Código da vaga</dt>
-            <dd><span class="vg-code"><?= e($vaga['codigo']) ?></span> <button type="button" class="vg-copy"
-                    data-copy="<?= e($vaga['codigo']) ?>" aria-label="Copiar código da vaga"><?= icon('copy', 14) ?>
-                    Copiar</button></dd>
-        </div>
-    </dl>
-    <section class="vg-block">
-        <h2>Sobre a vaga</h2>
-        <p><?= nl2br(e($vaga['descricao'])) ?></p>
-    </section>
-    <div class="vg-two">
-        <?php if ($vaga['atividades']): ?><section class="vg-block">
-            <h2>Atividades</h2>
-            <ul><?php foreach ($vaga['atividades'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-        </section><?php endif; ?>
-        <?php if ($vaga['requisitos']): ?><section class="vg-block">
-            <h2>Requisitos</h2>
-            <ul><?php foreach ($vaga['requisitos'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-            <?php if ($vaga['requisitos_desejaveis']): ?><h2 style="margin-top:12px">Desejáveis</h2>
-            <ul><?php foreach ($vaga['requisitos_desejaveis'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-            <?php endif; ?>
-        </section><?php endif; ?>
+    <div class="vb-detail-actions">
+      <?php if ($aberta && $applyUrl): ?>
+        <a class="vb-btn vb-btn-primary vb-btn-lg" href="<?= e($applyUrl) ?>"<?= $vaga['link_candidatura'] ? ' target="_blank" rel="noopener noreferrer nofollow"' : '' ?>><?= icon($vaga['link_candidatura'] ? 'external' : 'mail', 16) ?> Candidatar-se<?= $vaga['link_candidatura'] && $platform ? ' pela ' . e($platform) : '' ?></a>
+      <?php endif; ?>
+      <button type="button" class="vb-btn" data-copy="<?= e(url_vaga_abs((int) $vaga['id'])) ?>"><?= icon('copy', 15) ?> Copiar link</button>
+      <span class="vb-detail-deadline<?= $aberta && $daysLeft <= DIAS_VAGA_VENCENDO ? ' is-soon' : '' ?>"><?= icon('clock', 15) ?> <?= $aberta ? 'Inscrições até ' . e(data_br($vaga['data_limite'])) . ' · ' . e(dias_txt($daysLeft)) : 'Inscrições encerradas em ' . e(data_br($vaga['data_limite'])) ?></span>
     </div>
-    <?php if ($vaga['beneficios']): ?><section class="vg-block">
-        <h2>Benefícios</h2>
-        <ul class="vg-tags"><?php foreach ($vaga['beneficios'] as $x): ?><li><?= e($x) ?></li><?php endforeach; ?></ul>
-    </section><?php endif; ?>
-    <section class="vg-block vg-company">
-        <h2>Sobre a empresa</h2>
-        <p><strong><?= e($emp['nome']) ?></strong><?= $emp['segmento'] ? ' · ' . e($emp['segmento']) : '' ?><br>CNPJ:
-            <?= e(Cnpj::formatar($emp['cnpj'])) ?><br><?= e($emp['endereco']) ?><br><a
-                href="<?= url('empresa', ['id' => $emp['id']]) ?>">Ver página da empresa</a></p>
-    </section>
+  </div>
 
-    <?php if ($aberta): ?>
-    <section class="vg-apply">
-        <div>
-            <h2>Como se candidatar</h2>
-            <p>A candidatura é feita diretamente com a
-                empresa<?= $vaga['link_candidatura'] ? ' (' . e(Link::PLATAFORMAS[$vaga['link_plataforma']] ?? 'processo externo') . ')' : '' ?>.
-                Informe o código <strong><?= e($vaga['codigo']) ?></strong> no contato.</p>
-        </div>
-        <div class="vg-apply-actions">
-            <?php if ($vaga['link_candidatura']): ?><a class="vg-btn" href="<?= e($vaga['link_candidatura']) ?>"
-                target="_blank" rel="noopener noreferrer nofollow"><?= icon('external', 16) ?>
-                Candidatar-se<?= !empty($vaga['link_plataforma']) && isset(Link::PLATAFORMAS[$vaga['link_plataforma']]) ? ' pela ' . e(Link::PLATAFORMAS[$vaga['link_plataforma']]) : '' ?></a><?php endif; ?>
-            <?php if ($vaga['contato']): ?><a class="vg-btn <?= $vaga['link_candidatura'] ? 'vg-btn-ghost' : '' ?>"
-                href="mailto:<?= e($vaga['contato']) ?>?subject=<?= rawurlencode('Candidatura ' . $vaga['codigo'] . ' - ' . $vaga['titulo']) ?>"><?= icon('mail', 16) ?>
-                <?= e($vaga['contato']) ?></a><?php endif; ?>
-            <?php if ($emp['telefone']): ?><a class="vg-btn vg-btn-ghost"
-                href="tel:<?= e(preg_replace('/\D/', '', $emp['telefone'])) ?>"><?= icon('phone', 16) ?>
-                <?= e(fone_fmt($emp['telefone'])) ?></a><?php endif; ?>
-            <?php foreach (['link_site' => 'Site da empresa', 'link_linkedin' => 'LinkedIn'] as $k => $rot): if ($vaga[$k]): ?><a
-                class="vg-btn vg-btn-ghost" href="<?= e($vaga[$k]) ?>" target="_blank"
-                rel="noopener noreferrer nofollow"><?= icon('external', 16) ?>
-                <?= $rot ?></a><?php endif; endforeach; ?>
-        </div>
-    </section>
-    <?php endif; ?>
+  <dl class="vb-facts">
+    <?php foreach ($facts as [$factIcon, $label, $value]): ?>
+      <div><dt><?= icon($factIcon, 16) ?> <?= e($label) ?></dt><dd><?= e($value) ?></dd></div>
+    <?php endforeach; ?>
+  </dl>
+
+  <section class="vb-panel vb-prose">
+    <h2>Sobre a vaga</h2>
+    <p><?= nl2br(e($vaga['descricao'])) ?></p>
+    <?php if ($vaga['atividades']): ?><h3>Atividades</h3>
+      <ul><?php foreach ($vaga['atividades'] as $item): ?><li><?= e($item) ?></li><?php endforeach; ?></ul><?php endif; ?>
+    <?php if ($vaga['requisitos']): ?><h3>Requisitos</h3>
+      <ul><?php foreach ($vaga['requisitos'] as $item): ?><li><?= e($item) ?></li><?php endforeach; ?></ul><?php endif; ?>
+    <?php if ($vaga['requisitos_desejaveis']): ?><h3>Desejáveis</h3>
+      <ul><?php foreach ($vaga['requisitos_desejaveis'] as $item): ?><li><?= e($item) ?></li><?php endforeach; ?></ul><?php endif; ?>
+    <?php if ($vaga['beneficios']): ?><h3>Benefícios</h3>
+      <ul class="vb-pills"><?php foreach ($vaga['beneficios'] as $item): ?><li><?= e($item) ?></li><?php endforeach; ?></ul><?php endif; ?>
+  </section>
+
+  <?php if ($aberta): ?>
+  <section class="vb-panel vb-apply" aria-labelledby="vb-apply-title">
+    <h2 id="vb-apply-title">Como se candidatar</h2>
+    <p>A candidatura é feita direto com a empresa<?= $vaga['link_candidatura'] && $platform ? ', pela ' . e($platform) : '' ?>. Informe o código <span class="vb-code"><?= e($vaga['codigo']) ?></span> no contato.</p>
+    <div class="vb-apply-actions">
+      <?php if ($vaga['link_candidatura']): ?><a class="vb-btn vb-btn-primary" href="<?= e($vaga['link_candidatura']) ?>" target="_blank" rel="noopener noreferrer nofollow"><?= icon('external', 15) ?> Abrir formulário</a><?php endif; ?>
+      <?php if ($mailto): ?><a class="vb-btn" href="<?= e($mailto) ?>"><?= icon('mail', 15) ?> <?= e($vaga['contato']) ?></a><?php endif; ?>
+      <?php if ($emp['telefone']): ?><a class="vb-btn" href="tel:<?= e(preg_replace('/\D/', '', $emp['telefone'])) ?>"><?= icon('phone', 15) ?> <?= e(fone_fmt($emp['telefone'])) ?></a><?php endif; ?>
+      <?php foreach (['link_site' => 'Site', 'link_linkedin' => 'LinkedIn'] as $key => $label): if ($vaga[$key]): ?><a class="vb-btn" href="<?= e($vaga[$key]) ?>" target="_blank" rel="noopener noreferrer nofollow"><?= icon('external', 15) ?> <?= $label ?></a><?php endif; endforeach; ?>
+      <button type="button" class="vb-btn" data-copy="<?= e($vaga['codigo']) ?>"><?= icon('copy', 15) ?> Copiar código</button>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <section class="vb-panel vb-company-card" aria-labelledby="vb-company-title">
+    <h2 id="vb-company-title">Sobre a empresa</h2>
+    <div class="vb-company-row">
+      <?= Ui::logo($emp, 48) ?>
+      <div>
+        <strong><?= e($emp['nome']) ?></strong>
+        <p><?= e(implode(' · ', array_filter([$emp['segmento'] ?? '', 'CNPJ ' . Cnpj::formatar($emp['cnpj'])]))) ?></p>
+        <p><?= e($emp['endereco']) ?></p>
+      </div>
+      <a class="vb-btn" href="<?= url('empresa', ['id' => $emp['id']]) ?>">Ver empresa</a>
+    </div>
+  </section>
 </article>
 
-<?php if ($relacionadas): ?><section aria-labelledby="vg-rel">
-    <div class="vg-list-head">
-        <h2 id="vg-rel">Outras vagas</h2>
-    </div>
-    <div class="vg-grid">
-        <?php foreach ($relacionadas as $v) { $trilho = false; $chave = null; require __DIR__ . '/../partials/job-card.php'; } ?>
-    </div>
-</section><?php endif; ?>
+<?php if ($relacionadas): ?>
+<section class="vb-section" aria-labelledby="vb-related">
+  <h2 id="vb-related" class="vb-section-title">Vagas parecidas</h2>
+  <div class="vb-cards"><?php foreach ($relacionadas as $v) require __DIR__ . '/../partials/job-card.php'; ?></div>
+</section>
+<?php endif; ?>
 </div>
 <?php require __DIR__ . '/../footer.php'; ?>

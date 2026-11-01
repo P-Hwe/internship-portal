@@ -36,7 +36,7 @@ class AdminController
         $tab = $_GET['aba'] ?? 'todas';
         if (!in_array($tab, array_merge(['todas', 'destaque'], Status::SITUACOES), true)) $tab = 'todas';
         [$q, $pg] = $this->paramLista();
-        $type = (string) ($_GET['tipo'] ?? ''); $order = (string) ($_GET['ord'] ?? 'recentes'); $view = ($_GET['vista'] ?? 'cards') === 'tabela' ? 'tabela' : 'cards';
+        $type = (string) ($_GET['tipo'] ?? ''); $order = (string) ($_GET['ord'] ?? 'recentes'); $view = ($_GET['vista'] ?? 'lista') === 'cards' ? 'cards' : 'lista';
         [$list, $total] = Vaga::listar(null, $tab, $q, $type, $order, $pg);
         [, $pg, $pages] = Paginator::calc($total, $pg, POR_PAGINA);
         $this->renderPage('admin/job-listings', ['cont' => $counts, 'aba' => $tab, 'q' => $q, 'tipo' => $type, 'ord' => $order, 'vista' => $view, 'lista' => $list, 'total' => $total, 'pg' => $pg, 'paginas' => $pages], 'vagas', 'Vagas');
@@ -190,8 +190,10 @@ class AdminController
                     Notifier::adminCriado(Admin::findById($newAdmin), $admin);
                     flash('ok', 'Administrador criado. Ele foi avisado por e-mail e vai trocar a senha inicial no primeiro acesso.');
                 } elseif (in_array($action, ['ativar', 'desativar'], true)) {
+                    $target = Admin::findById($id);
+                    if (!$target) { flash('erro', 'Administrador não encontrado.'); $goBack(); }
                     if ($id === (int) $admin['id']) { flash('erro', 'Você não pode desativar a própria conta.'); $goBack(); }
-                    if (!Admin::isRoot(Admin::findById($id))) { flash('erro', 'A conta do administrador principal não pode ser desativada.'); $goBack(); }
+                    if (Admin::isRoot($target)) { flash('erro', 'A conta do administrador principal não pode ser desativada.'); $goBack(); }
                     if ($action === 'desativar' && Stats::contasRestritas()['admins_ativos'] <= 1) { flash('erro', 'É preciso manter ao menos um administrador ativo.'); $goBack(); }
                     Admin::setActive($id, $action === 'ativar');
                     AuditLog::registrar('admin', $id, $action === 'ativar' ? 'desbloqueada' : 'bloqueada', null, null, $actor[0], $actor[1]);
