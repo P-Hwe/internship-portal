@@ -1288,3 +1288,43 @@
     padding: 0 10px;
   }
 }
+
+.vg .vb-card.is-closed,
+.vg .vb-job.is-closed {
+  cursor: not-allowed;
+  background: #f4f5f4;
+  box-shadow: none;
+}
+.vg .vb-card.is-closed:hover,
+.vg .vb-job.is-closed:hover {
+  transform: none;
+  border-color: var(--vb-line);
+  box-shadow: none;
+  background: #f4f5f4;
+}
+.vg .vb-card.is-closed .vb-card-media,
+.vg .vb-job.is-closed .vb-job-logo {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+.vg .vb-card.is-closed .vb-card-body,
+.vg .vb-job.is-closed .vb-job-main {
+  opacity: 0.7;
+}
+.vg .vb-card.is-closed .vb-card-title,
+.vg .vb-job.is-closed .vb-job-title,
+.vg .vb-card.is-closed .vb-money,
+.vg .vb-job.is-closed .vb-money {
+  color: var(--vb-muted);
+}
+.vg .vb-card.is-closed .vb-card-type {
+  background: #5b6760;
+  color: #fff;
+}
+.vg .vb-job-date.is-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--vb-muted);
+  font-weight: 600;
+}
