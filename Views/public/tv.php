@@ -1,48 +1,68 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Vagas de Estágio - IFSP Guarulhos (Modo TV)</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/vagas.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Modo TV · Vagas de Estágio · IFSP Guarulhos</title>
+  <link rel="icon" href="<?= BASE_URL ?>public/img/ifsp/if.png">
+  <link rel="stylesheet" href="<?= BASE_URL ?>public/css/vagas.css?v=<?= @filemtime(ROOT_PATH . '/public/css/vagas.css') ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>public/css/tv.css?v=<?= @filemtime(ROOT_PATH . '/public/css/tv.css') ?>">
 </head>
-
-<body class="vg-tv" data-tv>
-    <?php if (!$vagas): ?>
-    <div class="vg-tv-empty">
-        <h1>Vagas de Estágio</h1>
-        <p>Nenhuma vaga em destaque ou com melhor salário no momento.</p>
+<body class="tv" data-tv>
+  <header class="tv-top">
+    <div class="tv-brand">
+      <img src="<?= BASE_URL ?>public/img/ifsp/if.png" alt="" width="34" height="34">
+      <div><strong>Vagas de estágio e emprego</strong><span>IFSP · Câmpus Guarulhos</span></div>
     </div>
-    <?php else: foreach ($vagas as $i => $v): [$pt] = selo_prazo($v); $link = url_vaga_abs((int) $v['id']); ?>
-    <section class="vg-tv-slide <?= $i === 0 ? 'is-active' : '' ?>">
-        <div class="vg-tv-media"><?= vaga_imagem($v) ?></div>
-        <div class="vg-tv-body">
-            <div class="vg-tv-info">
-                <p class="vg-tv-tag"><?= e($v['tipo']) ?> · IFSP Guarulhos</p>
-                <h1><?= e($v['titulo']) ?></h1>
-                <h2><?= e($v['empresa']['nome']) ?></h2>
-                <p class="vg-tv-text"><?= e($v['resumo']) ?></p>
-                <ul>
-                    <li><?= e($v['modalidade']) ?> · <?= e($v['local']) ?></li>
-                    <li><?= e($v['tipo']) ?> ·
-                        <?= e($v['bolsa_txt']) ?><?= $v['carga_txt'] ? ' · ' . e($v['carga_txt']) : '' ?></li>
-                    <li>Inscrições até <?= data_br($v['data_limite']) ?> (<?= e($pt) ?>)</li>
-                </ul>
-                <p class="vg-tv-code">Código <strong><?= e($v['codigo']) ?></strong> · Aponte a câmera para abrir a vaga
-                </p>
-            </div>
-            <div class="vg-tv-qr">
-                <div data-qr="<?= e($link) ?>" class="vg-tv-qrimg"></div>
-                <small><?= e(preg_replace('#^https?://#', '', $link)) ?></small>
-                <img class="vg-tv-logo" src="<?= BASE_URL ?>public/img/ifsp/if.png" alt="Instituto Federal de São Paulo - Campus Guarulhos">
-            </div>
-        </div>
-    </section>
-    <?php endforeach; endif; ?>
-    <div class="vg-tv-bar"><span data-tv-count></span><span>Tecla F: tela cheia</span></div>
-    <script src="<?= BASE_URL ?>public/js/vendor/qrcode.js"></script>
-    <script src="<?= BASE_URL ?>public/js/vagas.js"></script>
-</body>
+    <div class="tv-clock"><span data-tv-time>--:--</span><small data-tv-date></small></div>
+  </header>
 
+  <?php if (!$vagas): ?>
+    <main class="tv-empty">
+      <h1>Nenhuma vaga aberta no momento</h1>
+      <p>As novas vagas aprovadas pela Coordenação aparecem aqui automaticamente.</p>
+    </main>
+  <?php else: ?>
+    <main class="tv-stage">
+      <?php foreach ($vagas as $i => $v): [$deadlineLabel] = selo_prazo($v); $link = url_vaga_abs((int) $v['id']); $image = url_upload($v['imagem'] ?? null); ?>
+      <section class="tv-slide <?= $i === 0 ? 'is-active' : '' ?>" data-title="<?= e($v['titulo'] . ' · ' . $v['empresa']['nome']) ?>" aria-roledescription="slide" aria-label="<?= $i + 1 ?> de <?= count($vagas) ?>">
+        <div class="tv-media<?= $image ? ' has-img' : '' ?>"<?= $image ? ' style="--bn:url(\'' . e($image) . '\')"' : '' ?>><?= vaga_imagem($v) ?></div>
+        <div class="tv-info">
+          <div class="tv-tags">
+            <span class="tv-tag tv-tag-type"><?= e($v['tipo']) ?></span>
+            <?php if (!empty($v['destaque'])): ?><span class="tv-tag tv-tag-star">Destaque</span><?php endif; ?>
+            <?php if (!empty($v['melhor_salario'])): ?><span class="tv-tag">Melhor remuneração</span><?php endif; ?>
+          </div>
+          <h1><?= e($v['titulo']) ?></h1>
+          <div class="tv-company"><?= Ui::logo($v['empresa'], 48) ?><span><?= e($v['empresa']['nome']) ?></span></div>
+          <dl class="tv-facts">
+            <div><dt><?= $v['tipo'] === 'Estágio' ? 'Bolsa-auxílio' : 'Salário' ?></dt><dd><?= e($v['bolsa_txt']) ?></dd></div>
+            <div><dt>Modalidade</dt><dd><?= e($v['modalidade']) ?></dd></div>
+            <div><dt>Local</dt><dd><?= e($v['local']) ?></dd></div>
+            <div><dt>Inscrições até</dt><dd><?= data_br($v['data_limite']) ?> <small><?= e($deadlineLabel) ?></small></dd></div>
+          </dl>
+          <div class="tv-qr">
+            <div data-qr="<?= e($link) ?>" class="tv-qr-img"></div>
+            <div>
+              <strong>Aponte a câmera do celular</strong>
+              <span>para ver a vaga e se candidatar</span>
+              <small>Código <?= e($v['codigo']) ?></small>
+            </div>
+          </div>
+        </div>
+      </section>
+      <?php endforeach; ?>
+    </main>
+    <footer class="tv-bottom">
+      <div class="tv-progress"><i data-tv-progress></i></div>
+      <div class="tv-bottom-row">
+        <span class="tv-next" data-tv-next></span>
+        <span class="tv-count" data-tv-count></span>
+      </div>
+    </footer>
+  <?php endif; ?>
+  <script src="<?= BASE_URL ?>public/js/vendor/qrcode.js"></script>
+  <script src="<?= BASE_URL ?>public/js/vagas.js?v=<?= @filemtime(ROOT_PATH . '/public/js/vagas.js') ?>"></script>
+</body>
 </html>
