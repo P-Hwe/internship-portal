@@ -2,8 +2,10 @@
 class Auth
 {
     private const MAX_ATTEMPTS      = 5;
-    private const RATE_WINDOW_MIN   = 15;  
-    private const ABSOLUTE_LIMIT    = 86400; 
+    private const MAX_IP_ATTEMPTS   = 30;
+    private const RATE_WINDOW_MIN   = 15;
+    private const ABSOLUTE_LIMIT    = 86400;
+    private const DUMMY_HASH        = '$2y$12$897Wv//ow2tzz0QODCVNGu44bCLcQSqDsCpHC7jI1aR.FVArSya86';
 
     private static function idleTimeout(string $profile): int
     {
@@ -147,15 +149,21 @@ class Auth
             return [null, 'Já existe um login ativo como ' . ($current === 'admin' ? 'administrador' : 'empresa') . '. Saia primeiro.'];
         }
         $email = mb_strtolower(trim($email));
-        $key   = hash('sha256', $profile . '|' . $email . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'cli'));
-        if (self::loginAttempts($key) >= self::MAX_ATTEMPTS) {
+        $ip    = (string) ($_SERVER['REMOTE_ADDR'] ?? 'cli');
+        $key   = hash('sha256', $profile . '|' . $email . '|' . $ip);
+        $ipKey = hash('sha256', 'ip|' . $ip);
+        if (self::loginAttempts($key) >= self::MAX_ATTEMPTS || self::loginAttempts($ipKey) >= self::MAX_IP_ATTEMPTS) {
             self::log($profile, null, $email, 'bloqueado');
             return [null, 'Muitas tentativas. Aguarde ' . self::RATE_WINDOW_MIN . ' minutos e tente de novo.'];
         }
+        if (mb_strlen($password) > 4096) {
+            return [null, 'E-mail ou senha incorretos.'];
+        }
         $user = $profile === 'admin' ? Admin::findByEmail($email) : Company::porEmail($email);
-        $hash = $user['senha_hash'] ?? '$2y$10$usesomesillystringforsalt.abcdefghijklmnopqrstuvwxyzABCDE';
-        if (!$user || !password_verify($password, $hash)) {
+        $hash = $user['senha_hash'] ?? self::DUMMY_HASH;
+        if (!password_verify($password, $hash) || !$user) {
             Database::insert('login_tentativas', ['chave' => $key, 'criado_em' => Database::now()]);
+            Database::insert('login_tentativas', ['chave' => $ipKey, 'criado_em' => Database::now()]);
             self::log($profile, $user ? (int) $user['id'] : null, $email, 'login_falha');
             return [null, 'E-mail ou senha incorretos.'];
         }
@@ -168,8 +176,12 @@ class Auth
             return [null, 'Esta conta está bloqueada. Fale com a Coordenação.'];
         }
         Database::run('DELETE FROM login_tentativas WHERE chave = :c', ['c' => $key]);
+        if (password_needs_rehash($user['senha_hash'], PASSWORD_DEFAULT)) {
+            Database::update($profile === 'admin' ? 'admins' : 'empresas', (int) $user['id'], ['senha_hash' => self::hash($password)]);
+        }
         $previousAccess = $user['ultimo_acesso'];
         session_regenerate_id(true);
+        unset($_SESSION['_csrf']);
         $_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'] = (int) $user['id'];
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
         Database::update($profile === 'admin' ? 'admins' : 'empresas', (int) $user['id'], ['ultimo_acesso' => Database::now()]);

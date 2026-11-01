@@ -62,10 +62,18 @@ spl_autoload_register(function ($c) {
     }
 });
 
+function is_https(): bool
+{
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') return true;
+    return env('TRUST_PROXY') === '1' && ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+}
+
 if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
     session_name('vagas_sid');
-    session_set_cookie_params(['lifetime' => 0, 'path' => BASE_URL, 'secure' => $https, 'httponly' => true, 'samesite' => 'Lax']);
+    session_set_cookie_params(['lifetime' => 0, 'path' => BASE_URL, 'secure' => is_https(), 'httponly' => true, 'samesite' => 'Lax']);
     session_start();
 }
 

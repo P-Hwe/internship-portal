@@ -2,17 +2,8 @@
 require_once __DIR__ . '/config.php';
 
 Auth::normalize();
-header('Content-Type: text/html; charset=utf-8');
-header('X-Frame-Options: SAMEORIGIN');
-header('X-Content-Type-Options: nosniff');
-header('Referrer-Policy: same-origin');
-if (Auth::role()) {
-    header('Cache-Control: no-store, no-cache, must-revalidate');
-    header('Pragma: no-cache');
-}
 
 $rotas = [
-
     'home'              => ['JobController',            'index'],
     'vaga'              => ['JobController',            'mostrar'],
     'encerradas'        => ['JobController',            'encerradas'],
@@ -68,6 +59,7 @@ if ($pagina === null) {
 if (isset($_GET['id']) && !is_scalar($_GET['id'])) {
     unset($_GET['id']);
 }
+SecurityHeaders::send(is_string($pagina) ? $pagina : null);
 if (!is_string($pagina) || !isset($rotas[$pagina])) {
     pagina_404();
     exit;
@@ -81,6 +73,11 @@ try {
     error_log($t);
     @file_put_contents(ROOT_PATH . '/storage/erro.log', date('c') . ' ' . $t . "\n\n", FILE_APPEND);
     http_response_code(500);
-    $hint = Bootstrap::hint($t);
-    echo env('APP_DEBUG') ? '<pre>' . e((string) $t) . '</pre>' : 'Erro interno. ' . ($hint ?: 'Detalhes em storage/erro.log.');
+    if (env('APP_DEBUG') === '1' && app_env() !== 'prod') {
+        echo '<pre>' . e((string) $t) . '</pre>';
+    } elseif (app_env() === 'prod') {
+        echo 'Erro interno. Tente novamente em instantes.';
+    } else {
+        echo 'Erro interno. ' . (Bootstrap::hint($t) ?: 'Detalhes em storage/erro.log.');
+    }
 }
