@@ -9,7 +9,6 @@ class AuthController
 
     public function empresaLogin(): void
     {
-        Auth::blockIfWrongRole('empresa');
         if (Auth::empresa()) redirect('painel');
         $error = null; $email = '';
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,7 +22,6 @@ class AuthController
 
     public function adminLogin(): void
     {
-        Auth::blockIfWrongRole('admin');
         if (Auth::admin()) redirect('admin');
         $error = null; $email = filter_var($_GET['email'] ?? '', FILTER_VALIDATE_EMAIL) ?: '';
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
