@@ -88,10 +88,7 @@ class Auth
         $current = self::role();
         if ($current && $current !== $wanted) {
             self::log($current, (int) ($_SESSION[$current . '_id'] ?? 0), null, 'negado');
-            flash('info', $current === 'admin'
-                ? 'Você está conectado como administrador. Saia da conta para entrar ou cadastrar como empresa.'
-                : 'Você está conectado como empresa. Saia da conta para entrar como administrador.');
-            redirect($current === 'admin' ? 'admin' : 'painel');
+            redirect($wanted === 'admin' ? 'admin-login' : 'empresa-login');
         }
     }
 
@@ -145,9 +142,6 @@ class Auth
     public static function login(string $profile, string $email, string $password): array
     {
         $current = self::role();
-        if ($current && $current !== $profile) {
-            return [null, 'Já existe um login ativo como ' . ($current === 'admin' ? 'administrador' : 'empresa') . '. Saia primeiro.'];
-        }
         $email = mb_strtolower(trim($email));
         $ip    = (string) ($_SERVER['REMOTE_ADDR'] ?? 'cli');
         $key   = hash('sha256', $profile . '|' . $email . '|' . $ip);
@@ -178,6 +172,9 @@ class Auth
         Database::run('DELETE FROM login_tentativas WHERE chave = :c', ['c' => $key]);
         if (password_needs_rehash($user['senha_hash'], PASSWORD_DEFAULT)) {
             Database::update($profile === 'admin' ? 'admins' : 'empresas', (int) $user['id'], ['senha_hash' => self::hash($password)]);
+        }
+        if ($current && $current !== $profile) {
+            self::logout($current);
         }
         $previousAccess = $user['ultimo_acesso'];
         session_regenerate_id(true);
