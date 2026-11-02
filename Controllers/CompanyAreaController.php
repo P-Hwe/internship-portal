@@ -54,6 +54,15 @@ class CompanyAreaController
         $this->page('company/job-detail', ['emp' => $emp, 'v' => $v, 'hist' => AuditLog::da('vaga', (int) $v['id'])], 'vagas', $v['titulo']);
     }
 
+    /** GET /painel/desempenho */
+    public function desempenho(): void
+    {
+        $emp = Auth::requireCompany();
+        if (!CompanyMember::canSeeDashboard($emp['usuario'])) Auth::deny('desempenho');
+        $periodo = isset(Visits::PERIODS[$_GET['periodo'] ?? '']) ? $_GET['periodo'] : 'semana';
+        $this->page('company/performance', ['emp' => $emp, 'periodo' => $periodo, 'resumo' => Visits::companyOverview((int) $emp['id'], $periodo)], 'desempenho', 'Desempenho');
+    }
+
     /** GET /painel/perfil  POST /painel/perfil */
     public function perfil(): void
     {

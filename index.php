@@ -30,6 +30,7 @@ $rotas = [
     'aviso-dispensar'   => ['CompanyAreaController',    'dispensarAviso'],
     'empresa-usuarios'  => ['CompanyAreaController',    'usuarios'],
     'empresa-senha'     => ['CompanyAreaController',    'senha'],
+    'empresa-desempenho' => ['CompanyAreaController',   'desempenho'],
 
     'admin'             => ['AdminController',         'painel'],
     'admin-vagas'       => ['AdminController',         'vagas'],
