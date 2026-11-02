@@ -1,5 +1,7 @@
 <?php
 $isAdmin = $area === 'admin';
+$member = $isAdmin ? null : ($emp['usuario'] ?? null);
+$canManage = $member && CompanyMember::canManageUsers($member);
 $navGroups = $isAdmin ? [
     'Visão geral' => [['admin', 'Início', 'grid', 'dashboard'], ['admin-aprovacoes', 'Aprovações', 'check', 'aprovacoes']],
     'Gestão'      => [['admin-vagas', 'Vagas', 'briefcase', 'vagas'], ['admin-empresas', 'Empresas', 'building', 'empresas']],
@@ -11,11 +13,15 @@ $navGroups = $isAdmin ? [
         ['empresa-vagas', 'Minhas vagas', 'briefcase', 'vagas'],
         ($emp['status'] ?? '') === 'aprovada' ? ['vaga-cadastro', 'Publicar vaga', 'plus', 'publicar'] : null,
     ])),
-    'Empresa' => [['empresa-perfil', 'Perfil da empresa', 'building', 'perfil']],
+    'Empresa' => array_values(array_filter([
+        ['empresa-perfil', 'Perfil da empresa', 'building', 'perfil'],
+        $canManage ? ['empresa-desempenho', 'Desempenho', 'trending', 'desempenho'] : null,
+        $canManage ? ['empresa-usuarios', 'Usuários', 'users', 'usuarios'] : null,
+    ])),
 ];
-$person = $isAdmin ? ($adm['nome'] ?? 'Administrador') : ($emp['nome'] ?? 'Empresa');
+$person = $isAdmin ? ($adm['nome'] ?? 'Administrador') : ($member['nome'] ?? $emp['nome'] ?? 'Empresa');
 $personInitials = iniciais(trim((string) preg_replace('/[^\p{L}\s]/u', '', $person)) ?: 'U');
-$personEmail = $isAdmin ? ($adm['email'] ?? '') : ($emp['email'] ?? '');
+$personEmail = $isAdmin ? ($adm['email'] ?? '') : ($member ? ($emp['nome'] ?? '') . ' · ' . CompanyMember::roleLabel($member['papel']) : ($emp['email'] ?? ''));
 $areaLabel = $isAdmin ? 'Coordenação de estágios' : 'Área da empresa';
 $idleSeconds = (int) env('SESSION_IDLE_' . ($isAdmin ? 'ADMIN' : 'EMPRESA'), $isAdmin ? 1800 : 7200);
 ?><!DOCTYPE html>
