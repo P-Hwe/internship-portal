@@ -36,7 +36,7 @@ class AdminController
         $tab = $_GET['aba'] ?? 'todas';
         if (!in_array($tab, array_merge(['todas', 'destaque'], Status::SITUACOES), true)) $tab = 'todas';
         [$q, $pg] = $this->paramLista();
-        $type = (string) ($_GET['tipo'] ?? ''); $order = (string) ($_GET['ord'] ?? 'recentes'); $view = ($_GET['vista'] ?? 'lista') === 'cards' ? 'cards' : 'lista';
+        $type = (string) ($_GET['tipo'] ?? ''); $order = (string) ($_GET['ord'] ?? 'recentes'); $view = ($_GET['vista'] ?? 'cards') === 'lista' ? 'lista' : 'cards';
         [$list, $total] = Vaga::listar(null, $tab, $q, $type, $order, $pg);
         [, $pg, $pages] = Paginator::calc($total, $pg, POR_PAGINA);
         $this->renderPage('admin/job-listings', ['cont' => $counts, 'aba' => $tab, 'q' => $q, 'tipo' => $type, 'ord' => $order, 'vista' => $view, 'lista' => $list, 'total' => $total, 'pg' => $pg, 'paginas' => $pages], 'vagas', 'Vagas');
