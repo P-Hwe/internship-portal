@@ -22,6 +22,11 @@ function schema_sql(): array
         senha_hash VARCHAR(255) NOT NULL, termo_arquivo VARCHAR(80) NULL, termos_aceitos_em $dt NULL,
         status VARCHAR(12) NOT NULL DEFAULT 'pendente', motivo TEXT NULL, aprovacao_vista SMALLINT NOT NULL DEFAULT 0,
         criado_em $dt NOT NULL, avaliado_em $dt NULL, ultimo_acesso $dt NULL)$fim";
+    $t[] = "CREATE TABLE IF NOT EXISTS empresa_usuarios (
+        id $pk, empresa_id INT NOT NULL, nome VARCHAR(100) NOT NULL, email VARCHAR(120) NOT NULL UNIQUE, senha_hash VARCHAR(255) NOT NULL,
+        papel VARCHAR(12) NOT NULL DEFAULT 'membro', ativo SMALLINT NOT NULL DEFAULT 1, trocar_senha SMALLINT NOT NULL DEFAULT 0,
+        desativado_por VARCHAR(10) NULL, criado_por INT NULL, criado_em $dt NOT NULL, ultimo_acesso $dt NULL, excluido_em $dt NULL,
+        FOREIGN KEY (empresa_id) REFERENCES empresas(id))$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS areas (id $pk, nome VARCHAR(60) NOT NULL UNIQUE, padrao SMALLINT NOT NULL DEFAULT 1)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS vagas (
         id $pk, codigo VARCHAR(20) NOT NULL UNIQUE, empresa_id INT NOT NULL,
@@ -49,7 +54,7 @@ function schema_sql(): array
     $t[] = "CREATE TABLE IF NOT EXISTS login_tentativas (id $pk, chave VARCHAR(64) NOT NULL, criado_em $dt NOT NULL)$fim";
     foreach ([
         'idx_vagas_status ON vagas (status, data_limite)', 'idx_vagas_empresa ON vagas (empresa_id)', 'idx_login_chave ON login_tentativas (chave)',
-        'idx_hist_ent ON historico (entidade, entidade_id)', 'idx_visitas_data ON visitas (criado_em)', 'idx_senha_resets_token ON senha_resets (token_hash)', 'idx_senha_resets_conta ON senha_resets (perfil, usuario_id)', 'idx_visitas_ref ON visitas (tipo, ref_id, criado_em)', 'idx_acessos_data ON acessos_log (criado_em)', 'idx_empresas_status ON empresas (status)',
+        'idx_hist_ent ON historico (entidade, entidade_id)', 'idx_visitas_data ON visitas (criado_em)', 'idx_senha_resets_token ON senha_resets (token_hash)', 'idx_senha_resets_conta ON senha_resets (perfil, usuario_id)', 'idx_visitas_ref ON visitas (tipo, ref_id, criado_em)', 'idx_acessos_data ON acessos_log (criado_em)', 'idx_empresas_status ON empresas (status)', 'idx_empresa_usuarios_empresa ON empresa_usuarios (empresa_id)',
     ] as $ix) $t[] = "CREATE INDEX $ix";
     return $t;
 }
@@ -101,6 +106,7 @@ function migrar(): array
     foreach (schema_sql() as $sql) {
         if (stripos($sql, 'CREATE INDEX') === 0) { try { $pdo->exec($sql); } catch (PDOException $e) { /* já existe */ } }
     }
+    CompanyMember::backfillPrincipals();
     foreach (AREAS_PADRAO as $a) {
         if (!Database::val('SELECT 1 FROM areas WHERE nome = :n', ['n' => $a])) Database::insert('areas', ['nome' => $a, 'padrao' => 1]);
     }
