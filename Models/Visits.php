@@ -80,6 +80,24 @@ class Visits
         ];
     }
 
+    private static function buckets(array $j): array
+    {
+        $months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        $out = [];
+        for ($i = 0; $i < $j['n']; $i++) {
+            if ($j['bucket'] === 'mes') {
+                $t  = strtotime($j['ini'] . " +$i months");
+                $tp = strtotime($j['pini'] . " +$i months");
+                $out[] = [$months[(int) date('n', $t) - 1] . '/' . date('y', $t), date('Y-m', $t), date('Y-m', $tp)];
+            } else {
+                $t  = strtotime($j['ini'] . " +$i days");
+                $tp = strtotime($j['pini'] . " +$i days");
+                $out[] = [date('d/m', $t), date('Y-m-d', $t), date('Y-m-d', $tp)];
+            }
+        }
+        return $out;
+    }
+
     public static function summary(string $period): array
     {
         $j   = self::windows($period);
@@ -94,20 +112,8 @@ class Visits
         };
         $a = $serie($j['ini'], $j['fim']);
         $b = $serie($j['pini'], $j['pfim']);
-        $months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
         $lines = $linesU = [];
-        for ($i = 0; $i < $j['n']; $i++) {
-            if ($mes) {
-                $t  = strtotime($j['ini'] . " +$i months");
-                $tp = strtotime($j['pini'] . " +$i months");
-                $ka = date('Y-m', $t); $kb = date('Y-m', $tp);
-                $rot = $months[(int) date('n', $t) - 1] . '/' . date('y', $t);
-            } else {
-                $t  = strtotime($j['ini'] . " +$i days");
-                $tp = strtotime($j['pini'] . " +$i days");
-                $ka = date('Y-m-d', $t); $kb = date('Y-m-d', $tp);
-                $rot = date('d/m', $t);
-            }
+        foreach (self::buckets($j) as [$rot, $ka, $kb]) {
             $lines[]  = ['rot' => $rot, 'atual' => $a[$ka][0] ?? 0, 'anterior' => $b[$kb][0] ?? 0];
             $linesU[] = ['rot' => $rot, 'atual' => $a[$ka][1] ?? 0, 'anterior' => $b[$kb][1] ?? 0];
         }
@@ -193,5 +199,53 @@ class Visits
         foreach ($rank as $k => $r) { if ((int) $r['id'] === $id) { $pos = $k + 1; break; } }
         $exits = $isCompany ? (int) Database::val("SELECT COUNT(*) FROM visitas WHERE tipo = 'saida' AND ref_id = :id AND criado_em >= :d", ['id' => $id, 'd' => $since(30)]) : null;
         return ['d7' => $d7, 'd30' => $d30, 'tudo' => $all, 'dias' => array_values($days), 'posicao' => $pos, 'de' => count($rank), 'saidas' => $exits, 'tipo' => $type];
+    }
+
+    public static function companyOverview(int $companyId, string $period): array
+    {
+        $j   = self::windows($period);
+        $fmt = $j['bucket'] === 'mes' ? "DATE_FORMAT(criado_em, '%Y-%m')" : 'DATE(criado_em)';
+        $src = "(SELECT tipo, visitante, criado_em FROM visitas WHERE tipo IN ('empresa','saida') AND ref_id = :c
+                 UNION ALL SELECT 'vaga', vi.visitante, vi.criado_em FROM visitas vi JOIN vagas v ON v.id = vi.ref_id WHERE vi.tipo = 'vaga' AND v.empresa_id = :c2) x";
+        $p = fn(string $i, string $f) => ['c' => $companyId, 'c2' => $companyId, 'i' => $i, 'f' => $f];
+        $totals = function (string $i, string $f) use ($src, $p) {
+            $r = Database::one("SELECT SUM(tipo <> 'saida') AS views, COUNT(DISTINCT CASE WHEN tipo <> 'saida' THEN visitante END) AS uniq,
+                SUM(tipo = 'empresa') AS pagina, SUM(tipo = 'vaga') AS vagas, SUM(tipo = 'saida') AS saidas
+                FROM $src WHERE criado_em >= :i AND criado_em < :f", $p($i, $f));
+            return array_map('intval', $r);
+        };
+        $serie = function (string $i, string $f) use ($src, $p, $fmt) {
+            $out = [];
+            foreach (Database::all("SELECT $fmt AS b, SUM(tipo = 'empresa') AS pg, SUM(tipo = 'vaga') AS vg, COUNT(DISTINCT CASE WHEN tipo <> 'saida' THEN visitante END) AS u
+                FROM $src WHERE criado_em >= :i AND criado_em < :f GROUP BY b", $p($i, $f)) as $r) {
+                $out[$r['b']] = [(int) $r['pg'] + (int) $r['vg'], (int) $r['u'], (int) $r['pg'], (int) $r['vg']];
+            }
+            return $out;
+        };
+        $a = $serie($j['ini'], $j['fim']);
+        $b = $serie($j['pini'], $j['pfim']);
+        $lines = $linesU = $split = [];
+        foreach (self::buckets($j) as [$rot, $ka, $kb]) {
+            $lines[]  = ['rot' => $rot, 'atual' => $a[$ka][0] ?? 0, 'anterior' => $b[$kb][0] ?? 0];
+            $linesU[] = ['rot' => $rot, 'atual' => $a[$ka][1] ?? 0, 'anterior' => $b[$kb][1] ?? 0];
+            $split[]  = ['rot' => $rot, 'pagina' => $a[$ka][2] ?? 0, 'vagas' => $a[$ka][3] ?? 0];
+        }
+        $jobs = fn(string $i, string $f) => Database::all(
+            "SELECT v.id, v.titulo, v.status, v.destaque, v.data_publicacao, v.data_limite,
+                COUNT(vi.id) AS views, COUNT(DISTINCT vi.visitante) AS uniq, MAX(vi.criado_em) AS ultima
+             FROM vagas v LEFT JOIN visitas vi ON vi.tipo = 'vaga' AND vi.ref_id = v.id AND vi.criado_em >= :i AND vi.criado_em < :f
+             WHERE v.empresa_id = :c GROUP BY v.id, v.titulo, v.status, v.destaque, v.data_publicacao, v.data_limite
+             ORDER BY views DESC, uniq DESC, v.id DESC", ['c' => $companyId, 'i' => $i, 'f' => $f]);
+        $prev = [];
+        foreach ($jobs($j['pini'], $j['pfim']) as $r) $prev[(int) $r['id']] = (int) $r['views'];
+        $ranking = [];
+        foreach ($jobs($j['ini'], $j['fim']) as $r) {
+            $r['views'] = (int) $r['views']; $r['uniq'] = (int) $r['uniq'];
+            $r['anterior'] = $prev[(int) $r['id']] ?? 0;
+            $r['situacao'] = Status::situacaoVaga($r);
+            $ranking[] = $r;
+        }
+        return ['janela' => $j, 'atual' => $totals($j['ini'], $j['fim']), 'anterior' => $totals($j['pini'], $j['pfim']),
+            'linhas' => $lines, 'linhasU' => $linesU, 'origem' => $split, 'vagas' => $ranking, 'geral' => self::detail('empresa', $companyId)];
     }
 }
