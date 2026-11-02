@@ -1,7 +1,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="csrf-token" content="<?= e(Csrf::token()) ?>">
-<script>try{var t=localStorage.getItem('vg-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>var t='light';try{t=localStorage.getItem('vg-theme-choice')==='dark'?'dark':'light'}catch(e){}document.documentElement.setAttribute('data-theme',t)</script>
 <link rel="icon" href="<?= e(BASE_URL) ?>public/img/ifsp/if.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
