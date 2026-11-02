@@ -2,9 +2,19 @@
 class Admin
 {
     public static function findById(int $id): ?array        { return Database::one('SELECT * FROM admins WHERE id = :i', ['i' => $id]); }
-    public static function findByEmail(string $email): ?array { return Database::one('SELECT * FROM admins WHERE email = :e', ['e' => mb_strtolower($email)]); }
-    public static function all(): array                     { return Database::all('SELECT id, nome, email, papel, ativo, trocar_senha, criado_em, ultimo_acesso FROM admins ORDER BY id'); }
+    public static function findByEmail(string $email): ?array { return Database::one('SELECT * FROM admins WHERE email = :e AND excluido_em IS NULL', ['e' => mb_strtolower($email)]); }
+    public static function emailTaken(string $email): bool   { return (bool) Database::val('SELECT 1 FROM admins WHERE email = :e', ['e' => mb_strtolower($email)]); }
+    public static function all(): array                     { return Database::all('SELECT id, nome, email, papel, ativo, trocar_senha, criado_em, ultimo_acesso FROM admins WHERE excluido_em IS NULL ORDER BY id'); }
     public static function isRoot(?array $admin): bool      { return $admin !== null && ($admin['papel'] ?? '') === 'raiz'; }
+
+    public static function page(int $page, int $perPage): array
+    {
+        $total = (int) Database::val('SELECT COUNT(*) FROM admins WHERE excluido_em IS NULL');
+        [$offset, $page, $pages] = Paginator::calc($total, $page, $perPage);
+        $rows = Database::all("SELECT id, nome, email, papel, ativo, trocar_senha, criado_em, ultimo_acesso FROM admins
+            WHERE excluido_em IS NULL ORDER BY (papel = 'raiz') DESC, ativo DESC, nome LIMIT " . (int) $perPage . ' OFFSET ' . (int) $offset);
+        return [$rows, $total, $page, $pages];
+    }
 
     public static function create(string $name, string $email, string $password, string $role = 'admin', bool $mustChangePassword = true): int
     {
@@ -19,6 +29,12 @@ class Admin
         ]);
     }
 
+    public static function createWithTemporaryPassword(string $name, string $email): array
+    {
+        $password = Auth::temporaryPassword();
+        return [self::create($name, $email, $password), $password];
+    }
+
     public static function changePassword(int $id, string $newPassword): void
     {
         Database::update('admins', $id, ['senha_hash' => Auth::hash($newPassword), 'trocar_senha' => 0]);
@@ -27,6 +43,11 @@ class Admin
     public static function setActive(int $id, bool $active): void
     {
         Database::update('admins', $id, ['ativo' => $active ? 1 : 0]);
+    }
+
+    public static function softDelete(int $id): void
+    {
+        Database::update('admins', $id, ['ativo' => 0, 'excluido_em' => Database::now()]);
     }
 
     // ── backwards-compatible aliases ──
