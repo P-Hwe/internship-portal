@@ -64,7 +64,7 @@ class Notifier
     {
         Mailer::enviar($member['email'], 'Você foi adicionado à área da empresa ' . $company['nome'], Mailer::layout('Acesso à área da empresa',
             '<p>Olá, ' . e(primeiro_nome($member['nome'])) . '!</p><p><strong>' . e($creatorName) . '</strong> adicionou você à área da empresa <strong>' . e($company['nome'])
-            . '</strong> no portal de vagas de estágio do IFSP Guarulhos, com a permissão <strong>' . e(CompanyMember::roleLabel($member['papel'])) . '</strong>.</p>'
+            . '</strong> no portal de vagas de estágio do IFSP Guarulhos, com o cargo <strong>' . e(CompanyMember::roleLabel($member['papel'])) . '</strong>: ' . e(CompanyMember::ROLE_HINTS[$member['papel']] ?? '') . '.</p>'
             . self::firstAccessBody($member['email'], $temporaryPassword),
             ['Criar minha senha', url_abs('empresa-login', ['redefinir' => $token])]));
     }
@@ -73,12 +73,12 @@ class Notifier
     {
         $role = CompanyMember::roleLabel($member['papel']);
         $message = $event === 'permissao'
-            ? 'Permissão alterada na empresa ' . $company['nome'] . ': ' . $member['nome'] . ' agora é ' . $role
+            ? 'Cargo alterado na empresa ' . $company['nome'] . ': ' . $member['nome'] . ' agora é ' . $role
             : 'Novo usuário na empresa ' . $company['nome'] . ': ' . $member['nome'] . ' (' . $role . ')';
         self::interna('membro', (int) $company['id'], mb_substr($message, 0, 200));
-        self::notifyAdmins($message, Mailer::layout($event === 'permissao' ? 'Permissão alterada em uma empresa' : 'Novo usuário em uma empresa',
-            '<p><strong>' . e($actorName) . '</strong> ' . ($event === 'permissao' ? 'alterou a permissão de' : 'adicionou') . ' <strong>' . e($member['nome'])
-            . '</strong> (' . e($member['email']) . ') na empresa <strong>' . e($company['nome']) . '</strong>.</p><p>Permissão: <strong>' . e($role) . '</strong>.</p>',
+        self::notifyAdmins($message, Mailer::layout($event === 'permissao' ? 'Cargo alterado em uma empresa' : 'Novo usuário em uma empresa',
+            '<p><strong>' . e($actorName) . '</strong> ' . ($event === 'permissao' ? 'mudou o cargo de' : 'adicionou') . ' <strong>' . e($member['nome'])
+            . '</strong> (' . e($member['email']) . ') na empresa <strong>' . e($company['nome']) . '</strong>.</p><p>Cargo: <strong>' . e($role) . '</strong>.</p>',
             ['Ver empresa no painel', url_abs('admin-empresa', ['id' => $company['id']])]));
     }
 
@@ -88,11 +88,11 @@ class Notifier
             'desativado' => ['Seu acesso à área da empresa foi desativado', 'Acesso desativado', 'desativou o seu acesso à área da empresa'],
             'reativado'  => ['Seu acesso à área da empresa foi reativado', 'Acesso reativado', 'reativou o seu acesso à área da empresa'],
             'excluido'   => ['Seu acesso à área da empresa foi removido', 'Acesso removido', 'removeu o seu acesso à área da empresa'],
-            'permissao'  => ['Sua permissão na área da empresa mudou', 'Permissão alterada', 'alterou a sua permissão na área da empresa'],
+            'permissao'  => ['Seu cargo na área da empresa mudou', 'Cargo alterado', 'mudou o seu cargo na área da empresa'],
         ];
         if (!isset($texts[$event])) return;
         [$subject, $title, $text] = $texts[$event];
-        $extra = $event === 'permissao' ? '<p>Nova permissão: <strong>' . e(CompanyMember::roleLabel($member['papel'])) . '</strong>.</p>' : '';
+        $extra = $event === 'permissao' ? '<p>Novo cargo: <strong>' . e(CompanyMember::roleLabel($member['papel'])) . '</strong> (' . e(CompanyMember::ROLE_HINTS[$member['papel']] ?? '') . ').</p>' : '';
         if ($reason) $extra .= '<p><strong>Motivo:</strong><br>' . nl2br(e($reason)) . '</p>';
         Mailer::enviar($member['email'], $subject, Mailer::layout($title,
             '<p>Olá, ' . e(primeiro_nome($member['nome'])) . '!</p><p><strong>' . e($actorLabel) . '</strong> ' . $text . ' <strong>' . e($company['nome']) . '</strong>.</p>' . $extra,
