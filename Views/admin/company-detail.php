@@ -22,7 +22,7 @@
 <div class="ui-metrics">
     <?= Ui::metrica('Vagas cadastradas', $e['total_vagas'], 'briefcase') ?><?= Ui::metrica('Vagas no ar', $e['vagas_abertas'], 'check') ?><?= Ui::metrica('Último acesso do recrutador', $e['ultimo_acesso'] ? date('d/m/Y', strtotime($e['ultimo_acesso'])) : 'Nunca', 'clock', null, 'mute') ?>
 </div>
-<?php require __DIR__ . '/../partials/desempenho_item.php'; ?>
+<?php require __DIR__ . '/../partials/performance-item.php'; ?>
 <div class="ui-grid-2">
     <div class="ui-card">
         <h2>Dados cadastrais</h2>
