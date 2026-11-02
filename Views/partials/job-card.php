@@ -1,27 +1,30 @@
 <?php
-$chave = $chave ?? null; $trilho = $trilho ?? false;
-$selos = $v['selos'] ?? [];
-if ($chave && isset($selos[$chave])) { $selos = [$chave => $selos[$chave]] + $selos; }
-$selos = array_slice($selos, 0, 3, true);
-$prazo = selo_prazo($v); $img = url_upload($v['imagem'] ?? null);
+$cardOpen = ($v['situacao'] ?? 'publicada') === 'publicada';
+$cardBadges = $cardOpen ? array_slice(array_diff_key($v['selos'] ?? [], ['tipo' => 1]), 0, 2, true) : [];
+$cardImage = url_upload($v['imagem'] ?? null);
+$cardDays = dias_restantes($v['data_limite']);
+$cardClosedLabel = ($v['situacao'] ?? '') === 'encerrada' ? 'Encerrada pela empresa' : 'Expirou em ' . date('d/m', strtotime($v['data_limite']));
 ?>
-<article class="vg-card <?= $trilho ? 'vg-card-trilho' : '' ?>" data-tipo="<?= e($v['tipo']) ?>" data-area="<?= e($v['area_exibicao'] ?? $v['area']) ?>" data-modalidade="<?= e($v['modalidade']) ?>"
-         data-busca="<?= e($v['titulo'] . ' ' . $v['empresa']['nome'] . ' ' . $v['resumo'] . ' ' . $v['area'] . ' ' . $v['tipo'] . ' ' . $v['local']) ?>">
-  <div class="vg-card-media<?= $img ? ' has-img' : '' ?>"<?= $img ? ' style="--bn:url(\'' . e($img) . '\')"' : '' ?>>
+<article class="vb-card<?= $cardOpen && !empty($v['destaque']) ? ' is-featured' : '' ?><?= $cardOpen ? '' : ' is-closed' ?>"<?= $cardOpen ? '' : ' aria-disabled="true"' ?>>
+  <div class="vb-card-media<?= $cardImage ? ' has-img' : '' ?>"<?= $cardImage ? ' style="--bn:url(\'' . e($cardImage) . '\')"' : '' ?>>
     <?= vaga_imagem($v) ?>
-    <ul class="vg-tags-print" aria-label="Destaques da vaga">
-      <?php foreach ($selos as $k => [$txt, $cls]): ?><li class="vg-tag <?= e($cls) ?>"><?= e($txt) ?></li><?php endforeach; ?>
-    </ul>
+    <span class="vb-card-type"><?= e($cardOpen ? $v['tipo'] : ($v['situacao'] === 'encerrada' ? 'Encerrada' : 'Expirada')) ?></span>
   </div>
-  <div class="vg-card-body" role="button" tabindex="0" onclick="window.location.href='<?= url('vaga', ['id' => $v['id']]) ?>'">
-    <div class="vg-card-emp"><span class="vg-avatar" aria-hidden="true"><?= e(iniciais($v['empresa']['nome'])) ?></span><span class="vg-card-company"><?= e($v['empresa']['nome']) ?></span></div>
-    <h3 class="vg-card-title"><a class="vg-stretched" href="<?= url('vaga', ['id' => $v['id']]) ?>"><?= e($v['titulo']) ?></a></h3>
-    <ul class="vg-meta">
-      <li><?= icon('pin', 15) ?> <?= e($v['local']) ?> · <?= e($v['modalidade']) ?></li>
-      <li class="vg-meta-money"><?= icon('money', 15) ?> <?= e($v['bolsa_txt']) ?></li>
-      <li><?= icon('clock', 15) ?> <?= e($prazo[0]) ?></li>
+  <div class="vb-card-body">
+    <div class="vb-card-company"><?= Ui::logo($v['empresa'], 32) ?><span><?= e($v['empresa']['nome']) ?></span></div>
+    <h3 class="vb-card-title"><?php if ($cardOpen): ?><a class="vb-stretch" href="<?= url('vaga', ['id' => $v['id']]) ?>"><?= e($v['titulo']) ?></a><?php else: ?><?= e($v['titulo']) ?><?php endif; ?></h3>
+    <ul class="vb-card-meta">
+      <li><?= icon('pin', 14) ?> <?= e($v['local']) ?> · <?= e($v['modalidade']) ?></li>
+      <li class="vb-money"><?= icon('money', 14) ?> <?= e($v['bolsa_txt']) ?></li>
     </ul>
-    <?php if (!$trilho): ?><p class="vg-card-text"><?= e($v['resumo']) ?></p><?php endif; ?>
-    <p class="vg-card-area"><?= e($v['area_exibicao'] ?? $v['area']) ?></p>
+    <?php if ($cardBadges): ?><ul class="vb-badges"><?php foreach ($cardBadges as [$txt, $cls]): ?><li class="vb-badge <?= e($cls) ?>"><?= e($txt) ?></li><?php endforeach; ?></ul><?php endif; ?>
+  </div>
+  <div class="vb-card-foot">
+    <span class="vb-job-area"><?= e($v['area_exibicao'] ?? $v['area']) ?></span>
+    <?php if ($cardOpen): ?>
+      <span class="vb-job-date<?= $cardDays <= DIAS_VAGA_VENCENDO ? ' is-soon' : '' ?>"><?= icon('clock', 13) ?> <?= $cardDays <= 0 ? 'Último dia' : 'Até ' . e(date('d/m', strtotime($v['data_limite']))) ?></span>
+    <?php else: ?>
+      <span class="vb-job-date is-closed"><?= icon('lock', 13) ?> <?= e($cardClosedLabel) ?></span>
+    <?php endif; ?>
   </div>
 </article>

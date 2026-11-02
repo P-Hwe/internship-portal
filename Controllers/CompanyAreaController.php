@@ -39,9 +39,10 @@ class CompanyAreaController
         if (!in_array($aba, array_merge(['todas', 'destaque'], Status::SITUACOES), true)) $aba = 'todas';
         $q  = trim((string) ($_GET['q'] ?? ''));
         $pg = max(1, (int) ($_GET['pg'] ?? 1));
+        $vista = ($_GET['vista'] ?? 'cards') === 'lista' ? 'lista' : 'cards';
         [$lista, $total] = Vaga::listar((int) $emp['id'], $aba, $q, '', 'recentes', $pg);
         [, $pg, $paginas] = Paginator::calc($total, $pg, POR_PAGINA);
-        $this->page('company/job-listings', compact('emp', 'cont', 'aba', 'q', 'lista', 'total', 'pg', 'paginas'), 'vagas', 'Minhas vagas');
+        $this->page('company/job-listings', compact('emp', 'cont', 'aba', 'q', 'vista', 'lista', 'total', 'pg', 'paginas'), 'vagas', 'Minhas vagas');
     }
 
     /** GET /painel/vagas/{id} */

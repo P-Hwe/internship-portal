@@ -7,13 +7,13 @@
   var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- modo noturno (tokens: só troca data-theme) ---------- */
-  function tema(t) {
+  function tema(t, save) {
     document.documentElement.setAttribute('data-theme', t);
-    try { localStorage.setItem('vg-theme', t); } catch (e) {}
+    if (save) { try { localStorage.setItem('vg-theme-choice', t); } catch (e) {} }
     $$('[data-theme-toggle]').forEach(function (b) { b.setAttribute('aria-pressed', t === 'dark'); b.setAttribute('aria-label', t === 'dark' ? 'Ativar modo claro' : 'Ativar modo noturno'); });
   }
   $$('[data-theme-toggle]').forEach(function (b) {
-    b.addEventListener('click', function () { tema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); });
+    b.addEventListener('click', function () { tema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true); });
   });
   tema(document.documentElement.getAttribute('data-theme') || 'light');
 
@@ -319,4 +319,89 @@
     if (t.tagName === 'DIALOG' && t.classList.contains('ui-modal')) t.close();   // clique no fundo escuro
   });
   var auto = document.querySelector('dialog.ui-modal[data-abrir]'); if (auto) abrir(auto.id);
+})();
+
+(function () {
+  'use strict';
+  var body = document.body;
+  var idleSeconds = parseInt(body.getAttribute('data-session-idle') || '0', 10);
+  var heartbeatUrl = body.getAttribute('data-heartbeat-url');
+  var loginUrl = body.getAttribute('data-login-url');
+  var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+  if (!idleSeconds || !heartbeatUrl || !loginUrl || !tokenMeta) return;
+
+  var idleMs = idleSeconds * 1000;
+  var beatEvery = Math.min(4 * 60 * 1000, Math.max(30000, idleMs / 3));
+  var warnBefore = Math.min(60 * 1000, idleMs / 4);
+  var lastActivity = Date.now();
+  var lastBeat = Date.now();
+  var warnTimer, logoutTimer;
+
+  function beat() {
+    lastBeat = Date.now();
+    var data = new FormData();
+    data.append('_csrf', tokenMeta.getAttribute('content'));
+    fetch(heartbeatUrl, { method: 'POST', body: data, credentials: 'same-origin' })
+      .then(function (r) { if (r.status === 401) window.location.href = loginUrl; })
+      .catch(function () {});
+  }
+  function schedule() {
+    clearTimeout(warnTimer);
+    clearTimeout(logoutTimer);
+    warnTimer = setTimeout(function () {
+      if (window.confirm('Sua sessão vai expirar em instantes por inatividade. Deseja continuar conectado?')) activity();
+    }, idleMs - warnBefore);
+    logoutTimer = setTimeout(function () { window.location.href = loginUrl; }, idleMs);
+  }
+  function activity() {
+    lastActivity = Date.now();
+    if (lastActivity - lastBeat >= beatEvery) beat();
+    schedule();
+  }
+  var throttled = 0;
+  ['keydown', 'mousedown', 'touchstart', 'scroll', 'mousemove'].forEach(function (ev) {
+    document.addEventListener(ev, function () {
+      var now = Date.now();
+      if (now - throttled < 5000) return;
+      throttled = now;
+      activity();
+    }, { passive: true });
+  });
+  schedule();
+})();
+
+(function () {
+  'use strict';
+  var eye = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var eyeOff = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.1 10.1 0 0 1 12 20C5 20 1 12 1 12a18.5 18.5 0 0 1 5.1-5.9M9.9 4.2A9.1 9.1 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2M1 1l22 22"/></svg>';
+  Array.prototype.forEach.call(document.querySelectorAll('input.ui-input[type="password"]'), function (input) {
+    var wrap = document.createElement('span');
+    wrap.className = 'ui-pass';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ui-pass-btn';
+    btn.setAttribute('aria-label', 'Mostrar senha');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.innerHTML = eye;
+    wrap.appendChild(btn);
+    btn.addEventListener('click', function () {
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? eyeOff : eye;
+      btn.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+      btn.setAttribute('aria-pressed', String(show));
+      input.focus();
+    });
+    var caps = document.createElement('small');
+    caps.className = 'ui-caps';
+    caps.textContent = 'Caps Lock está ativado.';
+    caps.hidden = true;
+    wrap.parentNode.insertBefore(caps, wrap.nextSibling);
+    input.addEventListener('keyup', function (ev) {
+      if (ev.getModifierState) caps.hidden = !ev.getModifierState('CapsLock');
+    });
+    input.addEventListener('blur', function () { caps.hidden = true; });
+  });
 })();

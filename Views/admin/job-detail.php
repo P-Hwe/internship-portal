@@ -11,7 +11,7 @@
 <?php $img = url_upload($v['imagem'] ?? null); if ($img): ?><div class="ui-vcard-media has-img"
     style="--bn:url('<?= e($img) ?>');max-width:520px;border-radius:8px;margin-bottom:14px"><img src="<?= e($img) ?>"
         alt="Banner da vaga"></div><?php endif; ?>
-<?php require __DIR__ . '/../partials/desempenho_item.php'; ?>
+<?php require __DIR__ . '/../partials/performance-item.php'; ?>
 <?php if ($v['status'] === 'aguardando_aprovacao' && $e['status'] !== 'aprovada'): ?><div
     class="ui-alert ui-alert-warn">
     <div><strong>Empresa ainda não aprovada</strong>

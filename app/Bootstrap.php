@@ -41,9 +41,11 @@ class Bootstrap
             return 'O MySQL recusou o usuário ou a senha. Confira DB_USER e DB_PASSWORD no arquivo .env.';
         if (str_contains($msg, 'Unknown database'))
             return 'O banco informado em DB_NAME não existe. Crie o banco no MySQL (ou no cPanel) e confira o .env.';
+        if (str_contains($msg, 'SQLSTATE[HY000] [2002]') || str_contains($msg, 'Connection refused'))
+            return 'Não foi possível conectar ao banco de dados. Confira DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASSWORD no arquivo .env.';
         if ($t instanceof PDOException)
             return 'Erro de banco de dados: ' . $msg;
-        return 'Não foi possível usar o banco de dados. Confira DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASSWORD no arquivo .env.';
+        return 'Detalhes em storage/erro.log.';
     }
 
     // ── backwards-compatible aliases ──

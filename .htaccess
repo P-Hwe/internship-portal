@@ -1,19 +1,24 @@
 # Apache/cPanel: bloqueia código, banco, segredos e arquivos privados
 Options -Indexes
 DirectoryIndex index.php
+ServerSignature Off
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^(app|Controllers|Models|Views|database|cron|storage|tests|docs)(/|$) - [F,L]
+  RewriteCond %{REQUEST_URI} !/\.well-known/
+  RewriteRule (^|/)\. - [F,L]
+  RewriteRule ^(app|Controllers|Models|Views|database|cron|storage|tests|docs|vendor|env|scripts)(/|$) - [F,L]
   # URLs limpas (/tv, /admin/login, /vaga/12): tudo que não é arquivo/pasta vai para o index.php
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [L,QSA]
 </IfModule>
-<FilesMatch "^(\.env.*|\.git.*|.*\.sql|README\.md|router\.php)$">
+<FilesMatch "^(\..*|.*\.(sql|sqlite|log|bak|neon|lock|md|dist|ps1|sh)|composer\.json|router\.php|config\.php)$">
   Require all denied
 </FilesMatch>
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "same-origin"
+  Header always unset X-Powered-By
   Header always set Content-Type "text/html; charset=utf-8" "expr=%{CONTENT_TYPE} =~ m#^text/html#"
 </IfModule>
