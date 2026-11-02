@@ -47,7 +47,7 @@ class Stats
     {
         return [
             'empresas_bloqueadas' => (int) Database::val("SELECT COUNT(*) FROM empresas WHERE status = 'bloqueada'"),
-            'admins_inativos' => (int) Database::val('SELECT COUNT(*) FROM admins WHERE ativo = 0'),
+            'admins_inativos' => (int) Database::val('SELECT COUNT(*) FROM admins WHERE ativo = 0 AND excluido_em IS NULL'),
             'admins_ativos' => (int) Database::val('SELECT COUNT(*) FROM admins WHERE ativo = 1')
         ];
     }

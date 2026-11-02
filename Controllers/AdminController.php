@@ -124,7 +124,8 @@ class AdminController
     public function usuarios(): void
     {
         Auth::requireAdmin();
-        $this->renderPage('admin/users', ['admins' => Admin::all(), 'erros' => $_SESSION['erros_admin'] ?? [], 'old' => $_SESSION['old_admin'] ?? []], 'usuarios', 'Usuários');
+        [$admins, $total, $pg, $pages] = Admin::page(max(1, (int) ($_GET['pg'] ?? 1)), self::ADMINS_PER_PAGE);
+        $this->renderPage('admin/users', ['admins' => $admins, 'total' => $total, 'pg' => $pg, 'paginas' => $pages, 'erros' => $_SESSION['erros_admin'] ?? [], 'old' => $_SESSION['old_admin'] ?? []], 'usuarios', 'Usuários');
         unset($_SESSION['erros_admin'], $_SESSION['old_admin']);
     }
 
@@ -133,6 +134,8 @@ class AdminController
         Auth::requireAdmin();
         $this->renderPage('admin/reports', ['vag' => Vaga::contagens(), 'emp' => Stats::empresas()], 'relatorios', 'Relatórios');
     }
+
+    private const ADMINS_PER_PAGE = 12;
 
     private const RETORNOS = ['admin', 'admin-vagas', 'admin-vaga', 'admin-empresas', 'admin-empresa', 'admin-aprovacoes', 'admin-usuarios', 'admin-atividade'];
 
@@ -177,27 +180,34 @@ class AdminController
                 break;
 
             case 'admin':
-                if (!Admin::isRoot($admin)) { flash('erro', 'Somente o administrador principal pode criar ou desativar administradores.'); $goBack(); }
+                if (!Admin::isRoot($admin)) { flash('erro', 'Somente o administrador principal pode criar, desativar ou excluir administradores.'); $goBack(); }
                 if ($action === 'criar') {
                     $formData = limpar_post($_POST); $errors = [];
                     if (mb_strlen($formData['nome'] ?? '') < 3) $errors['nome'] = 'Informe o nome.';
                     if (!filter_var($formData['email'] ?? '', FILTER_VALIDATE_EMAIL)) $errors['email'] = 'E-mail inválido.';
-                    elseif (Admin::findByEmail($formData['email'])) $errors['email'] = 'Já existe um administrador com este e-mail.';
-                    if (!CompanyForm::passwordStrong($_POST['senha'] ?? '')) $errors['senha'] = 'A senha precisa ter 8 ou mais caracteres, com letras e números.';
+                    elseif (Admin::emailTaken($formData['email'])) $errors['email'] = 'Este e-mail já foi usado por um administrador.';
                     if ($errors) { $_SESSION['erros_admin'] = $errors; $_SESSION['old_admin'] = $formData; $goBack(); }
-                    $newAdmin = Admin::create($formData['nome'], $formData['email'], $_POST['senha']);
+                    [$newAdmin, $temporaryPassword] = Admin::createWithTemporaryPassword($formData['nome'], $formData['email']);
                     AuditLog::registrar('admin', $newAdmin, 'cadastro', null, null, $actor[0], $actor[1], $formData['nome']);
-                    Notifier::adminCriado(Admin::findById($newAdmin), $admin);
-                    flash('ok', 'Administrador criado. Ele foi avisado por e-mail e vai trocar a senha inicial no primeiro acesso.');
-                } elseif (in_array($action, ['ativar', 'desativar'], true)) {
+                    Notifier::adminCriado(Admin::findById($newAdmin), $admin, $temporaryPassword, PasswordReset::issueFirstAccess('admin', $newAdmin));
+                    flash('ok', 'Administrador criado. A senha provisória e o link para criar a senha foram enviados só para o e-mail dele.');
+                } elseif (in_array($action, ['ativar', 'desativar', 'excluir'], true)) {
                     $target = Admin::findById($id);
-                    if (!$target) { flash('erro', 'Administrador não encontrado.'); $goBack(); }
-                    if ($id === (int) $admin['id']) { flash('erro', 'Você não pode desativar a própria conta.'); $goBack(); }
-                    if (Admin::isRoot($target)) { flash('erro', 'A conta do administrador principal não pode ser desativada.'); $goBack(); }
-                    if ($action === 'desativar' && Stats::contasRestritas()['admins_ativos'] <= 1) { flash('erro', 'É preciso manter ao menos um administrador ativo.'); $goBack(); }
-                    Admin::setActive($id, $action === 'ativar');
-                    AuditLog::registrar('admin', $id, $action === 'ativar' ? 'desbloqueada' : 'bloqueada', null, null, $actor[0], $actor[1]);
-                    flash('ok', 'Conta ' . ($action === 'ativar' ? 'ativada' : 'desativada') . '.');
+                    if (!$target || $target['excluido_em']) { flash('erro', 'Administrador não encontrado.'); $goBack(); }
+                    if ($id === (int) $admin['id']) { flash('erro', 'Você não pode desativar nem excluir a própria conta.'); $goBack(); }
+                    if (Admin::isRoot($target)) { flash('erro', 'A conta do administrador principal não pode ser desativada nem excluída.'); $goBack(); }
+                    if ($action !== 'ativar' && (int) $target['ativo'] && Stats::contasRestritas()['admins_ativos'] <= 1) { flash('erro', 'É preciso manter ao menos um administrador ativo.'); $goBack(); }
+                    if ($action === 'excluir') {
+                        Admin::softDelete($id);
+                        AuditLog::registrar('admin', $id, 'excluida', null, null, $actor[0], $actor[1], $target['nome']);
+                        Notifier::adminStatus($target, 'excluido', $admin);
+                        flash('ok', $target['nome'] . ' foi excluído da lista de administradores e avisado por e-mail.');
+                    } else {
+                        Admin::setActive($id, $action === 'ativar');
+                        AuditLog::registrar('admin', $id, $action === 'ativar' ? 'desbloqueada' : 'bloqueada', null, null, $actor[0], $actor[1]);
+                        Notifier::adminStatus($target, $action === 'ativar' ? 'reativado' : 'desativado', $admin);
+                        flash('ok', 'Conta ' . ($action === 'ativar' ? 'reativada' : 'desativada') . '. ' . $target['nome'] . ' foi avisado por e-mail.');
+                    }
                 }
                 break;
         }

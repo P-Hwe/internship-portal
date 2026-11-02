@@ -10,7 +10,7 @@ function schema_sql(): array
     $t[] = "CREATE TABLE IF NOT EXISTS admins (
         id $pk, nome VARCHAR(100) NOT NULL, email VARCHAR(120) NOT NULL UNIQUE, senha_hash VARCHAR(255) NOT NULL,
         papel VARCHAR(20) NOT NULL DEFAULT 'admin', ativo SMALLINT NOT NULL DEFAULT 1, trocar_senha SMALLINT NOT NULL DEFAULT 0,
-        criado_em $dt NOT NULL, ultimo_acesso $dt NULL)$fim";
+        criado_em $dt NOT NULL, ultimo_acesso $dt NULL, excluido_em $dt NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS empresas (
         id $pk, cnpj VARCHAR(14) NOT NULL UNIQUE, razao_social VARCHAR(150) NULL, nome VARCHAR(120) NOT NULL,
         descricao TEXT NULL, segmento VARCHAR(60) NULL, porte VARCHAR(20) NULL,

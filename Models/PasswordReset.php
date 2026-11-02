@@ -5,6 +5,7 @@ class PasswordReset
     public const EXPIRY_MIN           = 30;
     public const MAX_ATTEMPTS         = 5;
     public const MAX_REQUESTS_PER_HOUR = 5;
+    public const FIRST_ACCESS_HOURS   = 72;
 
     // backwards-compatible aliases for views/notifier that reference the old names
     public const VALIDADE_MIN     = self::EXPIRY_MIN;
@@ -51,6 +52,24 @@ class PasswordReset
         ]);
         Database::update('senha_resets', $id, ['codigo_hash' => self::hashCode($id, $code)]);
         return ['usuario' => $user, 'token' => $token, 'codigo' => $code];
+    }
+
+    public static function issueFirstAccess(string $profile, int $userId): string
+    {
+        Database::run('UPDATE senha_resets SET usado_em = :n WHERE perfil = :p AND usuario_id = :u AND usado_em IS NULL',
+            ['n' => Database::now(), 'p' => $profile, 'u' => $userId]);
+        $token = bin2hex(random_bytes(20));
+        $id = Database::insert('senha_resets', [
+            'perfil'      => $profile,
+            'usuario_id'  => $userId,
+            'token_hash'  => hash('sha256', $token),
+            'codigo_hash' => '',
+            'expira_em'   => date('Y-m-d H:i:s', time() + self::FIRST_ACCESS_HOURS * 3600),
+            'tentativas'  => 0,
+            'criado_em'   => Database::now(),
+        ]);
+        Database::update('senha_resets', $id, ['codigo_hash' => self::hashCode($id, bin2hex(random_bytes(8)))]);
+        return $token;
     }
 
     public static function findByToken(string $profile, string $token): ?array
