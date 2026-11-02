@@ -37,7 +37,7 @@
   --accent: var(--primary);
   --chart-1: #13784a;
   --chart-2: #1d64c2;
-  --chart-3: #d08a0c;
+  --chart-3: #b0730a;
   --chart-4: #c2412f;
   --chart-5: #7b8794;
   --chart-prev: #cbd3dc;
@@ -71,9 +71,9 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
-  --chart-1: #3bbb7b;
-  --chart-2: #6aa8f0;
-  --chart-3: #f1b45a;
+  --chart-1: #2ea76b;
+  --chart-2: #4f91de;
+  --chart-3: #c08526;
   --chart-4: #ff8f80;
   --chart-5: #8a95a3;
   --chart-prev: #3a4452;
