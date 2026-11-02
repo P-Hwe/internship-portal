@@ -32,11 +32,21 @@ class Auth
         $id = (int) ($_SESSION['empresa_id'] ?? 0);
         if (!$id) return null;
         $company = Company::porId($id);
-        if (!$company || $company['status'] === Status::E_BLOQUEADA) {
-            unset($_SESSION['empresa_id']);
+        $memberId = (int) ($_SESSION['empresa_usuario_id'] ?? 0);
+        $member = $memberId ? CompanyMember::find($memberId) : CompanyMember::principalOf($id);
+        if (!$company || $company['status'] === Status::E_BLOQUEADA
+            || !$member || (int) $member['empresa_id'] !== $id || !(int) $member['ativo']) {
+            unset($_SESSION['empresa_id'], $_SESSION['empresa_usuario_id']);
             return null;
         }
+        $_SESSION['empresa_usuario_id'] = (int) $member['id'];
+        $company['usuario'] = $member;
         return $company;
+    }
+
+    public static function companyMember(): ?array
+    {
+        return self::empresa()['usuario'] ?? null;
     }
 
     public static function admin(): ?array
@@ -62,7 +72,7 @@ class Auth
     public static function normalize(): void
     {
         if (!empty($_SESSION['admin_id']) && !empty($_SESSION['empresa_id'])) {
-            unset($_SESSION['empresa_id']);
+            unset($_SESSION['empresa_id'], $_SESSION['empresa_usuario_id']);
         }
         $profile = !empty($_SESSION['admin_id']) ? 'admin' : (!empty($_SESSION['empresa_id']) ? 'empresa' : null);
         if (!$profile) return;
@@ -71,7 +81,7 @@ class Auth
         $sessionStart = (int) ($_SESSION['_inicio'] ?? $now);
         if ($now - $lastActivity > self::idleTimeout($profile) || $now - $sessionStart > self::ABSOLUTE_LIMIT) {
             self::log($profile, (int) $_SESSION[$profile . '_id'], null, 'timeout');
-            unset($_SESSION['admin_id'], $_SESSION['empresa_id'], $_SESSION['_ultima'], $_SESSION['_inicio']);
+            unset($_SESSION['admin_id'], $_SESSION['empresa_id'], $_SESSION['empresa_usuario_id'], $_SESSION['_ultima'], $_SESSION['_inicio']);
             session_regenerate_id(true);
             flash('info', 'Sua sessão expirou. Entre novamente.');
             return;
@@ -95,13 +105,16 @@ class Auth
     /** @deprecated Use blockIfWrongRole() */
     public static function bloquearSeOutroPerfil(string $wanted): void { self::blockIfWrongRole($wanted); }
 
-    public static function requireCompany(): array
+    public static function requireCompany(bool $passwordChangePage = false): array
     {
         self::blockIfWrongRole('empresa');
         $company = self::empresa();
         if (!$company) {
             flash('info', 'Entre com a conta da empresa para continuar.');
             redirect('empresa-login', ['next' => $_GET['p'] ?? 'painel']);
+        }
+        if ((int) ($company['usuario']['trocar_senha'] ?? 0) && !$passwordChangePage) {
+            redirect('empresa-senha');
         }
         return $company;
     }
@@ -153,49 +166,65 @@ class Auth
         if (mb_strlen($password) > 4096) {
             return [null, 'E-mail ou senha incorretos.'];
         }
-        $user = $profile === 'admin' ? Admin::findByEmail($email) : Company::porEmail($email);
+        $isAdmin = $profile === 'admin';
+        $user = $isAdmin ? Admin::findByEmail($email) : CompanyMember::byEmail($email);
         $hash = $user['senha_hash'] ?? self::DUMMY_HASH;
         if (!password_verify($password, $hash) || !$user) {
             Database::insert('login_tentativas', ['chave' => $key, 'criado_em' => Database::now()]);
             Database::insert('login_tentativas', ['chave' => $ipKey, 'criado_em' => Database::now()]);
-            self::log($profile, $user ? (int) $user['id'] : null, $email, 'login_falha');
+            self::log($profile, $user ? (int) ($user['empresa_id'] ?? $user['id']) : null, $email, 'login_falha');
             return [null, 'E-mail ou senha incorretos.'];
         }
-        if ($profile === 'admin' && !(int) $user['ativo']) {
-            self::log($profile, (int) $user['id'], $email, 'negado');
-            return [null, 'Esta conta está desativada. Fale com a Coordenação.'];
+        $company = $isAdmin ? null : Company::porId((int) $user['empresa_id']);
+        $accountId = $isAdmin ? (int) $user['id'] : (int) $user['empresa_id'];
+        if (!(int) $user['ativo']) {
+            self::log($profile, $accountId, $email, 'negado');
+            return [null, $isAdmin || $user['desativado_por'] === 'admin'
+                ? 'Esta conta está desativada. Fale com a Coordenação.'
+                : 'Esta conta está desativada. Fale com o responsável pela sua empresa.'];
         }
-        if ($profile === 'empresa' && $user['status'] === Status::E_BLOQUEADA) {
-            self::log($profile, (int) $user['id'], $email, 'negado');
+        if (!$isAdmin && (!$company || $company['status'] === Status::E_BLOQUEADA)) {
+            self::log($profile, $accountId, $email, 'negado');
             return [null, 'Esta conta está bloqueada. Fale com a Coordenação.'];
         }
         Database::run('DELETE FROM login_tentativas WHERE chave = :c', ['c' => $key]);
         if (password_needs_rehash($user['senha_hash'], PASSWORD_DEFAULT)) {
-            Database::update($profile === 'admin' ? 'admins' : 'empresas', (int) $user['id'], ['senha_hash' => self::hash($password)]);
+            Database::update($isAdmin ? 'admins' : 'empresa_usuarios', (int) $user['id'], ['senha_hash' => self::hash($password)]);
         }
         if ($current && $current !== $profile) {
             self::logout($current);
         }
-        $previousAccess = $user['ultimo_acesso'];
         session_regenerate_id(true);
         unset($_SESSION['_csrf']);
-        $_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'] = (int) $user['id'];
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
-        Database::update($profile === 'admin' ? 'admins' : 'empresas', (int) $user['id'], ['ultimo_acesso' => Database::now()]);
-        if ($profile === 'empresa' && $user['status'] === Status::E_APROVADA && !(int) $user['aprovacao_vista'] && $previousAccess && $user['avaliado_em'] && $previousAccess >= $user['avaliado_em']) {
-            Database::update('empresas', (int) $user['id'], ['aprovacao_vista' => 1]);
+        if ($isAdmin) {
+            $_SESSION['admin_id'] = $accountId;
+            Database::update('admins', $accountId, ['ultimo_acesso' => Database::now()]);
+        } else {
+            $_SESSION['empresa_id'] = $accountId;
+            $_SESSION['empresa_usuario_id'] = (int) $user['id'];
+            $previousAccess = $company['ultimo_acesso'];
+            CompanyMember::touchLogin((int) $user['id']);
+            Database::update('empresas', $accountId, ['ultimo_acesso' => Database::now()]);
+            if ($company['status'] === Status::E_APROVADA && !(int) $company['aprovacao_vista'] && $previousAccess && $company['avaliado_em'] && $previousAccess >= $company['avaliado_em']) {
+                Database::update('empresas', $accountId, ['aprovacao_vista' => 1]);
+            }
         }
-        self::log($profile, (int) $user['id'], $email, 'login_ok');
+        self::log($profile, $accountId, $email, 'login_ok');
         return [$user, null];
     }
 
     /** @deprecated Use login() */
     public static function entrar(string $perfil, string $email, string $senha): array { return self::login($perfil, $email, $senha); }
 
-    public static function startSession(string $profile, int $id, ?string $email = null): void
+    public static function startSession(string $profile, int $id, ?string $email = null, ?int $memberId = null): void
     {
         session_regenerate_id(true);
         $_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'] = $id;
+        if ($profile === 'empresa') {
+            $_SESSION['empresa_usuario_id'] = $memberId ?: (int) (CompanyMember::principalOf($id)['id'] ?? 0);
+            if ($_SESSION['empresa_usuario_id']) CompanyMember::touchLogin($_SESSION['empresa_usuario_id']);
+        }
         $_SESSION['_ultima'] = $_SESSION['_inicio'] = time();
         Database::update($profile === 'admin' ? 'admins' : 'empresas', $id, ['ultimo_acesso' => Database::now()]);
         self::log($profile, $id, $email, 'login_ok');
@@ -208,6 +237,7 @@ class Auth
     {
         self::log($profile, (int) ($_SESSION[$profile . '_id'] ?? 0) ?: null, null, 'logout');
         unset($_SESSION[$profile === 'admin' ? 'admin_id' : 'empresa_id'], $_SESSION['_ultima'], $_SESSION['_inicio']);
+        if ($profile === 'empresa') unset($_SESSION['empresa_usuario_id']);
         session_regenerate_id(true);
     }
 
@@ -223,5 +253,19 @@ class Auth
     public static function hash(string $password): string
     {
         return password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    public static function temporaryPassword(int $length = 14): string
+    {
+        $letters = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+        $digits = '23456789';
+        $all = $letters . $digits;
+        $chars = [$letters[random_int(0, strlen($letters) - 1)], $digits[random_int(0, strlen($digits) - 1)]];
+        while (count($chars) < $length) $chars[] = $all[random_int(0, strlen($all) - 1)];
+        for ($i = count($chars) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+        }
+        return implode('', $chars);
     }
 }

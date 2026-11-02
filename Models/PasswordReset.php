@@ -5,6 +5,7 @@ class PasswordReset
     public const EXPIRY_MIN           = 30;
     public const MAX_ATTEMPTS         = 5;
     public const MAX_REQUESTS_PER_HOUR = 5;
+    public const FIRST_ACCESS_HOURS   = 72;
 
     // backwards-compatible aliases for views/notifier that reference the old names
     public const VALIDADE_MIN     = self::EXPIRY_MIN;
@@ -13,14 +14,14 @@ class PasswordReset
 
     private static function table(string $profile): string
     {
-        return $profile === 'admin' ? 'admins' : 'empresas';
+        return $profile === 'admin' ? 'admins' : 'empresa_usuarios';
     }
 
     private static function findUser(string $profile, string $email): ?array
     {
         $email = mb_strtolower(trim($email));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return null;
-        $extra = $profile === 'admin' ? ' AND ativo = 1' : '';
+        $extra = ' AND ativo = 1 AND excluido_em IS NULL';
         return Database::one('SELECT * FROM ' . self::table($profile) . ' WHERE email = :e' . $extra, ['e' => $email]) ?: null;
     }
 
@@ -53,6 +54,24 @@ class PasswordReset
         return ['usuario' => $user, 'token' => $token, 'codigo' => $code];
     }
 
+    public static function issueFirstAccess(string $profile, int $userId): string
+    {
+        Database::run('UPDATE senha_resets SET usado_em = :n WHERE perfil = :p AND usuario_id = :u AND usado_em IS NULL',
+            ['n' => Database::now(), 'p' => $profile, 'u' => $userId]);
+        $token = bin2hex(random_bytes(20));
+        $id = Database::insert('senha_resets', [
+            'perfil'      => $profile,
+            'usuario_id'  => $userId,
+            'token_hash'  => hash('sha256', $token),
+            'codigo_hash' => '',
+            'expira_em'   => date('Y-m-d H:i:s', time() + self::FIRST_ACCESS_HOURS * 3600),
+            'tentativas'  => 0,
+            'criado_em'   => Database::now(),
+        ]);
+        Database::update('senha_resets', $id, ['codigo_hash' => self::hashCode($id, bin2hex(random_bytes(8)))]);
+        return $token;
+    }
+
     public static function findByToken(string $profile, string $token): ?array
     {
         if (!preg_match('/^[a-f0-9]{40}$/', $token)) return null;
@@ -83,7 +102,7 @@ class PasswordReset
     public static function complete(array $reset, string $newPassword): void
     {
         if ($reset['perfil'] === 'admin') Admin::changePassword((int) $reset['usuario_id'], $newPassword);
-        else Database::update('empresas', (int) $reset['usuario_id'], ['senha_hash' => Auth::hash($newPassword)]);
+        else CompanyMember::changePassword((int) $reset['usuario_id'], $newPassword);
         Database::run('UPDATE senha_resets SET usado_em = :n WHERE perfil = :p AND usuario_id = :u AND usado_em IS NULL',
             ['n' => Database::now(), 'p' => $reset['perfil'], 'u' => $reset['usuario_id']]);
         Database::run('DELETE FROM login_tentativas WHERE chave = :c',

@@ -59,7 +59,7 @@ class CompanyForm
 
         if ($mode === 'cadastro') {
             if (!filter_var($d['email'] ?? '', FILTER_VALIDATE_EMAIL) || mb_strlen($d['email']) > 120) $errors['email'] = 'E-mail inválido.';
-            elseif (Company::porEmail($d['email'])) $errors['email'] = 'Este e-mail já tem cadastro. Entre na área da empresa.';
+            elseif (Company::porEmail($d['email']) || CompanyMember::emailTaken($d['email'])) $errors['email'] = 'Este e-mail já tem cadastro. Entre na área da empresa.';
             $pwd = $_POST['senha'] ?? '';
             if (!self::passwordStrong($pwd)) $errors['senha'] = 'A senha precisa ter 8 ou mais caracteres, com letras e números.';
             elseif ($pwd !== ($_POST['senha2'] ?? '')) $errors['senha2'] = 'As senhas não conferem.';
