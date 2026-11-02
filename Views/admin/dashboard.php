@@ -1,98 +1,140 @@
 <?php
-$j = $resumo['janela']; $at = $resumo['atual']; $an = $resumo['anterior']; [$rotPeriodo, $txtAtual, $txtAnt] = Visits::PERIODS[$periodo];
-$delta = function (int $a, int $b) { [$t, $p] = Visits::variation($a, $b); if ($t === 'novo') return '<span class="ui-delta is-up">novo no período</span>'; if ($t === 'igual') return '<span class="ui-delta">igual ao período anterior</span>';
-    return '<span class="ui-delta ' . ($t === 'sobe' ? 'is-up' : 'is-down') . '">' . ($p > 0 ? '+' : '') . $p . '% sobre o período anterior</span>'; };
-$m = fn(string $r, int $a, int $b) => '<div class="ui-metric"><span class="ui-metric-n">' . $a . '</span><span class="ui-metric-l">' . e($r) . '</span>' . $delta($a, $b) . '</div>';
+[$periodLabel, $currentText, $previousText] = Visits::PERIODS[$periodo];
+$current = $resumo['atual'];
+$previous = $resumo['anterior'];
+$lead = null;
+$trend = function (int $now, int $before): string {
+    [$dir, $pct] = Visits::variation($now, $before);
+    if ($dir === 'novo') return '<span class="ui-delta is-up">novo</span>';
+    if ($dir === 'igual') return '<span class="ui-delta">estável</span>';
+    return '<span class="ui-delta ' . ($dir === 'sobe' ? 'is-up' : 'is-down') . '">' . ($pct > 0 ? '+' : '') . $pct . '%</span>';
+};
+$spark = function (array $values): string {
+    $values = array_values(array_map('intval', $values));
+    if (count($values) < 2) return '';
+    $max = max(1, ...$values);
+    $step = 100 / (count($values) - 1);
+    $points = [];
+    foreach ($values as $i => $value) $points[] = round($i * $step, 2) . ',' . round(30 - $value / $max * 26, 2);
+    return '<svg class="dash-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="' . implode(' ', $points) . '"/></svg>';
+};
+$jobStates = [
+    ['Publicadas', (int) ($vag['publicada'] ?? 0), 'var(--chart-1)'],
+    ['Agendadas', (int) ($vag['agendada'] ?? 0), 'var(--chart-2)'],
+    ['Em análise', (int) ($vag['aguardando'] ?? 0), 'var(--chart-3)'],
+    ['Encerradas', (int) ($vag['expirada'] ?? 0) + (int) ($vag['encerrada'] ?? 0), 'var(--chart-4)'],
+    ['Rejeitadas', (int) ($vag['rejeitada'] ?? 0), 'var(--chart-5)'],
+];
+$companyStates = [
+    ['Aprovadas', (int) ($emp['aprovada'] ?? 0), 'var(--chart-1)'],
+    ['Aguardando', (int) ($emp['pendente'] ?? 0), 'var(--chart-3)'],
+    ['Reprovadas', (int) ($emp['reprovada'] ?? 0), 'var(--chart-4)'],
+    ['Bloqueadas', (int) ($emp['bloqueada'] ?? 0), 'var(--chart-5)'],
+];
+$companyTotal = max(1, array_sum(array_column($companyStates, 1)));
+$activityIcon = fn(string $action): array => match (true) {
+    in_array($action, ['aprovada', 'desbloqueada'], true) => ['check-s', 'ok'],
+    in_array($action, ['rejeitada', 'reprovada', 'bloqueada', 'encerrada'], true) => ['x', 'danger'],
+    in_array($action, ['cadastro', 'enviada', 'reenviada'], true) => ['plus', 'info'],
+    default => ['edit', 'mute'],
+};
+$visitsSeries = array_column($resumo['linhas'], 'atual');
 ?>
-<?php if ($pend): $lead = null; ?>
-<div class="ui-callout" role="status">
-    <?= icon('inbox', 20) ?>
-    <p><?= (int) ($emp['pendente'] ?? 0) ?> empresa(s) e <?= (int) ($vag['aguardando'] ?? 0) ?> vaga(s) aguardam a sua análise.</p>
-    <a class="ui-btn ui-btn-primary ui-btn-sm" href="<?= url('admin-aprovacoes') ?>">Abrir aprovações</a>
-</div>
-<?php endif; ?>
-
-<section class="ui-section">
-    <div class="ui-row-between">
-        <h2 class="ui-section-h">Quem visitou o site de vagas</h2>
-        <nav class="ui-period-tabs" aria-label="Período"><?php foreach (Visits::PERIODS as $k => $d): ?><a
-                href="<?= e(url('admin', ['periodo' => $k])) ?>"
-                class="<?= $k === $periodo ? 'is-active' : '' ?>"><?= e($d[0]) ?></a><?php endforeach; ?></nav>
-    </div>
-    <p class="ui-sub">Mostra os <?= e($txtAtual) ?> comparados com os <?= e($txtAnt) ?>. Conta estudantes que entram sem
-        login, de qualquer aparelho. Administradores, empresas logadas e robôs ficam de fora.</p>
-    <div class="ui-metrics">
-        <?= $m('visualizações de página', $at['visualizacoes'], $an['visualizacoes']) ?>
-        <?= $m('visitantes diferentes', $at['visitantes'], $an['visitantes']) ?>
-        <?= $m('cliques para o site da empresa', $at['saidas'], $an['saidas']) ?>
-        <?= $m('pessoas que fizeram login', $at['logins'], $an['logins']) ?>
-    </div>
-    <div class="ui-grid-2">
-        <div class="ui-card">
-            <h2>Visualizações por <?= $j['bucket'] === 'mes' ? 'mês' : 'dia' ?></h2>
-            <?= Ui::comparar($resumo['linhas'], 'Visualizações ' . $txtAtual . ' e ' . $txtAnt) ?>
-        </div>
-        <div class="ui-card">
-            <h2>Por página do site</h2>
-            <table class="ui-table">
-                <thead>
-                    <tr>
-                        <th>Página</th>
-                        <th class="n">Agora</th>
-                        <th class="n">Antes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($resumo['paginas'] as $p): ?><tr>
-                        <td><?= e($p['rot']) ?></td>
-                        <td class="n"><?= (int) $p['atual'] ?></td>
-                        <td class="n"><?= (int) $p['anterior'] ?></td>
-                    </tr><?php endforeach; ?></tbody>
-            </table>
-            <p class="ui-card-foot"><a
-                    href="<?= e(url('admin-desempenho', ['periodo' => $periodo])) ?>">Ver quais vagas e empresas mais
-                    chamam atenção</a></p>
-        </div>
-    </div>
+<section class="dash-hero">
+  <div class="dash-hero-text">
+    <span class="dash-hero-kicker">Mural de vagas · IFSP Guarulhos</span>
+    <h2><?= (int) ($vag['publicada'] ?? 0) ?> vagas no ar de <?= (int) ($emp['aprovada'] ?? 0) ?> empresas parceiras</h2>
+    <?php if ($pend): ?>
+      <p><?= (int) ($emp['pendente'] ?? 0) ?> empresa(s) e <?= (int) ($vag['aguardando'] ?? 0) ?> vaga(s) aguardam a sua análise.</p>
+      <a class="ui-btn ui-btn-primary" href="<?= url('admin-aprovacoes') ?>"><?= icon('check', 16) ?> Revisar aprovações</a>
+    <?php else: ?>
+      <p>Nenhuma empresa ou vaga aguardando análise.</p>
+      <a class="ui-btn" href="<?= url('admin-vagas') ?>"><?= icon('briefcase', 16) ?> Ver vagas</a>
+    <?php endif; ?>
+  </div>
+  <svg class="dash-hero-art" viewBox="0 0 220 150" aria-hidden="true" focusable="false">
+    <?php foreach ([[0, 3], [1, 5], [2, 4], [3, 7], [4, 6], [5, 8]] as [$col, $height]): for ($row = 0; $row < $height; $row++): ?>
+      <rect x="<?= 6 + $col * 36 ?>" y="<?= 132 - $row * 16 ?>" width="28" height="12" rx="3" class="<?= $row === $height - 1 ? 'is-top' : '' ?>"/>
+    <?php endfor; endforeach; ?>
+    <circle cx="200" cy="10" r="9" class="is-dot"/>
+  </svg>
 </section>
 
-<div class="ui-grid-2 ui-stack">
-    <section class="ui-card">
-        <div class="ui-row-between"><h2>O que aconteceu por aqui</h2><a class="ui-btn ui-btn-sm" href="<?= e(url('admin-atividade')) ?>">Ver mais</a></div>
-        <?php if (!$atividade): echo Ui::vazio('Nada por enquanto', 'As decisões da Coordenação e os envios das empresas aparecem aqui.'); else: ?>
-        <ul class="ui-feed">
-            <?php foreach ($atividade as $h): [$quem, $verbo, $item] = AuditLog::frase($h);
-      $link = $h['entidade'] === 'vaga' ? url('admin-vaga', ['id' => $h['entidade_id']]) : ($h['entidade'] === 'empresa' ? url('admin-empresa', ['id' => $h['entidade_id']]) : null); ?>
-            <li><strong><?= e($quem) ?></strong> <?= e($verbo) ?>
-                <?= $link && $item ? '<a href="' . e($link) . '">' . e($item) . '</a>' : e($item) ?>
-                <small><?= e(tempo_atras($h['criado_em'])) ?></small><?php if (in_array($h['acao'], ['rejeitada', 'reprovada', 'bloqueada'], true) && $h['detalhe']): ?><small
-                    class="why">Motivo: <?= e($h['detalhe']) ?></small><?php endif; ?>
-            </li>
-            <?php endforeach; ?>
-        </ul><?php endif; ?>
-    </section>
-    <section class="ui-card">
-        <h2>Empresas e vagas em números</h2>
-        <ul class="ui-ledger">
-            <li><a href="<?= url('admin-empresas', ['aba' => 'todas']) ?>"><?= (int) ($emp['total'] ?? 0) ?>
-                    empresas</a><span><?= (int) ($emp['aprovada'] ?? 0) ?> aprovadas · <a
-                        href="<?= url('admin-empresas', ['aba' => 'pendentes']) ?>"><?= (int) ($emp['pendente'] ?? 0) ?>
-                        aguardando</a> · <?= (int) ($emp['reprovada'] ?? 0) ?> reprovadas ·
-                    <?= (int) ($emp['bloqueada'] ?? 0) ?> bloqueadas</span></li>
-            <li><a href="<?= url('admin-vagas') ?>"><?= (int) ($vag['todas'] ?? 0) ?> vagas</a><span><a
-                        href="<?= url('admin-vagas', ['aba' => 'publicada']) ?>"><?= (int) ($vag['publicada'] ?? 0) ?>
-                        no ar</a> · <a
-                        href="<?= url('admin-vagas', ['aba' => 'aguardando']) ?>"><?= (int) ($vag['aguardando'] ?? 0) ?>
-                        em análise</a> · <?= (int) ($vag['agendada'] ?? 0) ?> agendadas</span></li>
-            <li><span class="ui-ledger-label">Já saíram do ar</span><span><?= (int) ($vag['expirada'] ?? 0) ?>
-                    expiradas · <?= (int) ($vag['encerrada'] ?? 0) ?> encerradas · <?= (int) ($vag['rejeitada'] ?? 0) ?>
-                    rejeitadas</span></li>
-        </ul>
-        <h2 class="ui-ledger-sub">Empresas que chegaram há pouco</h2>
-        <?php if (!$empresasRecentes): echo '<p class="ui-sub">Nenhuma empresa cadastrada ainda.</p>'; else: ?><ul
-            class="ui-ledger"><?php foreach ($empresasRecentes as $r): ?>
-            <li><a href="<?= url('admin-empresa', ['id' => $r['id']]) ?>"><?= e($r['nome']) ?></a><span><?= Ui::statusEmpresa($r['status']) ?>
-                    <?= e(data_br(substr($r['criado_em'], 0, 10))) ?></span></li><?php endforeach; ?>
-        </ul><?php endif; ?>
-    </section>
+<div class="dash-kpis">
+  <a class="dash-kpi" href="<?= url('admin-vagas', ['aba' => 'publicada']) ?>">
+    <span class="dash-kpi-icon tone-green"><?= icon('briefcase', 20) ?></span>
+    <span class="dash-kpi-label">Vagas no ar</span>
+    <strong><?= (int) ($vag['publicada'] ?? 0) ?></strong>
+    <small><?= (int) ($vag['destaque'] ?? 0) ?> em destaque</small>
+  </a>
+  <a class="dash-kpi" href="<?= url('admin-empresas', ['aba' => 'todas']) ?>">
+    <span class="dash-kpi-icon tone-blue"><?= icon('building', 20) ?></span>
+    <span class="dash-kpi-label">Empresas parceiras</span>
+    <strong><?= (int) ($emp['aprovada'] ?? 0) ?></strong>
+    <small><?= (int) ($emp['total'] ?? 0) ?> cadastradas</small>
+  </a>
+  <a class="dash-kpi" href="<?= url('admin-aprovacoes') ?>">
+    <span class="dash-kpi-icon tone-amber"><?= icon('inbox', 20) ?></span>
+    <span class="dash-kpi-label">Aguardando análise</span>
+    <strong><?= (int) $pend ?></strong>
+    <small><?= (int) ($emp['pendente'] ?? 0) ?> empresas · <?= (int) ($vag['aguardando'] ?? 0) ?> vagas</small>
+  </a>
+  <a class="dash-kpi" href="<?= url('admin-desempenho', ['periodo' => $periodo]) ?>">
+    <span class="dash-kpi-icon tone-violet"><?= icon('users', 20) ?></span>
+    <span class="dash-kpi-label">Visitantes</span>
+    <strong><?= (int) $current['visitantes'] ?> <?= $trend((int) $current['visitantes'], (int) $previous['visitantes']) ?></strong>
+    <?= $spark($visitsSeries) ?>
+  </a>
+</div>
+
+<div class="dash-grid">
+  <section class="ui-card dash-span-2">
+    <div class="ui-chart-head">
+      <h2>Visualizações do site</h2>
+      <nav class="ui-period-tabs" aria-label="Período"><?php foreach (Visits::PERIODS as $key => $period): ?><a href="<?= e(url('admin', ['periodo' => $key])) ?>" class="<?= $key === $periodo ? 'is-active' : '' ?>"<?= $key === $periodo ? ' aria-current="true"' : '' ?>><?= e($period[0]) ?></a><?php endforeach; ?></nav>
+    </div>
+    <div class="dash-mini-stats">
+      <div><span>Visualizações</span><strong><?= (int) $current['visualizacoes'] ?></strong><?= $trend((int) $current['visualizacoes'], (int) $previous['visualizacoes']) ?></div>
+      <div><span>Cliques para empresas</span><strong><?= (int) $current['saidas'] ?></strong><?= $trend((int) $current['saidas'], (int) $previous['saidas']) ?></div>
+      <div><span>Logins no painel</span><strong><?= (int) $current['logins'] ?></strong><?= $trend((int) $current['logins'], (int) $previous['logins']) ?></div>
+    </div>
+    <?= Ui::comparar($resumo['linhas'], 'Visualizações ' . $currentText . ' e ' . $previousText) ?>
+  </section>
+
+  <section class="ui-card">
+    <h2>Vagas por situação</h2>
+    <?= Ui::donut($jobStates, 'vagas') ?>
+  </section>
+
+  <section class="ui-card">
+    <div class="ui-chart-head"><h2>Empresas</h2><a class="ui-link-sm" href="<?= url('admin-empresas', ['aba' => 'todas']) ?>">Ver todas</a></div>
+    <div class="dash-stackbar" role="img" aria-label="<?= e(implode(', ', array_map(fn($s) => $s[0] . ' ' . $s[1], $companyStates))) ?>">
+      <?php foreach ($companyStates as [$label, $value, $color]): if ($value > 0): ?><span style="width:<?= round($value / $companyTotal * 100, 2) ?>%;background:<?= $color ?>" title="<?= e($label . ': ' . $value) ?>"></span><?php endif; endforeach; ?>
+    </div>
+    <ul class="ui-key dash-key"><?php foreach ($companyStates as [$label, $value, $color]): ?><li><i style="background:<?= $color ?>"></i> <?= e($label) ?> <strong><?= $value ?></strong></li><?php endforeach; ?></ul>
+    <h3 class="dash-subhead">Chegaram há pouco</h3>
+    <?php if (!$empresasRecentes): ?><p class="ui-sub">Nenhuma empresa cadastrada ainda.</p><?php else: ?>
+    <ul class="dash-people">
+      <?php foreach ($empresasRecentes as $company): ?>
+      <li><span class="app-avatar"><?= e(iniciais($company['nome'])) ?></span><a href="<?= url('admin-empresa', ['id' => $company['id']]) ?>"><?= e($company['nome']) ?></a><?= Ui::statusEmpresa($company['status']) ?></li>
+      <?php endforeach; ?>
+    </ul>
+    <?php endif; ?>
+  </section>
+
+  <section class="ui-card dash-span-2">
+    <div class="ui-chart-head"><h2>Atividade recente</h2><a class="ui-link-sm" href="<?= e(url('admin-atividade')) ?>">Ver histórico</a></div>
+    <?php if (!$atividade): echo Ui::vazio('Nenhuma atividade ainda', 'Decisões da Coordenação e envios das empresas aparecem aqui.'); else: ?>
+    <ol class="dash-feed">
+      <?php foreach (array_slice($atividade, 0, 6) as $entry): [$who, $verb, $item] = AuditLog::frase($entry); [$feedIcon, $tone] = $activityIcon((string) $entry['acao']);
+        $link = $entry['entidade'] === 'vaga' ? url('admin-vaga', ['id' => $entry['entidade_id']]) : ($entry['entidade'] === 'empresa' ? url('admin-empresa', ['id' => $entry['entidade_id']]) : null); ?>
+      <li>
+        <span class="dash-feed-icon tone-<?= $tone ?>"><?= icon($feedIcon, 14) ?></span>
+        <p><strong><?= e($who) ?></strong> <?= e($verb) ?> <?= $link && $item ? '<a href="' . e($link) . '">' . e($item) . '</a>' : e($item) ?></p>
+        <time datetime="<?= e($entry['criado_em']) ?>"><?= e(tempo_atras($entry['criado_em'])) ?></time>
+      </li>
+      <?php endforeach; ?>
+    </ol>
+    <?php endif; ?>
+  </section>
 </div>

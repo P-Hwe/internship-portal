@@ -10,10 +10,10 @@ $pq = ['aba' => $aba, 'q' => $q, 'tipo' => $tipo, 'ord' => $ord, 'vista' => $vis
   <label class="ui-sr" for="tipo">Tipo</label><select id="tipo" class="ui-select" name="tipo"><option value="">Todos os tipos</option><?php foreach (TIPOS_VAGA as $t): ?><option <?= $tipo === $t ? 'selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?></select>
   <label class="ui-sr" for="ord">Ordenar</label><select id="ord" class="ui-select" name="ord"><?php foreach (['recentes' => 'Mais recentes', 'prazo' => 'Prazo final', 'titulo' => 'Título (A-Z)', 'empresa' => 'Empresa (A-Z)'] as $k => $r): ?><option value="<?= $k ?>" <?= $ord === $k ? 'selected' : '' ?>><?= $r ?></option><?php endforeach; ?></select>
   <button class="ui-btn" type="submit"><?= icon('search', 16) ?> Filtrar</button></form>
-  <div class="ui-seg" role="group" aria-label="Modo de exibição"><a href="<?= e(url('admin-vagas', array_merge($pq, ['vista' => 'lista']))) ?>" class="<?= $vista !== 'cards' ? 'is-active' : '' ?>">Lista</a><a href="<?= e(url('admin-vagas', array_merge($pq, ['vista' => 'cards']))) ?>" class="<?= $vista === 'cards' ? 'is-active' : '' ?>">Cards</a></div></div>
+  <div class="ui-seg" role="group" aria-label="Modo de exibição"><a href="<?= e(url('admin-vagas', array_merge($pq, ['vista' => 'cards']))) ?>" class="<?= $vista !== 'lista' ? 'is-active' : '' ?>"><?= icon('grid', 14) ?> Cards</a><a href="<?= e(url('admin-vagas', array_merge($pq, ['vista' => 'lista']))) ?>" class="<?= $vista === 'lista' ? 'is-active' : '' ?>"><?= icon('menu', 14) ?> Lista</a></div></div>
 <p class="ui-sub"><?= (int) $total ?> vaga(s) encontrada(s).</p>
 <?php if (!$lista): echo Ui::vazio('Nenhuma vaga encontrada', 'Ajuste a busca, o tipo ou a aba.');
-elseif ($vista !== 'cards'): ?><div class="ui-rows">
+elseif ($vista === 'lista'): ?><div class="ui-rows">
   <?php foreach ($lista as $v): ?>
   <div class="ui-row">
     <span class="ui-row-status"><?= Ui::situacao($v['situacao']) ?></span>
