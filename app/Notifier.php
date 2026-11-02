@@ -46,6 +46,14 @@ class Notifier
             ['Criar minha senha', url_abs('admin-login', ['redefinir' => $token])]));
     }
 
+    public static function rootCriado(array $admin, string $temporaryPassword, string $token): bool
+    {
+        return Mailer::enviar($admin['email'], 'Acesso de administrador principal do portal de vagas', Mailer::layout('Bem-vindo ao portal de vagas',
+            '<p>Olá!</p><p>O portal de vagas de estágio do IFSP Guarulhos foi instalado e você é o <strong>administrador principal</strong>: aprova empresas e vagas e cria as contas da equipe da Coordenação.</p>'
+            . self::firstAccessBody($admin['email'], $temporaryPassword),
+            ['Criar minha senha', url_abs('admin-login', ['redefinir' => $token])]));
+    }
+
     public static function adminStatus(array $admin, string $event, array $actor): void
     {
         $texts = [
