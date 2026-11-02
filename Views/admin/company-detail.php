@@ -67,6 +67,33 @@
     </div>
 </div>
 <section class="ui-section" style="margin-top:22px">
+    <h2>Usuários da empresa <span class="ui-hint" style="font-weight:400">· <?= count($membros) ?></span></h2>
+    <div class="ui-table-wrap"><table class="ui-table">
+        <thead><tr><th>Nome</th><th>Permissão</th><th>Situação</th><th>Último acesso</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($membros as $m): $f = ['tipo' => 'membro', 'id' => $m['id'], 'ret' => 'admin-empresa', 'ret_id' => $e['id']]; $principal = $m['papel'] === CompanyMember::PRINCIPAL; ?>
+            <tr>
+                <td><strong><?= e($m['nome']) ?></strong><br><small class="ui-sub"><?= e($m['email']) ?></small></td>
+                <td><?= Ui::badge(CompanyMember::roleLabel($m['papel']), ['principal' => 'info', 'gestor' => 'ok'][$m['papel']] ?? 'mute') ?></td>
+                <td><?= $m['ativo'] ? (!empty($m['trocar_senha']) ? Ui::badge('Aguardando 1º acesso', 'warn') : Ui::badge('Ativo', 'ok')) : Ui::badge($m['desativado_por'] === 'admin' ? 'Desativado pela Coordenação' : 'Desativado pela empresa', 'mute') ?></td>
+                <td><?= $m['ultimo_acesso'] ? e(date('d/m/Y H:i', strtotime($m['ultimo_acesso']))) : 'nunca' ?></td>
+                <td style="text-align:right;white-space:nowrap">
+                    <?php if ($principal): ?><span class="ui-hint" style="margin:0">Use as ações da empresa</span>
+                    <?php else: ?>
+                    <div class="ui-actions" style="justify-content:flex-end">
+                        <?= $m['ativo']
+                            ? Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'desativar'], 'Desativar', 'Desativar este usuário?', $m['nome'] . ' não conseguirá mais entrar. A empresa não pode reativar um acesso desativado pela Coordenação.', 'danger', 'ui-btn ui-btn-sm')
+                            : Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'ativar'], 'Reativar', 'Reativar este usuário?', $m['nome'] . ' volta a entrar na área da empresa.', 'primary', 'ui-btn ui-btn-sm') ?>
+                        <?= Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'excluir'], 'Excluir', 'Excluir este usuário?', $m['nome'] . ' some das listas e perde o acesso. Os dados continuam guardados no banco.', 'danger', 'ui-btn ui-btn-sm ui-btn-danger-o') ?>
+                    </div>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
+</section>
+<section class="ui-section" style="margin-top:22px">
     <h2>Vagas da empresa</h2>
     <?php if (!$vagas): echo Ui::vazio('Esta empresa ainda não enviou vagas'); else: ?><div class="ui-grid">
         <?php foreach ($vagas as $v) { $ctx = 'admin'; $ret = 'admin-empresa'; require __DIR__ . '/../partials/job-card-panel.php'; } ?>
