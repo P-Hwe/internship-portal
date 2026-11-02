@@ -12,7 +12,8 @@ class CompanyAreaController
     {
         $emp  = Auth::requireCompany();
         $cont = Vaga::contagens((int) $emp['id']);
-        [$recentes] = Vaga::listar((int) $emp['id'], 'todas', '', '', 'recentes', 1, 3);
+        [$recentes] = Vaga::listar((int) $emp['id'], 'todas', '', '', 'recentes', 1, 6);
+        $resumo = CompanyMember::canSeeDashboard($emp['usuario']) ? Visits::companyOverview((int) $emp['id'], 'semana') : null;
         $vencendo = array_values(array_filter(
             Vaga::todasDaEmpresa((int) $emp['id']),
             fn($v) => $v['situacao'] === 'publicada' && $v['dias'] <= DIAS_VAGA_VENCENDO
@@ -22,8 +23,9 @@ class CompanyAreaController
             'cont'     => $cont,
             'recentes' => $recentes,
             'vencendo' => $vencendo,
+            'resumo'   => $resumo,
             'aviso'    => Company::mostrarAvisoAprovacao($emp),
-            'lead'     => saudacao() . ', ' . primeiro_nome((string) $emp['responsavel']) . '. '
+            'lead'     => saudacao() . ', ' . primeiro_nome((string) ($emp['usuario']['nome'] ?? $emp['responsavel'])) . '. '
                         . ((int) ($cont['publicada'] ?? 0)
                             ? 'Você tem ' . (int) $cont['publicada'] . ' vaga(s) no ar.'
                             : 'Sua empresa ainda não tem vagas no ar.'),

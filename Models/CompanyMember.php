@@ -6,9 +6,15 @@ class CompanyMember
     public const MEMBER = 'membro';
 
     public const ROLES = [
-        self::PRINCIPAL => 'Responsável principal',
-        self::MANAGER   => 'Administrador da empresa',
-        self::MEMBER    => 'Representante',
+        self::PRINCIPAL => 'Responsável',
+        self::MANAGER   => 'Gestor',
+        self::MEMBER    => 'Recrutador',
+    ];
+
+    public const ROLE_HINTS = [
+        self::PRINCIPAL => 'cadastrou a empresa e controla tudo',
+        self::MANAGER   => 'publica vagas, vê o desempenho e cuida da equipe',
+        self::MEMBER    => 'publica e acompanha as vagas',
     ];
 
     public static function find(int $id): ?array

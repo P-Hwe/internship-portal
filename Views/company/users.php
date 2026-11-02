@@ -29,13 +29,13 @@ $roles = $isPrincipal ? [CompanyMember::MEMBER => CompanyMember::ROLES[CompanyMe
                 <?php if ($self): ?>
                 <div class="ui-job-foot"><span class="ui-hint" style="margin:0">Esta é a sua conta.</span></div>
                 <?php elseif ($principal): ?>
-                <div class="ui-job-foot"><span class="ui-hint" style="margin:0">Responsável pelo cadastro da empresa. Não pode ser removido.</span></div>
+                <div class="ui-job-foot"><span class="ui-hint" style="margin:0">Cadastrou a empresa. Não pode ser removido.</span></div>
                 <?php else: ?>
                 <div class="ui-job-foot" style="gap:8px;flex-wrap:wrap">
                     <?php if ($isPrincipal): $toManager = $m['papel'] === CompanyMember::MEMBER; ?>
-                    <?= Ui::formConfirmar(url('empresa-usuarios'), $f + ['acao' => 'papel', 'papel' => $toManager ? CompanyMember::MANAGER : CompanyMember::MEMBER], $toManager ? 'Tornar administrador' : 'Tornar representante',
-                        $toManager ? 'Dar permissão de administrador?' : 'Tirar a permissão de administrador?',
-                        $toManager ? $m['nome'] . ' poderá ver o desempenho e adicionar, desativar e remover usuários (menos você).' : $m['nome'] . ' continua publicando vagas, mas deixa de ver usuários e desempenho.',
+                    <?= Ui::formConfirmar(url('empresa-usuarios'), $f + ['acao' => 'papel', 'papel' => $toManager ? CompanyMember::MANAGER : CompanyMember::MEMBER], $toManager ? 'Tornar gestor' : 'Tornar recrutador',
+                        $toManager ? 'Tornar ' . primeiro_nome($m['nome']) . ' gestor?' : 'Voltar ' . primeiro_nome($m['nome']) . ' para recrutador?',
+                        $toManager ? $m['nome'] . ' poderá ver o desempenho e adicionar, desativar e remover pessoas da equipe (menos você).' : $m['nome'] . ' continua publicando vagas, mas deixa de ver a equipe e o desempenho.',
                         'primary', 'ui-btn ui-btn-sm') ?>
                     <?php endif; ?>
                     <?php if ($m['ativo']): ?>
@@ -56,10 +56,9 @@ $roles = $isPrincipal ? [CompanyMember::MEMBER => CompanyMember::ROLES[CompanyMe
         <form method="post" action="<?= url('empresa-usuarios') ?>" data-form novalidate><?= csrf_field() ?><input type="hidden" name="acao" value="criar">
             <?= $c(['name' => 'nome', 'label' => 'Nome completo', 'req' => true, 'attrs' => ['maxlength' => 100]]) ?>
             <?= $c(['name' => 'email', 'label' => 'E-mail', 'type' => 'email', 'req' => true, 'attrs' => ['maxlength' => 120]]) ?>
-            <?= $c(['name' => 'papel', 'label' => 'Permissão', 'type' => 'select', 'req' => true, 'opcoes' => $roles, 'vazio' => 'Escolha']) ?>
+            <?= $c(['name' => 'papel', 'label' => 'Cargo', 'type' => 'select', 'req' => true, 'opcoes' => $roles, 'vazio' => 'Escolha']) ?>
             <ul class="ui-hint" style="padding-left:18px;margin:0 0 12px">
-                <li><strong>Representante:</strong> publica, edita e encerra vagas.</li>
-                <?php if ($isPrincipal): ?><li><strong>Administrador da empresa:</strong> também vê o desempenho e gerencia usuários.</li><?php endif; ?>
+                <?php foreach ($roles as $key => $label): ?><li><strong><?= e($label) ?>:</strong> <?= e(CompanyMember::ROLE_HINTS[$key]) ?>.</li><?php endforeach; ?>
             </ul>
             <p class="ui-hint">A pessoa recebe por e-mail uma senha provisória e um link para criar a própria senha. Você não vê essa senha. A Coordenação de estágios também é avisada.</p>
             <button class="ui-btn ui-btn-primary ui-btn-block" type="submit">Adicionar</button>
