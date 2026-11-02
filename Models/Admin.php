@@ -35,6 +35,20 @@ class Admin
         return [self::create($name, $email, $password), $password];
     }
 
+    public static function provisionRoot(string $email, string $name = 'Coordenação'): array
+    {
+        $password = Auth::temporaryPassword();
+        $existing = self::findByEmail($email);
+        if ($existing) {
+            Database::update('admins', (int) $existing['id'], ['senha_hash' => Auth::hash($password), 'trocar_senha' => 1, 'ativo' => 1]);
+            $id = (int) $existing['id'];
+        } else {
+            $id = self::create($name, $email, $password, 'raiz');
+        }
+        $mailed = Notifier::rootCriado(self::findById($id), $password, PasswordReset::issueFirstAccess('admin', $id));
+        return [$id, $password, $mailed];
+    }
+
     public static function changePassword(int $id, string $newPassword): void
     {
         Database::update('admins', $id, ['senha_hash' => Auth::hash($newPassword), 'trocar_senha' => 0]);
