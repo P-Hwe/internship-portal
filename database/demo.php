@@ -37,6 +37,7 @@ function demo_limpar(): void
         Database::run("DELETE FROM notificacoes WHERE tipo = 'empresa' AND referencia_id = :i", ['i' => $eid]);
         Database::run("DELETE FROM visitas WHERE tipo IN ('empresa', 'saida') AND ref_id = :i", ['i' => $eid]);
         Database::run("DELETE FROM acessos_log WHERE perfil = 'empresa' AND usuario_id = :i", ['i' => $eid]);
+        Database::run('DELETE FROM empresa_usuarios WHERE empresa_id = :i', ['i' => $eid]);
         Database::run('DELETE FROM empresas WHERE id = :i', ['i' => $eid]);
     }
     foreach (array_column(Database::all('SELECT id FROM admins WHERE email LIKE :d', ['d' => '%' . DEMO_DOMINIO]), 'id') as $aid) {
@@ -245,6 +246,7 @@ foreach ($ativas as $k => $ie) {
     foreach ([0, 2, 3] as $j => $d) if (($k + $j) % 2 === 0) Database::insert('acessos_log', ['perfil' => 'empresa', 'usuario_id' => $emp[$ie], 'email' => null, 'evento' => 'login_ok', 'ip' => null, 'agente' => null, 'criado_em' => $quando(-($d + $k % 4), 10 + $j, 30)]);
 }
 
+CompanyMember::backfillPrincipals();
 echo "\nDados de teste criados.\n";
 echo '  Empresas: ' . count($emp) . ' | Vagas: ' . count($vagas) . ' | Visitas: ' . count($rows) . "\n";
 echo '  Senha das contas de teste: ' . DEMO_SENHA . "\n";

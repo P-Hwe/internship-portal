@@ -32,6 +32,7 @@ class Notification
             return [['aprovada' => 'Aprovada', 'rejeitada' => 'Reprovada', 'encerrada' => 'Encerrada'][$s] ?? $s,
                     ['aprovada' => 'ok', 'rejeitada' => 'danger'][$s] ?? 'mute', true];
         }
+        if ($n['tipo'] === 'membro') return ['Usuário da empresa', 'info', true];
         $s = $n['e_status'] ?? null;
         if ($s === null) return ['Removida', 'mute', true];
         if ($s === Status::E_PENDENTE) return ['Aguardando análise', 'warn', false];

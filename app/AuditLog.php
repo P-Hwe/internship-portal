@@ -80,7 +80,9 @@ class AuditLog
         'reprovada' => 'reprovou a empresa', 'encerrada' => 'encerrou a vaga', 'editada' => 'editou a vaga',
         'reenviada' => 'reenviou', 'destaque' => 'mudou o destaque da vaga', 'bloqueada' => 'bloqueou a empresa',
         'desbloqueada' => 'desbloqueou a empresa', 'cadastro' => 'cadastrou', 'perfil' => 'atualizou o perfil de',
-        'expirada' => 'teve o prazo encerrado:',
+        'expirada' => 'teve o prazo encerrado:', 'excluida' => 'excluiu',
+        'usuario_criado' => 'adicionou um usuário em', 'usuario_permissao' => 'mudou a permissão de um usuário em',
+        'usuario_desativado' => 'desativou um usuário de', 'usuario_reativado' => 'reativou um usuário de', 'usuario_excluido' => 'excluiu um usuário de',
     ];
 
     public static function phrase(array $entry): array

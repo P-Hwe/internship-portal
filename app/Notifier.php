@@ -30,12 +30,73 @@ class Notifier
             '<p>Olá, ' . e($company['responsavel']) . '!</p><p>Recebemos o cadastro da <strong>' . e($company['nome']) . '</strong>. A Coordenação vai analisar os dados e o termo de cooperação. Você receberá um e-mail com o resultado.</p>'));
     }
 
-    public static function adminCriado(array $newAdmin, array $creator): void
+    public static function firstAccessBody(string $email, string $temporaryPassword): string
+    {
+        return '<p>Seu login é <strong>' . e($email) . '</strong> e a sua senha provisória é:</p>'
+            . '<p style="font-family:Consolas,monospace;font-size:22px;letter-spacing:2px;font-weight:bold;background:#f3f5f4;border:1px dashed #9aa5a0;padding:10px 14px;display:inline-block">' . e($temporaryPassword) . '</p>'
+            . '<p>Só você recebeu esta senha: quem criou a sua conta não tem acesso a ela. Use o botão abaixo para criar a sua própria senha agora. O link vale por '
+            . PasswordReset::FIRST_ACCESS_HOURS . ' horas e funciona uma única vez. Se preferir, entre com a senha provisória: o sistema vai pedir a nova senha antes de liberar o acesso.</p>';
+    }
+
+    public static function adminCriado(array $newAdmin, array $creator, string $temporaryPassword, string $token): void
     {
         Mailer::enviar($newAdmin['email'], 'Sua conta de administrador foi criada', Mailer::layout('Conta de administrador criada',
             '<p>Olá, ' . e(primeiro_nome($newAdmin['nome'])) . '!</p><p><strong>' . e($creator['nome']) . '</strong> criou uma conta de administrador para você no portal de vagas de estágio.</p>'
-            . '<p>Seu login é <strong>' . e($newAdmin['email']) . '</strong>. Use a senha inicial informada pela Coordenação: ela vale <strong>só no primeiro acesso</strong>. Ao entrar, você vai criar a sua própria senha antes de usar o sistema.</p>',
-            ['Fazer o primeiro acesso', url_abs('admin-login', ['email' => $newAdmin['email']])]));
+            . self::firstAccessBody($newAdmin['email'], $temporaryPassword),
+            ['Criar minha senha', url_abs('admin-login', ['redefinir' => $token])]));
+    }
+
+    public static function adminStatus(array $admin, string $event, array $actor): void
+    {
+        $texts = [
+            'desativado' => ['Sua conta de administrador foi desativada', 'Conta desativada', 'desativou a sua conta de administrador. Você não consegue mais entrar no painel até ela ser reativada.'],
+            'reativado'  => ['Sua conta de administrador foi reativada', 'Conta reativada', 'reativou a sua conta de administrador. Você já pode entrar no painel com a sua senha.'],
+            'excluido'   => ['Sua conta de administrador foi excluída', 'Conta excluída', 'excluiu a sua conta de administrador. O acesso ao painel foi encerrado.'],
+        ];
+        if (!isset($texts[$event])) return;
+        [$subject, $title, $text] = $texts[$event];
+        Mailer::enviar($admin['email'], $subject, Mailer::layout($title,
+            '<p>Olá, ' . e(primeiro_nome($admin['nome'])) . '!</p><p><strong>' . e($actor['nome']) . '</strong> ' . $text . '</p><p>Em caso de dúvida, fale com a Coordenação.</p>',
+            $event === 'reativado' ? ['Entrar no painel', url_abs('admin-login')] : null));
+    }
+
+    public static function membroCriado(array $member, array $company, string $creatorName, string $temporaryPassword, string $token): void
+    {
+        Mailer::enviar($member['email'], 'Você foi adicionado à área da empresa ' . $company['nome'], Mailer::layout('Acesso à área da empresa',
+            '<p>Olá, ' . e(primeiro_nome($member['nome'])) . '!</p><p><strong>' . e($creatorName) . '</strong> adicionou você à área da empresa <strong>' . e($company['nome'])
+            . '</strong> no portal de vagas de estágio do IFSP Guarulhos, com a permissão <strong>' . e(CompanyMember::roleLabel($member['papel'])) . '</strong>.</p>'
+            . self::firstAccessBody($member['email'], $temporaryPassword),
+            ['Criar minha senha', url_abs('empresa-login', ['redefinir' => $token])]));
+    }
+
+    public static function membroCoordenacao(array $member, array $company, string $actorName, string $event): void
+    {
+        $role = CompanyMember::roleLabel($member['papel']);
+        $message = $event === 'permissao'
+            ? 'Permissão alterada na empresa ' . $company['nome'] . ': ' . $member['nome'] . ' agora é ' . $role
+            : 'Novo usuário na empresa ' . $company['nome'] . ': ' . $member['nome'] . ' (' . $role . ')';
+        self::interna('membro', (int) $company['id'], mb_substr($message, 0, 200));
+        self::notifyAdmins($message, Mailer::layout($event === 'permissao' ? 'Permissão alterada em uma empresa' : 'Novo usuário em uma empresa',
+            '<p><strong>' . e($actorName) . '</strong> ' . ($event === 'permissao' ? 'alterou a permissão de' : 'adicionou') . ' <strong>' . e($member['nome'])
+            . '</strong> (' . e($member['email']) . ') na empresa <strong>' . e($company['nome']) . '</strong>.</p><p>Permissão: <strong>' . e($role) . '</strong>.</p>',
+            ['Ver empresa no painel', url_abs('admin-empresa', ['id' => $company['id']])]));
+    }
+
+    public static function membroStatus(array $member, array $company, string $event, string $actorLabel, ?string $reason = null): void
+    {
+        $texts = [
+            'desativado' => ['Seu acesso à área da empresa foi desativado', 'Acesso desativado', 'desativou o seu acesso à área da empresa'],
+            'reativado'  => ['Seu acesso à área da empresa foi reativado', 'Acesso reativado', 'reativou o seu acesso à área da empresa'],
+            'excluido'   => ['Seu acesso à área da empresa foi removido', 'Acesso removido', 'removeu o seu acesso à área da empresa'],
+            'permissao'  => ['Sua permissão na área da empresa mudou', 'Permissão alterada', 'alterou a sua permissão na área da empresa'],
+        ];
+        if (!isset($texts[$event])) return;
+        [$subject, $title, $text] = $texts[$event];
+        $extra = $event === 'permissao' ? '<p>Nova permissão: <strong>' . e(CompanyMember::roleLabel($member['papel'])) . '</strong>.</p>' : '';
+        if ($reason) $extra .= '<p><strong>Motivo:</strong><br>' . nl2br(e($reason)) . '</p>';
+        Mailer::enviar($member['email'], $subject, Mailer::layout($title,
+            '<p>Olá, ' . e(primeiro_nome($member['nome'])) . '!</p><p><strong>' . e($actorLabel) . '</strong> ' . $text . ' <strong>' . e($company['nome']) . '</strong>.</p>' . $extra,
+            in_array($event, ['reativado', 'permissao'], true) ? ['Entrar na área da empresa', url_abs('empresa-login')] : null));
     }
 
     public static function senhaRedefinicao(string $profile, array $user, string $token, string $code): void
