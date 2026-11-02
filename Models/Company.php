@@ -28,11 +28,13 @@ class Company
 
     public static function criar(array $data): int
     {
+        $hash = Auth::hash($data['senha']);
         $id = Database::insert('empresas', self::campos($data) + [
-            'cnpj' => Cnpj::clean($data['cnpj']), 'email' => mb_strtolower($data['email']), 'senha_hash' => Auth::hash($data['senha']),
+            'cnpj' => Cnpj::clean($data['cnpj']), 'email' => mb_strtolower($data['email']), 'senha_hash' => $hash,
             'logo' => $data['logo'] ?? null, 'banner' => $data['banner'] ?? null, 'termo_arquivo' => $data['termo_arquivo'], 'termos_aceitos_em' => Database::now(),
             'status' => Status::E_PENDENTE, 'criado_em' => Database::now(),
         ]);
+        CompanyMember::createPrincipal($id, $data['responsavel'], $data['email'], $hash);
         AuditLog::registrar('empresa', $id, 'cadastro', null, Status::E_PENDENTE, 'empresa', $id);
         return $id;
     }

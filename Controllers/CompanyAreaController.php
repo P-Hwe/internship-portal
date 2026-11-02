@@ -160,6 +160,74 @@ class CompanyAreaController
         redirect('empresa-vagas');
     }
 
+    private const MEMBERS_PER_PAGE = 12;
+
+    /** GET /painel/usuarios  POST /painel/usuarios */
+    public function usuarios(): void
+    {
+        $emp = Auth::requireCompany();
+        $actor = $emp['usuario'];
+        if (!CompanyMember::canManageUsers($actor)) Auth::deny('usuarios');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            $action = (string) ($_POST['acao'] ?? '');
+            $page = max(1, (int) ($_POST['pg'] ?? 1));
+            if ($action === 'criar') {
+                [$member, $errors] = MemberActions::create($emp, $actor, limpar_post($_POST));
+                if ($errors) {
+                    $_SESSION['erros_membro'] = $errors;
+                    $_SESSION['old_membro'] = limpar_post($_POST);
+                } else {
+                    flash('ok', $member['nome'] . ' foi adicionado. A senha provisória e o link para criar a senha foram enviados só para o e-mail dele.');
+                }
+                redirect('empresa-usuarios');
+            }
+            $target = CompanyMember::find((int) ($_POST['id'] ?? 0));
+            if (!$target || (int) $target['empresa_id'] !== (int) $emp['id']) Auth::deny('usuario');
+            $error = $action === 'papel'
+                ? MemberActions::changeRole($emp, $actor, $target, (string) ($_POST['papel'] ?? ''))
+                : MemberActions::changeStatus($emp, $target, $action, 'empresa', $actor, $actor['nome']);
+            if ($error) flash('erro', $error);
+            else flash('ok', ['papel' => 'Permissão atualizada.', 'desativar' => 'Acesso desativado.', 'ativar' => 'Acesso reativado.', 'excluir' => 'Usuário removido.'][$action] . ' ' . $target['nome'] . ' foi avisado por e-mail.');
+            if (Mailer::$failures > 0) flash('erro', 'A ação foi feita, mas o e-mail NÃO foi enviado: ' . (Mailer::$lastError ?: 'erro desconhecido') . '.');
+            redirect('empresa-usuarios', $page > 1 ? ['pg' => $page] : []);
+        }
+        [$members, $total, $pg, $pages] = CompanyMember::ofCompany((int) $emp['id'], max(1, (int) ($_GET['pg'] ?? 1)), self::MEMBERS_PER_PAGE);
+        $this->page('company/users', [
+            'emp'     => $emp,
+            'membros' => $members,
+            'total'   => $total,
+            'pg'      => $pg,
+            'paginas' => $pages,
+            'erros'   => $_SESSION['erros_membro'] ?? [],
+            'old'     => $_SESSION['old_membro'] ?? [],
+        ], 'usuarios', 'Usuários da empresa');
+        unset($_SESSION['erros_membro'], $_SESSION['old_membro']);
+    }
+
+    /** GET /painel/senha  POST /painel/senha */
+    public function senha(): void
+    {
+        $emp = Auth::requireCompany(true);
+        $member = $emp['usuario'];
+        $error = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            $current = (string) ($_POST['atual'] ?? '');
+            $new = (string) ($_POST['nova'] ?? '');
+            if (!password_verify($current, $member['senha_hash'])) $error = 'A senha atual (provisória) não confere.';
+            elseif (!CompanyForm::passwordStrong($new)) $error = 'A nova senha precisa ter 8 ou mais caracteres, com letras e números.';
+            elseif ($new === $current) $error = 'A nova senha precisa ser diferente da senha provisória.';
+            elseif ($new !== (string) ($_POST['confirma'] ?? '')) $error = 'A confirmação não é igual à nova senha.';
+            else {
+                CompanyMember::changePassword((int) $member['id'], $new);
+                flash('ok', 'Senha criada. Bem-vindo(a)!');
+                redirect('painel');
+            }
+        }
+        render('company/change-password', ['titulo' => 'Crie a sua senha', 'ambiente' => 'empresa', 'erro' => $error, 'forcada' => (bool) (int) $member['trocar_senha'], 'emp' => $emp], 'auth');
+    }
+
     /** POST /painel/aviso-dispensar */
     public function dispensarAviso(): void
     {
