@@ -28,6 +28,8 @@ $rotas = [
     'vaga-editar'       => ['CompanyAreaController',    'formVaga'],
     'vaga-encerrar'     => ['CompanyAreaController',    'encerrar'],
     'aviso-dispensar'   => ['CompanyAreaController',    'dispensarAviso'],
+    'empresa-usuarios'  => ['CompanyAreaController',    'usuarios'],
+    'empresa-senha'     => ['CompanyAreaController',    'senha'],
 
     'admin'             => ['AdminController',         'painel'],
     'admin-vagas'       => ['AdminController',         'vagas'],

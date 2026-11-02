@@ -66,7 +66,7 @@ class AdminController
         Auth::requireAdmin();
         $company = Company::comContagem((int) ($_GET['id'] ?? 0));
         if (!$company) { http_response_code(404); render('shared/error', ['titulo' => 'Não encontrada', 'msg' => 'Empresa não encontrada.', 'area' => 'admin', 'secao' => 'empresas'], 'app'); return; }
-        $this->renderPage('admin/company-detail', ['e' => $company, 'vagas' => Vaga::todasDaEmpresa((int) $company['id']), 'hist' => AuditLog::da('empresa', (int) $company['id']), 'desemp' => Visits::detail('empresa', (int) $company['id'])], 'empresas', $company['nome']);
+        $this->renderPage('admin/company-detail', ['e' => $company, 'vagas' => Vaga::todasDaEmpresa((int) $company['id']), 'hist' => AuditLog::da('empresa', (int) $company['id']), 'desemp' => Visits::detail('empresa', (int) $company['id']), 'membros' => CompanyMember::ofCompany((int) $company['id'], 1, 200)[0]], 'empresas', $company['nome']);
     }
 
     public function aprovacoes(): void
@@ -177,6 +177,15 @@ class AdminController
                 if (!Vaga::mudarStatus($id, $newStatus, $reason ?: null, $actor[0], $actor[1])) { flash('erro', 'Essa ação não é permitida para a situação atual da vaga (' . Status::rotuloSituacao($job['situacao']) . ').'); $goBack(); }
                 Notifier::vagaAvaliada(Vaga::porId($id), $job['empresa']);
                 flash('ok', 'Vaga ' . ['aprovar' => 'aprovada', 'rejeitar' => 'rejeitada', 'encerrar' => 'encerrada'][$action] . '. A empresa foi avisada por e-mail.');
+                break;
+
+            case 'membro':
+                $member = CompanyMember::find($id);
+                $company = $member ? Company::porId((int) $member['empresa_id']) : null;
+                if (!$member || !$company) { flash('erro', 'Usuário não encontrado.'); $goBack(); }
+                $error = MemberActions::changeStatus($company, $member, $action, 'admin', $admin, 'A Coordenação de estágios', $reason ?: null);
+                if ($error) { flash('erro', $error); $goBack(); }
+                flash('ok', ['desativar' => 'Acesso desativado.', 'ativar' => 'Acesso reativado.', 'excluir' => 'Usuário removido.'][$action] . ' ' . $member['nome'] . ' foi avisado por e-mail.');
                 break;
 
             case 'admin':
