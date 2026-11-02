@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/schema.php';
 echo "-- Vagas de Estágio - IFSP Guarulhos | esquema MySQL/MariaDB\n-- Importe no phpMyAdmin (aba Importar) com o banco já selecionado.\n";
-echo "-- O administrador é criado no primeiro acesso ao site, a partir de ADMIN_EMAIL/ADMIN_PASSWORD do .env.\n\n";
+echo "-- O administrador principal é criado no primeiro acesso ao site a partir de ADMIN_EMAIL do .env e recebe por e-mail uma senha provisória e o link para criar a senha.\n\n";
 echo "SET NAMES utf8mb4;\n\n";
 foreach (schema_sql() as $sql) echo preg_replace('/\s+/', ' ', trim($sql)) . ";\n\n";
 echo "-- Registra as migrations já contempladas por este esquema (assim o sistema não tenta reaplicá-las)\nINSERT INTO migracoes (nome, aplicada_em) VALUES\n";
