@@ -29,6 +29,7 @@
       <section class="tv-slide <?= $i === 0 ? 'is-active' : '' ?>" data-title="<?= e($v['titulo'] . ' · ' . $v['empresa']['nome']) ?>" aria-roledescription="slide" aria-label="<?= $i + 1 ?> de <?= count($vagas) ?>">
         <div class="tv-media<?= $image ? ' has-img' : '' ?>"<?= $image ? ' style="--bn:url(\'' . e($image) . '\')"' : '' ?>><?= vaga_imagem($v) ?></div>
         <div class="tv-info">
+          <div class="tv-head">
           <div class="tv-tags">
             <span class="tv-tag tv-tag-type"><?= e($v['tipo']) ?></span>
             <?php if (!empty($v['destaque'])): ?><span class="tv-tag tv-tag-star">Destaque</span><?php endif; ?>
@@ -36,6 +37,7 @@
           </div>
           <h1><?= e($v['titulo']) ?></h1>
           <div class="tv-company"><?= Ui::logo($v['empresa'], 48) ?><span><?= e($v['empresa']['nome']) ?></span></div>
+          </div>
           <dl class="tv-facts">
             <div><dt><?= $v['tipo'] === 'Estágio' ? 'Bolsa-auxílio' : 'Salário' ?></dt><dd><?= e($v['bolsa_txt']) ?></dd></div>
             <div><dt>Modalidade</dt><dd><?= e($v['modalidade']) ?></dd></div>

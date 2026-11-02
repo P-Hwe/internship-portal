@@ -76,10 +76,10 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(420px, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  gap: 2.4vw;
-  padding: 3vh 3vw;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 2.4vh;
+  padding: 2.4vh 3vw;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.6s ease;
@@ -90,10 +90,13 @@
 }
 .tv-media {
   position: relative;
+  justify-self: center;
   align-self: stretch;
-  width: 100%;
   height: 100%;
+  width: auto;
+  max-width: 100%;
   min-height: 0;
+  aspect-ratio: 900 / 400;
   border-radius: 14px;
   overflow: hidden;
   background: #e6ebe8;
@@ -118,10 +121,16 @@
   font-size: 8vh;
 }
 .tv-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2vw;
+  min-width: 0;
+}
+.tv-head {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 2vh;
+  gap: 1.2vh;
   min-width: 0;
 }
 .tv-tags {
@@ -150,13 +159,13 @@
 }
 .tv-info h1 {
   margin: 0;
-  font-size: clamp(26px, 5vh, 64px);
-  line-height: 1.08;
+  font-size: clamp(22px, 4.2vh, 54px);
+  line-height: 1.1;
   font-weight: 800;
   letter-spacing: -0.015em;
   overflow-wrap: anywhere;
   display: block;
-  max-height: 3.3em;
+  max-height: 2.25em;
   overflow: hidden;
   color: var(--tv-ink);
 }
@@ -335,15 +344,17 @@
     grid-template-rows: auto;
   }
   .tv-media {
+    width: 100%;
     height: auto;
-    aspect-ratio: 900 / 400;
     border-radius: 10px;
   }
   .tv-info {
+    grid-template-columns: 1fr;
     gap: 14px;
   }
   .tv-info h1 {
     font-size: 24px;
+    max-height: none;
   }
   .tv-facts div {
     padding: 10px 12px;
