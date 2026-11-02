@@ -7,13 +7,13 @@
   var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- modo noturno (tokens: só troca data-theme) ---------- */
-  function tema(t) {
+  function tema(t, save) {
     document.documentElement.setAttribute('data-theme', t);
-    try { localStorage.setItem('vg-theme', t); } catch (e) {}
+    if (save) { try { localStorage.setItem('vg-theme-choice', t); } catch (e) {} }
     $$('[data-theme-toggle]').forEach(function (b) { b.setAttribute('aria-pressed', t === 'dark'); b.setAttribute('aria-label', t === 'dark' ? 'Ativar modo claro' : 'Ativar modo noturno'); });
   }
   $$('[data-theme-toggle]').forEach(function (b) {
-    b.addEventListener('click', function () { tema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); });
+    b.addEventListener('click', function () { tema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true); });
   });
   tema(document.documentElement.getAttribute('data-theme') || 'light');
 
