@@ -18,16 +18,12 @@ class Bootstrap
             migrar();
         }
 
-        if (!Database::val('SELECT 1 FROM admins LIMIT 1')) {
-            $password = (string) env('ADMIN_PASSWORD', '');
-            if (strlen($password) >= 8) {
-                Database::insert('admins', [
-                    'nome'       => 'Coordenação',
-                    'email'      => mb_strtolower((string) env('ADMIN_EMAIL', 'admin@ifsp.local')),
-                    'senha_hash' => Auth::hash($password),
-                    'papel'      => 'raiz',
-                    'criado_em'  => Database::now(),
-                ]);
+        $email = mb_strtolower(trim((string) env('ADMIN_EMAIL', '')));
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) && !Database::val('SELECT 1 FROM admins LIMIT 1')) {
+            [, , $mailed] = Admin::provisionRoot($email);
+            if (!$mailed) {
+                @file_put_contents(ROOT_PATH . '/storage/erro.log', date('c') . " Primeiro acesso: o e-mail para $email não foi enviado ("
+                    . (Mailer::$lastError ?: 'erro desconhecido') . "). Rode php database/seed.php no servidor para ver a senha provisória.\n\n", FILE_APPEND);
             }
         }
     }
