@@ -69,7 +69,7 @@
 <section class="ui-section" style="margin-top:22px">
     <h2>Usuários da empresa <span class="ui-hint" style="font-weight:400">· <?= count($membros) ?></span></h2>
     <div class="ui-table-wrap"><table class="ui-table">
-        <thead><tr><th>Nome</th><th>Permissão</th><th>Situação</th><th>Último acesso</th><th></th></tr></thead>
+        <thead><tr><th>Nome</th><th>Cargo</th><th>Situação</th><th>Último acesso</th><th></th></tr></thead>
         <tbody>
         <?php foreach ($membros as $m): $f = ['tipo' => 'membro', 'id' => $m['id'], 'ret' => 'admin-empresa', 'ret_id' => $e['id']]; $principal = $m['papel'] === CompanyMember::PRINCIPAL; ?>
             <tr>
