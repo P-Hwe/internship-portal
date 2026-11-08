@@ -12,8 +12,6 @@ class Credits
         ['slug' => 'rodrigo', 'nome' => 'Rodrigo Querino do Amaral', 'curto' => 'Rodrigo Querino', 'area' => 'Crescimento & experiência', 'papel' => 'Developer & Growth Marketing'],
     ];
 
-    public const VALUES = ['Acessibilidade', 'Inovação', 'Ética', 'Responsabilidade Social', 'Colaboração', 'Credibilidade', 'Desenvolvimento Contínuo'];
-
     private static function firstFile(string $dir, string $name, array $exts): ?string
     {
         foreach ($exts as $ext) {
