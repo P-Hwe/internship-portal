@@ -19,7 +19,7 @@ $glyphOn = ['1-1' => 1, '1-2' => 1, '2-0' => 1, '2-1' => 1, '3-0' => 1, '3-1' =>
       <h2><?= e($pitch[0]) ?></h2>
       <p><?= e($pitch[1]) ?></p>
     </div>
-    <footer>Instituto Federal de São Paulo · Câmpus Guarulhos</footer>
+    <footer>Instituto Federal de São Paulo · Câmpus Guarulhos · <a href="<?= url('sobre') ?>">Sobre e créditos</a></footer>
   </aside>
   <div class="auth-panel">
     <div class="auth-top">

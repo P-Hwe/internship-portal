@@ -158,6 +158,7 @@
     <div class="footer-ferramenta">
         <div class="container">
             <p>Desenvolvido com o CMS de c&oacute;digo aberto <a href="http://www.joomla.org">Joomla</a></p>
+            <p class="vb-credit">Mural ESTAGIA+ desenvolvido por estudantes do IFSP Câmpus Guarulhos em projeto de extensão · <a href="<?= url('sobre') ?>">Sobre e créditos</a></p>
         </div>
     </div>
     <div class="footer-atalhos visible-phone">
@@ -181,7 +182,7 @@
 <script src="https://barra.brasil.gov.br/barra.js?cor=verde" type="text/javascript"></script><noscript>&nbsp;
 </noscript>
 
-<script src="<?= BASE_URL ?>public/js/vagas.js"></script>
+<script src="<?= BASE_URL ?>public/js/vagas.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/vagas.js') ?>"></script>
 </body>
 
 </html>

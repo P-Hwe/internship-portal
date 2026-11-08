@@ -163,9 +163,10 @@
 (function () {
   'use strict';
   document.addEventListener('click', function (ev) {
-    var a = ev.target.closest ? ev.target.closest('a[href^="#"]') : null;
+    var a = ev.target.closest ? ev.target.closest('a[href*="#"]') : null;
     if (!a || a.classList.contains('mainmenu-toggle')) return;
-    var id = a.getAttribute('href').slice(1);
+    if (a.pathname !== location.pathname || a.search !== location.search) return;
+    var id = a.hash.slice(1);
     if (!id) return;
     if (id === 'topo') { ev.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     var alvo = document.getElementById(id);
@@ -174,7 +175,15 @@
     alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (!alvo.hasAttribute('tabindex')) alvo.setAttribute('tabindex', '-1');
     alvo.focus({ preventScroll: true });
+    if (history.replaceState) history.replaceState(null, '', '#' + id);
   });
+  var chegada = location.hash && document.getElementById(location.hash.slice(1));
+  if (chegada && chegada.id !== 'topo') {
+    chegada.scrollIntoView({ block: 'start' });
+    window.addEventListener('load', function () {   // os scripts do tema do IFSP podem voltar ao topo depois do load
+      setTimeout(function () { if (window.scrollY < 50) chegada.scrollIntoView({ block: 'start' }); }, 300);
+    });
+  }
 })();
 
 (function () {

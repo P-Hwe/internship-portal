@@ -2349,3 +2349,45 @@ a.is-active .ui-count {
 .ui-modal-head h2 { margin: 0; font-size: 20px; }
 .ui-modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .ui-modal .ui-alert { margin: 10px 0; }
+
+/* logo oficial (quando public/img/marca/estagiamais-logo.* existir) */
+.app-brand.has-logo {
+  align-items: center;
+}
+.app-logo {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 150px;
+}
+.app-brand.has-logo .app-wordmark small {
+  margin-top: 0;
+}
+
+/* termo oficial exibido no cadastro (quando public/docs/termo-de-cooperacao.pdf existir) */
+.ui-term-doc {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  margin: 0 0 18px;
+}
+.ui-term-doc h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.ui-term-doc p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.ui-term-pdf {
+  width: 100%;
+  height: 460px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+}
+.auth-aside footer a {
+  color: inherit;
+  font-weight: 600;
+}
