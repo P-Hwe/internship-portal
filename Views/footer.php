@@ -182,7 +182,7 @@
 <script src="https://barra.brasil.gov.br/barra.js?cor=verde" type="text/javascript"></script><noscript>&nbsp;
 </noscript>
 
-<script src="<?= BASE_URL ?>public/js/vagas.js"></script>
+<script src="<?= BASE_URL ?>public/js/vagas.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/vagas.js') ?>"></script>
 </body>
 
 </html>

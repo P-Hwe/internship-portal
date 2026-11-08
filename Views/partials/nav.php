@@ -14,7 +14,7 @@ $navEmp  = $navRole === 'empresa' ? Auth::empresa() : null;
     <?php else: ?>
       <a href="<?= url('empresa-login') ?>"><?= icon('user', 16) ?> Sou empresa</a>
     <?php endif; ?>
-    <a href="<?= url('sobre') ?>" class="<?= $ativa === 'sobre' ? 'is-active' : '' ?>"><?= icon('info', 16) ?> Sobre</a>
+    <a href="<?= $ativa === 'sobre' ? url('sobre') : url() . '#sobre' ?>" class="<?= $ativa === 'sobre' ? 'is-active' : '' ?>"><?= icon('info', 16) ?> Sobre</a>
     <a href="<?= url('tv') ?>" target="_blank" rel="noopener" class="vg-tab-right"><?= icon('tv', 16) ?> Modo TV</a>
   </nav>
   <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="vg-flash vg-flash-<?= e($t) ?>" role="status"><?= icon($t === 'erro' ? 'info' : 'check', 18) ?> <span><?= e($m) ?></span></div><?php endforeach; unset($_SESSION['flash']); ?>
