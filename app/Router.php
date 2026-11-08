@@ -3,7 +3,7 @@ class Router
 {
     public const ROUTES = [
         'home' => '', 'vaga' => 'vaga/{id}', 'encerradas' => 'encerradas', 'tv' => 'tv',
-        'empresas' => 'empresas', 'empresa' => 'empresa/{id}', 'externo' => 'externo/{id}',
+        'empresas' => 'empresas', 'empresa' => 'empresa/{id}', 'externo' => 'externo/{id}', 'sobre' => 'sobre',
         'empresa-login' => 'empresa/login', 'empresa-cadastro' => 'empresa/cadastro',
         'empresa-concluido' => 'empresa/concluido', 'admin-login' => 'admin/login', 'sair' => 'sair',
         'senha-esqueci' => 'senha/esqueci', 'senha-redefinir' => 'senha/redefinir',

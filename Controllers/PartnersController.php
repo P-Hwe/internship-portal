@@ -35,6 +35,11 @@ class PartnersController
         ]);
     }
 
+    public function sobre(): void
+    {
+        view('public/about', ['titulo' => 'Quem fez o ESTAGIA+', 'equipe' => Credits::TEAM, 'demandante' => Credits::DEMANDANTE]);
+    }
+
     public function perfil(): void
     {
         $company = Company::parceiraPorId((int) ($_GET['id'] ?? 0));

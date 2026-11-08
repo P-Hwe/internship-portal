@@ -222,8 +222,9 @@
     }
     function erros() { lis.forEach(function (li, i) { li.classList.toggle('has-error', !!$('.is-invalid', panels[i]) || !!$$('[data-err]', panels[i]).some(function (e) { return e.textContent; })); }); }
     function ir(i, foco) {
-      i = Math.max(0, Math.min(ult2, i)); var mudou = i !== atual; atual = i; alcance = Math.max(alcance, i);
-      panels.forEach(function (p, k) { p.classList.toggle('is-active', k === i); });
+      i = Math.max(0, Math.min(ult2, i)); var mudou = i !== atual, sentido = atual === -1 ? '' : (i > atual ? 'is-in-next' : 'is-in-prev'); atual = i; alcance = Math.max(alcance, i);
+      panels.forEach(function (p, k) { p.classList.toggle('is-active', k === i); p.classList.remove('is-in-next', 'is-in-prev'); });
+      if (mudou && sentido && !reduz) { void panels[i].offsetWidth; panels[i].classList.add(sentido); }
       lis.forEach(function (li, k) { li.classList.toggle('is-current', k === i); li.classList.toggle('is-done', k !== i && k < alcance); var b = $('button', li); b.disabled = k > alcance; if (k === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
       $('i', barra).style.width = ((i + 1) / panels.length * 100) + '%';
       bVolta.hidden = i === 0; bProx.hidden = i === ult2; bEnvia.hidden = i !== ult2; if (i === ult2) resumo();

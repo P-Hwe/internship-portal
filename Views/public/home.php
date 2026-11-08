@@ -107,5 +107,6 @@ $baseParams = array_filter(array_merge($filtros, ['vista' => $viewMode === 'list
   </div>
 </aside>
 <?php endif; ?>
+<?php require __DIR__ . '/../partials/team-banner.php'; ?>
 </div>
 <?php require __DIR__ . '/../footer.php'; ?>

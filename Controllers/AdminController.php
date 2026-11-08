@@ -132,10 +132,12 @@ class AdminController
     public function relatorios(): void
     {
         Auth::requireAdmin();
-        $this->renderPage('admin/reports', ['vag' => Vaga::contagens(), 'emp' => Stats::empresas()], 'relatorios', 'Relatórios');
+        $this->renderPage('admin/reports', ['vag' => Vaga::contagens(), 'emp' => Stats::empresas(), 'usu' => CompanyMember::countAll(), 'periodos' => self::EXPORT_PERIODS], 'relatorios', 'Relatórios');
     }
 
     private const ADMINS_PER_PAGE = 12;
+
+    public const EXPORT_PERIODS = ['tudo' => ['Desde o início', null], '30' => ['Últimos 30 dias', 30], '90' => ['Últimos 3 meses', 90], '365' => ['Últimos 12 meses', 365]];
 
     private const RETORNOS = ['admin', 'admin-vagas', 'admin-vaga', 'admin-empresas', 'admin-empresa', 'admin-aprovacoes', 'admin-usuarios', 'admin-atividade'];
 
@@ -239,18 +241,26 @@ class AdminController
     public function exportar(): void
     {
         Auth::requireAdmin();
-        $type = ($_GET['tipo'] ?? '') === 'empresas' ? 'empresas' : 'vagas';
+        $type = in_array($_GET['tipo'] ?? '', ['vagas', 'empresas', 'usuarios'], true) ? $_GET['tipo'] : 'vagas';
+        $days = self::EXPORT_PERIODS[(string) ($_GET['periodo'] ?? '')][1] ?? null;
+        $since = $days ? date('Y-m-d', strtotime("today -$days days")) : null;
+        $recent = fn(array $rows) => $since ? array_filter($rows, fn($r) => substr((string) $r['criado_em'], 0, 10) >= $since) : $rows;
         $escape = function ($v) { $v = (string) $v; return preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v; };
         header('Content-Type: text/csv; charset=UTF-8'); header('Content-Disposition: attachment; filename="' . $type . '-' . date('Ymd') . '.csv"'); header('X-Content-Type-Options: nosniff');
         $output = fopen('php://output', 'w'); fwrite($output, "\xEF\xBB\xBF");
-        if ($type === 'vagas') {
+        if ($type === 'usuarios') {
+            fputcsv($output, ['Empresa', 'CNPJ', 'Nome', 'E-mail', 'Cargo', 'Situação', 'Último acesso', 'Desde'], ';');
+            foreach (CompanyMember::allForExport($since) as $m) fputcsv($output, array_map($escape, [$m['empresa'], Cnpj::format($m['cnpj']), $m['nome'], $m['email'], CompanyMember::roleLabel($m['papel']),
+                $m['ativo'] ? ((int) $m['trocar_senha'] ? 'Aguardando 1º acesso' : 'Ativo') : ($m['desativado_por'] === 'admin' ? 'Desativado pela Coordenação' : 'Desativado pela empresa'),
+                $m['ultimo_acesso'] ? date('d/m/Y H:i', strtotime($m['ultimo_acesso'])) : 'Nunca', data_br(substr($m['criado_em'], 0, 10))]), ';');
+        } elseif ($type === 'vagas') {
             fputcsv($output, ['Código', 'Título', 'Tipo', 'Empresa', 'Área', 'Modalidade', 'Local', 'Remuneração', 'Situação', 'Publicação', 'Data limite', 'Criada em'], ';');
             [$rows] = Vaga::listar(null, 'todas', '', '', 'recentes', 1, 100000);
-            foreach ($rows as $job) fputcsv($output, array_map($escape, [$job['codigo'], $job['titulo'], $job['tipo'], $job['empresa']['nome'], $job['area'], $job['modalidade'], $job['local'], $job['bolsa_txt'], Status::rotuloSituacao($job['situacao']), data_br($job['data_publicacao']), data_br($job['data_limite']), data_br(substr($job['criado_em'], 0, 10))]), ';');
+            foreach ($recent($rows) as $job) fputcsv($output, array_map($escape, [$job['codigo'], $job['titulo'], $job['tipo'], $job['empresa']['nome'], $job['area'], $job['modalidade'], $job['local'], $job['bolsa_txt'], Status::rotuloSituacao($job['situacao']), data_br($job['data_publicacao']), data_br($job['data_limite']), data_br(substr($job['criado_em'], 0, 10))]), ';');
         } else {
             fputcsv($output, ['CNPJ', 'Razão social', 'Nome fantasia', 'Segmento', 'Cidade/UF', 'Responsável', 'E-mail', 'Situação', 'Vagas', 'Cadastro'], ';');
             [$rows] = Company::listarAdmin('todas', '', 1, 100000);
-            foreach ($rows as $company) fputcsv($output, array_map($escape, [Cnpj::format($company['cnpj']), $company['razao_social'], $company['nome'], $company['segmento'], trim(($company['cidade'] ?? '') . '/' . ($company['uf'] ?? ''), '/'), $company['responsavel'], $company['email'], Status::STATUS_EMPRESA[$company['status']][0] ?? $company['status'], $company['total_vagas'], data_br(substr($company['criado_em'], 0, 10))]), ';');
+            foreach ($recent($rows) as $company) fputcsv($output, array_map($escape, [Cnpj::format($company['cnpj']), $company['razao_social'], $company['nome'], $company['segmento'], trim(($company['cidade'] ?? '') . '/' . ($company['uf'] ?? ''), '/'), $company['responsavel'], $company['email'], Status::STATUS_EMPRESA[$company['status']][0] ?? $company['status'], $company['total_vagas'], data_br(substr($company['criado_em'], 0, 10))]), ';');
         }
         fclose($output); exit;
     }
