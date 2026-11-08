@@ -48,6 +48,14 @@ $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros)
                     é coletado. Os dados são tratados conforme a LGPD.</p>
                 <p><em>Texto-base: revisar e aprovar com a Coordenação do IFSP antes da publicação.</em></p>
             </div>
+            <?php if ($termoOficial = Credits::officialTerm()): ?>
+            <div class="ui-term-doc">
+                <h3>Termo de cooperação</h3>
+                <p>Leia o termo abaixo, baixe, preencha, assine e anexe o arquivo assinado no campo seguinte.</p>
+                <iframe class="ui-term-pdf" src="<?= e($termoOficial) ?>#view=FitH" title="Termo de cooperação do IFSP Câmpus Guarulhos" loading="lazy"></iframe>
+                <a class="ui-btn ui-btn-sm" href="<?= e($termoOficial) ?>" download><?= icon('file', 15) ?> Baixar o termo para assinar</a>
+            </div>
+            <?php endif; ?>
             <div class="ui-field"><label for="termo">Termo de cooperação assinado <span class="ui-req"
                         aria-hidden="true">*</span></label>
                 <input id="termo" name="termo" type="file" accept=".pdf,.jpg,.jpeg,.png" data-file
