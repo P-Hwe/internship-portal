@@ -46,6 +46,18 @@ class CompanyMember
         return [$rows, $total, $page, $pages];
     }
 
+    public static function countAll(): int
+    {
+        return (int) Database::val('SELECT COUNT(*) FROM empresa_usuarios WHERE excluido_em IS NULL');
+    }
+
+    public static function allForExport(?string $since = null): array
+    {
+        return Database::all("SELECT u.*, e.nome AS empresa, e.cnpj FROM empresa_usuarios u JOIN empresas e ON e.id = u.empresa_id
+            WHERE u.excluido_em IS NULL" . ($since ? ' AND u.criado_em >= :d' : '') . "
+            ORDER BY e.nome, (u.papel = 'principal') DESC, (u.papel = 'gestor') DESC, u.nome", $since ? ['d' => $since] : []);
+    }
+
     public static function create(int $companyId, string $name, string $email, string $role, ?int $creatorId): array
     {
         $password = Auth::temporaryPassword();
