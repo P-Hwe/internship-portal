@@ -8,3 +8,4 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="<?= e(BASE_URL) ?>public/css/app.css?v=<?= (int) @filemtime(ROOT_PATH . '/public/css/app.css') ?>">
 <link rel="stylesheet" href="<?= e(BASE_URL) ?>public/css/views.css?v=<?= (int) @filemtime(ROOT_PATH . '/public/css/views.css') ?>">
+<link rel="stylesheet" href="<?= e(BASE_URL) ?>public/css/motion.css?v=<?= (int) @filemtime(ROOT_PATH . '/public/css/motion.css') ?>">
