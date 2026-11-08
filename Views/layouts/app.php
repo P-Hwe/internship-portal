@@ -82,4 +82,5 @@ $idleSeconds = (int) env('SESSION_IDLE_' . ($isAdmin ? 'ADMIN' : 'EMPRESA'), $is
   <div class="ui-modal-actions"><button type="button" class="ui-btn" id="ui-dlg-cancel">Cancelar</button><button type="button" class="ui-btn ui-btn-primary" id="ui-dlg-ok">Confirmar</button></div>
 </div></dialog>
 <script src="<?= e(BASE_URL) ?>public/js/app.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/app.js') ?>"></script>
+<script src="<?= e(BASE_URL) ?>public/js/motion.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/motion.js') ?>"></script>
 </body></html>

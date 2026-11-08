@@ -191,7 +191,57 @@ class Ui
 
     public static function comparar(array $linhas, string $descricao): string
     {
-        return self::barras($linhas, [['atual', 'Período atual', 'var(--chart-1)'], ['anterior', 'Período anterior', 'var(--chart-prev)']], $descricao);
+        return self::linhas($linhas, [['atual', 'Período atual', 'var(--chart-1)'], ['anterior', 'Período anterior', 'var(--chart-prev)']], $descricao);
+    }
+
+    public static function linhas(array $linhas, array $series, string $descricao): string
+    {
+        static $seq = 0;
+        $max = 0;
+        foreach ($linhas as $l) {
+            foreach ($series as [$k]) $max = max($max, (int) ($l[$k] ?? 0));
+        }
+        if ($max <= 0 || count($linhas) < 2) return self::vazio('Sem dados no período', 'Os gráficos aparecem quando houver registros.');
+        $id = 'ln' . (++$seq);
+        $W = 560; $H = 210; $pt = 14; $pb = 28; $pl = 30; $pr = 8;
+        $n = count($linhas); $ih = $H - $pt - $pb; $step = ($W - $pl - $pr) / ($n - 1);
+        $top = max(4, (int) ceil($max / 4) * 4);
+        $x = fn(int $i) => round($pl + $i * $step, 1);
+        $y = fn(int $v) => round($pt + $ih - $ih * $v / $top, 1);
+        $smooth = function (array $p): string {
+            $c = count($p); $dx = []; $m = [];
+            for ($i = 0; $i < $c - 1; $i++) { $dx[$i] = $p[$i + 1][0] - $p[$i][0]; $m[$i] = $dx[$i] ? ($p[$i + 1][1] - $p[$i][1]) / $dx[$i] : 0; }
+            $t = [$m[0]];
+            for ($i = 1; $i < $c - 1; $i++) $t[$i] = $m[$i - 1] * $m[$i] <= 0 ? 0 : 3 * ($dx[$i - 1] + $dx[$i]) / ((2 * $dx[$i] + $dx[$i - 1]) / $m[$i - 1] + ($dx[$i] + 2 * $dx[$i - 1]) / $m[$i]);
+            $t[$c - 1] = $m[$c - 2];
+            $d = 'M' . $p[0][0] . ',' . $p[0][1];
+            for ($i = 0; $i < $c - 1; $i++) {
+                $h = $dx[$i] / 3;
+                $d .= ' C' . round($p[$i][0] + $h, 1) . ',' . round($p[$i][1] + $t[$i] * $h, 1) . ' ' . round($p[$i + 1][0] - $h, 1) . ',' . round($p[$i + 1][1] - $t[$i + 1] * $h, 1) . ' ' . $p[$i + 1][0] . ',' . $p[$i + 1][1];
+            }
+            return $d;
+        };
+        $svg = '<defs><linearGradient id="' . $id . 'f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' . e($series[0][2]) . ';stop-opacity:.32"/><stop offset="1" style="stop-color:' . e($series[0][2]) . ';stop-opacity:0"/></linearGradient></defs>';
+        for ($i = 0; $i <= 4; $i++) {
+            $gy = $pt + $ih - $ih * $i / 4;
+            $svg .= '<line class="grid" x1="' . $pl . '" x2="' . ($W - $pr) . '" y1="' . $gy . '" y2="' . $gy . '"/><text x="' . ($pl - 6) . '" y="' . ($gy + 4) . '" text-anchor="end">' . round($top * $i / 4) . '</text>';
+        }
+        foreach (array_reverse($series, true) as $s => [$k, $rot, $cor]) {
+            $pts = [];
+            foreach (array_values($linhas) as $i => $l) $pts[] = [$x($i), $y((int) ($l[$k] ?? 0))];
+            $d = $smooth($pts);
+            if ($s === 0) $svg .= '<path class="ui-line-area" d="' . $d . ' L' . end($pts)[0] . ',' . ($pt + $ih) . ' L' . $pts[0][0] . ',' . ($pt + $ih) . ' Z" fill="url(#' . $id . 'f)"/>';
+            $svg .= '<path class="ui-line ui-line-s' . $s . '" d="' . $d . '"' . ($s === 0 ? ' pathLength="1"' : '') . ' style="--c:' . e($cor) . '"/>';
+        }
+        foreach (array_values($linhas) as $i => $l) {
+            $tip = $l['rot'] . ': ' . implode(' · ', array_map(fn($s) => $s[1] . ' ' . (int) ($l[$s[0]] ?? 0), $series));
+            $svg .= '<g class="ui-line-col" tabindex="0" aria-label="' . e($tip) . '"><title>' . e($tip) . '</title><rect x="' . round($x($i) - $step / 2, 1) . '" y="' . $pt . '" width="' . round($step, 1) . '" height="' . $ih . '"/><line x1="' . $x($i) . '" x2="' . $x($i) . '" y1="' . $pt . '" y2="' . ($pt + $ih) . '"/>';
+            foreach ($series as $s => [$k, , $cor]) $svg .= '<circle class="ui-line-pt' . $s . '" cx="' . $x($i) . '" cy="' . $y((int) ($l[$k] ?? 0)) . '" r="4.5" style="--c:' . e($cor) . '"/>';
+            $svg .= '</g>';
+            if ($i % max(1, (int) ceil($n / 10)) === 0) $svg .= '<text x="' . $x($i) . '" y="' . ($H - 8) . '" text-anchor="middle">' . e($l['rot']) . '</text>';
+        }
+        $lg = implode('', array_map(fn($s) => '<span><i style="background:' . e($s[2]) . '"></i>' . e($s[1]) . '</span>', $series));
+        return '<svg class="ui-chart ui-linechart" viewBox="0 0 ' . $W . ' ' . $H . '" role="img" aria-label="' . e($descricao) . '">' . $svg . '</svg><div class="ui-legend">' . $lg . '</div>';
     }
 
     public static function barras(array $linhas, array $series, string $descricao): string
