@@ -199,6 +199,7 @@ class AdminController
                     if (mb_strlen($formData['nome'] ?? '') < 3) $errors['nome'] = 'Informe o nome.';
                     if (!filter_var($formData['email'] ?? '', FILTER_VALIDATE_EMAIL)) $errors['email'] = 'E-mail inválido.';
                     elseif (Admin::emailTaken($formData['email'])) $errors['email'] = 'Este e-mail já foi usado por um administrador.';
+                    elseif (CompanyMember::emailTaken($formData['email']) || Company::porEmail($formData['email'])) $errors['email'] = 'Este e-mail já é usado por uma empresa no portal.';
                     if ($errors) { $_SESSION['erros_admin'] = $errors; $_SESSION['old_admin'] = $formData; $goBack(); }
                     [$newAdmin, $temporaryPassword] = Admin::createWithTemporaryPassword($formData['nome'], $formData['email']);
                     AuditLog::registrar('admin', $newAdmin, 'cadastro', null, null, $actor[0], $actor[1], $formData['nome']);
