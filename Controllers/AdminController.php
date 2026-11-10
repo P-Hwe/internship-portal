@@ -162,6 +162,7 @@ class AdminController
                 $newStatus = ['aprovar' => Status::E_APROVADA, 'reprovar' => Status::E_REPROVADA, 'bloquear' => Status::E_BLOQUEADA, 'desbloquear' => Status::E_APROVADA][$action] ?? null;
                 if (!$newStatus) $goBack();
                 if (in_array($action, ['reprovar', 'bloquear'], true) && mb_strlen($reason) < 5) { flash('erro', 'Informe o motivo (ele é enviado à empresa).'); $goBack(); }
+                if ($action === 'aprovar' && empty($company['convenio_arquivo'])) { flash('erro', 'Anexe o convênio assinado por todas as partes (empresa, Diretor(a)-Geral e Coordenação de estágio) antes de aprovar o cadastro.'); redirect('admin-empresa', ['id' => $id]); }
                 if (!Company::mudarStatus($id, $newStatus, $reason ?: null, $actor[0], $actor[1])) { flash('erro', 'Essa ação não é permitida para a situação atual da empresa.'); $goBack(); }
                 $nova = Company::porId($id);
                 if ($action !== 'desbloquear') Notifier::empresaAvaliada($nova);
@@ -175,6 +176,7 @@ class AdminController
                 $newStatus = ['aprovar' => Status::V_APROVADA, 'rejeitar' => Status::V_REJEITADA, 'encerrar' => Status::V_ENCERRADA][$action] ?? null;
                 if (!$newStatus) $goBack();
                 if ($action === 'aprovar' && $job['empresa']['status'] !== Status::E_APROVADA) { flash('erro', 'Aprove a empresa antes de aprovar a vaga.'); $goBack(); }
+                if ($action === 'aprovar' && !Company::podePublicar((array) Company::porId((int) $job['empresa']['id']))) { flash('erro', 'Anexe o convênio assinado por todas as partes antes de aprovar vagas desta empresa.'); $goBack(); }
                 if ($action === 'rejeitar' && mb_strlen($reason) < 5) { flash('erro', 'Informe o motivo (ele é enviado à empresa).'); $goBack(); }
                 if (!Vaga::mudarStatus($id, $newStatus, $reason ?: null, $actor[0], $actor[1])) { flash('erro', 'Essa ação não é permitida para a situação atual da vaga (' . Status::rotuloSituacao($job['situacao']) . ').'); $goBack(); }
                 Notifier::vagaAvaliada(Vaga::porId($id), $job['empresa']);
@@ -226,6 +228,32 @@ class AdminController
         $goBack();
     }
 
+    /** GET baixa o convênio assinado por todas as partes; POST anexa (ou substitui) esse arquivo. */
+    public function convenio(): void
+    {
+        $admin = Auth::requireAdmin();
+        $company = Company::porId((int) ($_GET['id'] ?? 0));
+        if (!$company || $company['status'] === Status::E_ENCERRADA) { http_response_code(404); exit('Empresa não encontrada.'); }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            [$file, $error] = Upload::save($_FILES['convenio'] ?? null, ['application/pdf'], ROOT_PATH . Company::AGREEMENT_DIR, true);
+            if ($error) {
+                flash('erro', $error);
+            } else {
+                Company::anexarConvenio((int) $company['id'], $file, (int) $admin['id']);
+                if ($company['status'] === Status::E_APROVADA) {
+                    Notifier::convenioAssinado($company);
+                    flash('ok', 'Convênio substituído. A empresa foi avisada por e-mail.');
+                } else {
+                    flash('ok', 'Convênio anexado. Agora você já pode aprovar o cadastro da empresa.');
+                }
+            }
+            redirect('admin-empresa', ['id' => $company['id']]);
+        }
+        if (!$company['convenio_arquivo']) { http_response_code(404); exit('Arquivo não encontrado.'); }
+        Upload::send(ROOT_PATH . Company::AGREEMENT_DIR . basename($company['convenio_arquivo']), 'convenio-' . preg_replace('/\W/', '', (string) $company['cnpj']));
+    }
+
     public function termo(): void
     {
         Auth::requireAdmin();
@@ -260,7 +288,7 @@ class AdminController
         } else {
             fputcsv($output, ['CNPJ', 'Razão social', 'Nome fantasia', 'Segmento', 'Cidade/UF', 'Responsável', 'E-mail', 'Situação', 'Vagas', 'Cadastro'], ';');
             [$rows] = Company::listarAdmin('todas', '', 1, 100000);
-            foreach ($recent($rows) as $company) fputcsv($output, array_map($escape, [Cnpj::format($company['cnpj']), $company['razao_social'], $company['nome'], $company['segmento'], trim(($company['cidade'] ?? '') . '/' . ($company['uf'] ?? ''), '/'), $company['responsavel'], $company['email'], Status::STATUS_EMPRESA[$company['status']][0] ?? $company['status'], $company['total_vagas'], data_br(substr($company['criado_em'], 0, 10))]), ';');
+            foreach ($recent($rows) as $company) fputcsv($output, array_map($escape, [$company['cnpj'] ? Cnpj::format($company['cnpj']) : 'Removido (parceria encerrada)', $company['razao_social'], $company['nome'], $company['segmento'], trim(($company['cidade'] ?? '') . '/' . ($company['uf'] ?? ''), '/'), $company['responsavel'], $company['email'], Status::STATUS_EMPRESA[$company['status']][0] ?? $company['status'], $company['total_vagas'], data_br(substr($company['criado_em'], 0, 10))]), ';');
         }
         fclose($output); exit;
     }

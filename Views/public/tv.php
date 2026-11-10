@@ -12,8 +12,8 @@
 <body class="tv" data-tv>
   <header class="tv-top">
     <div class="tv-brand">
-      <img src="<?= BASE_URL ?>public/img/ifsp/if.png" alt="" width="34" height="34">
-      <div><strong>Vagas de estágio e emprego</strong><span>IFSP · Câmpus Guarulhos</span></div>
+      <img class="tv-ifsp" src="<?= BASE_URL ?>public/img/ifsp/marca/ifsp-gru-horizontal-branco.png?v=<?= (int) @filemtime(ROOT_PATH . "/public/img/ifsp/marca/ifsp-gru-horizontal-branco.png") ?>" alt="Instituto Federal de São Paulo, Câmpus Guarulhos" width="323" height="90">
+      <div class="tv-title"><strong>Vagas de estágio e emprego</strong><span>Mural ESTAGIA+</span></div>
     </div>
     <div class="tv-clock"><span data-tv-time>--:--</span><small data-tv-date></small></div>
   </header>

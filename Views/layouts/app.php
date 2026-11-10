@@ -11,10 +11,11 @@ $navGroups = $isAdmin ? [
     'Painel'  => [['painel', 'Visão geral', 'grid', 'painel']],
     'Vagas'   => array_values(array_filter([
         ['empresa-vagas', 'Minhas vagas', 'briefcase', 'vagas'],
-        ($emp['status'] ?? '') === 'aprovada' ? ['vaga-cadastro', 'Publicar vaga', 'plus', 'publicar'] : null,
+        Company::podePublicar($emp) ? ['vaga-cadastro', 'Publicar vaga', 'plus', 'publicar'] : null,
     ])),
     'Empresa' => array_values(array_filter([
         ['empresa-perfil', 'Perfil da empresa', 'building', 'perfil'],
+        ['empresa-convenio', 'Convênio', 'file', 'convenio'],
         $canManage ? ['empresa-desempenho', 'Desempenho', 'trending', 'desempenho'] : null,
         $canManage ? ['empresa-usuarios', 'Usuários', 'users', 'usuarios'] : null,
     ])),
@@ -43,6 +44,7 @@ $idleSeconds = (int) env('SESSION_IDLE_' . ($isAdmin ? 'ADMIN' : 'EMPRESA'), $is
       <a href="<?= url('sobre') ?>" target="_blank" rel="noopener"><?= icon('info', 18) ?> Sobre e créditos</a>
     </nav>
     <div class="app-side-foot">
+      <div class="app-ifsp"><?php $ifspMark = 'horizontal'; $ifspTone = 'auto'; require __DIR__ . '/../partials/ifsp-mark.php'; ?></div>
       <div class="app-account">
         <span class="app-avatar" aria-hidden="true"><?= e($personInitials) ?></span>
         <span class="app-account-who"><strong><?= e($person) ?></strong><small><?= e($personEmail) ?></small></span>

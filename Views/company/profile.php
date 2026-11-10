@@ -83,6 +83,13 @@
                 <dt>Cadastro</dt><dd><?= data_br(substr($emp['criado_em'], 0, 10)) ?></dd>
             </dl>
         </div>
+        <?php if (CompanyMember::isPrincipal($emp['usuario'] ?? null)): ?>
+        <div class="ui-card end-entry" style="margin-top:14px">
+            <h2>Encerrar parceria</h2>
+            <p class="ui-sub" style="margin:0 0 12px">Tira as vagas do mural e apaga os dados da empresa do portal (LGPD). O CNPJ fica livre para um novo cadastro.</p>
+            <a class="ui-btn ui-btn-sm ui-btn-danger-o" href="<?= url('empresa-encerrar') ?>">Encerrar parceria</a>
+        </div>
+        <?php endif; ?>
     </aside>
 </div>
 

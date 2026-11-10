@@ -87,6 +87,7 @@ class Company
             'com_vagas' => ['Com vagas', $q('EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)')],
             'sem_vagas' => ['Sem vagas', $q('NOT EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)')],
             'bloqueadas' => ['Bloqueadas', $q("status = 'bloqueada'")], 'reprovadas' => ['Reprovadas', $q("status = 'reprovada'")],
+            'encerradas' => ['Parceria encerrada', $q("status = 'encerrada'")],
             'todas' => ['Todas', $q('1 = 1')],
         ];
     }
@@ -100,6 +101,7 @@ class Company
             case 'aprovadas':  $where[] = "e.status = 'aprovada'"; break;
             case 'bloqueadas': $where[] = "e.status = 'bloqueada'"; break;
             case 'reprovadas': $where[] = "e.status = 'reprovada'"; break;
+            case 'encerradas': $where[] = "e.status = 'encerrada'"; break;
             case 'ativas':     $where[] = "e.status = 'aprovada' AND e.ultimo_acesso >= :t30"; $params['t30'] = date('Y-m-d H:i:s', time() - 30 * 86400); break;
             case 'com_vagas':  $where[] = 'EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)'; break;
             case 'sem_vagas':  $where[] = 'NOT EXISTS (SELECT 1 FROM vagas v WHERE v.empresa_id = e.id)'; break;
@@ -116,6 +118,68 @@ class Company
         return [$list, $total];
     }
 
+    /**
+     * Encerra a parceria a pedido da empresa (LGPD): tira as vagas do ar, apaga dados de contato, pessoas, arquivos e o CNPJ
+     * (que fica livre para um novo cadastro) e guarda só um registro mínimo para o histórico da Coordenação.
+     * Devolve os dados de contato anteriores para os avisos por e-mail.
+     */
+    public static function encerrarParceria(int $id): ?array
+    {
+        $company = self::porId($id);
+        if (!$company || $company['status'] === Status::E_ENCERRADA) return null;
+        $members = Database::all('SELECT id, nome, email FROM empresa_usuarios WHERE empresa_id = :e', ['e' => $id]);
+        $memberIds = array_map('intval', array_column($members, 'id'));
+        $emails = array_values(array_unique(array_filter(array_map('mb_strtolower', array_merge([$company['email'], $company['email_contato']], array_column($members, 'email'))))));
+        $files = array_filter(array_merge([$company['logo'], $company['banner']], array_column(Database::all('SELECT imagem FROM vagas WHERE empresa_id = :e AND imagem IS NOT NULL', ['e' => $id]), 'imagem')));
+        $term = $company['termo_arquivo'];
+        $agreement = $company['convenio_arquivo'] ?? null;
+        $openJobs = (int) Database::val("SELECT COUNT(*) FROM vagas WHERE empresa_id = :e AND status <> 'encerrada'", ['e' => $id]);
+
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            Database::run("UPDATE vagas SET status = 'encerrada', destaque = 0, contato = '', imagem = NULL, link_site = NULL, link_linkedin = NULL,
+                link_candidatura = NULL, link_plataforma = NULL, motivo = NULL WHERE empresa_id = :e", ['e' => $id]);
+            if ($memberIds) {
+                $in = implode(',', $memberIds);
+                Database::run("DELETE FROM senha_resets WHERE perfil = 'empresa' AND usuario_id IN ($in)");
+            }
+            Database::run('DELETE FROM empresa_usuarios WHERE empresa_id = :e', ['e' => $id]);
+            Database::run("UPDATE acessos_log SET email = NULL, ip = NULL, agente = NULL WHERE perfil = 'empresa' AND usuario_id = :e", ['e' => $id]);
+            foreach ($emails as $email) {
+                Database::run('UPDATE acessos_log SET email = NULL, ip = NULL, agente = NULL WHERE LOWER(email) = :m', ['m' => $email]);
+                Database::run("UPDATE emails_log SET destinatario = '(removido)' WHERE LOWER(destinatario) = :m", ['m' => $email]);
+            }
+            Database::run("UPDATE historico SET detalhe = NULL WHERE entidade = 'empresa' AND entidade_id = :e AND acao LIKE 'usuario_%'", ['e' => $id]);
+            Database::run("DELETE FROM notificacoes WHERE tipo = 'membro' AND referencia_id = :e", ['e' => $id]);
+            Database::update('empresas', $id, [
+                'cnpj' => null, 'razao_social' => null, 'descricao' => null, 'endereco' => '', 'cep' => null, 'logradouro' => null, 'numero' => null,
+                'complemento' => null, 'bairro' => null, 'responsavel' => '', 'cargo' => null, 'telefone' => '', 'celular' => null, 'email' => null,
+                'email_contato' => null, 'site' => null, 'linkedin' => null, 'logo' => null, 'banner' => null, 'senha_hash' => '', 'termo_arquivo' => null,
+                'convenio_arquivo' => null, 'convenio_assinado_em' => null, 'motivo' => null, 'status' => Status::E_ENCERRADA, 'encerrada_em' => Database::now(),
+            ]);
+            AuditLog::registrar('empresa', $id, 'parceria_encerrada', $company['status'], Status::E_ENCERRADA, 'empresa', $id, $openJobs ? $openJobs . ' vaga(s) retiradas do mural' : null);
+            $pdo->commit();
+        } catch (Throwable $t) {
+            $pdo->rollBack();
+            throw $t;
+        }
+        foreach ($files as $f) if (url_upload($f)) @unlink(ROOT_PATH . '/' . $f);
+        if ($term) @unlink(ROOT_PATH . '/storage/termos/' . basename($term));
+        if ($agreement) @unlink(ROOT_PATH . self::AGREEMENT_DIR . basename($agreement));
+        return ['nome' => $company['nome'], 'emails' => $emails, 'vagas' => $openJobs];
+    }
+
+    public const AGREEMENT_DIR = '/storage/convenios/';
+
+    public static function anexarConvenio(int $id, string $file, int $adminId): void
+    {
+        $previous = Database::val('SELECT convenio_arquivo FROM empresas WHERE id = :i', ['i' => $id]);
+        Database::update('empresas', $id, ['convenio_arquivo' => $file, 'convenio_assinado_em' => Database::now()]);
+        if ($previous && $previous !== $file) @unlink(ROOT_PATH . self::AGREEMENT_DIR . basename((string) $previous));
+        AuditLog::registrar('empresa', $id, 'convenio_assinado', null, null, 'admin', $adminId, $previous ? 'nova versão' : null);
+    }
+
     public static function comContagem(int $id): ?array
     {
         return Database::one('SELECT e.*, ' . self::SUBS . ' FROM empresas e WHERE e.id = :id', ['hoje' => date('Y-m-d'), 'id' => $id]);
@@ -127,6 +191,12 @@ class Company
         $extra = $order === 'frequentes' ? " AND (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status IN ('aprovada','encerrada')) > 0" : '';
         $extra .= $order === 'abertas'   ? ' AND (SELECT COUNT(*) FROM vagas v WHERE v.empresa_id = e.id AND v.status = \'aprovada\' AND v.data_publicacao <= :hoje AND v.data_limite >= :hoje) > 0' : '';
         return Database::all('SELECT e.*, ' . self::SUBS . " FROM empresas e WHERE e.status = 'aprovada'$extra ORDER BY $ord LIMIT " . (int) $n, ['hoje' => date('Y-m-d')]);
+    }
+
+    /** Só publica vagas a empresa aprovada cujo convênio assinado por todas as partes já foi anexado pela Coordenação. */
+    public static function podePublicar(array $company): bool
+    {
+        return ($company['status'] ?? '') === Status::E_APROVADA && !empty($company['convenio_arquivo']);
     }
 
     public static function parceiraPorId(int $id): ?array

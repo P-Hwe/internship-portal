@@ -35,7 +35,7 @@ $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros)
 
         <fieldset class="ui-fieldset ui-step" data-step="4" data-title="Termos">
             <legend>Termos e confirmação</legend>
-            <p class="ui-step-sub">Leia, anexe o termo assinado e confirme.</p>
+            <p class="ui-step-sub">Leia o convênio, anexe a via assinada pela empresa e confirme.</p>
             <div class="ui-terms" tabindex="0" aria-label="Termos de uso e política de privacidade">
                 <h3>Termos de uso</h3>
                 <p>A empresa declara que os dados informados são verdadeiros e atualizados, e que as vagas divulgadas
@@ -45,18 +45,26 @@ $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros)
                 <h3>Privacidade</h3>
                 <p>O sistema armazena somente dados da empresa e de seus responsáveis (nome, cargo, telefone e e-mail),
                     usados para análise do cadastro, comunicação e exibição do perfil. Nenhum dado pessoal de estudante
-                    é coletado. Os dados são tratados conforme a LGPD.</p>
+                    é coletado. Os dados são tratados conforme a LGPD. A empresa pode encerrar a parceria quando quiser, pela área
+                    da empresa: as vagas saem do mural e os dados de cadastro são apagados do portal.</p>
                 <p><em>Texto-base: revisar e aprovar com a Coordenação do IFSP antes da publicação.</em></p>
             </div>
             <?php if ($termoOficial = Credits::officialTerm()): ?>
             <div class="ui-term-doc">
-                <h3>Termo de cooperação</h3>
-                <p>Leia o termo abaixo, baixe, preencha, assine e anexe o arquivo assinado no campo seguinte.</p>
-                <iframe class="ui-term-pdf" src="<?= e($termoOficial) ?>#view=FitH" title="Termo de cooperação do IFSP Câmpus Guarulhos" loading="lazy"></iframe>
-                <a class="ui-btn ui-btn-sm" href="<?= e($termoOficial) ?>" download><?= icon('file', 15) ?> Baixar o termo para assinar</a>
+                <h3>Convênio de Concessão de Estágio</h3>
+                <p>Este é o modelo oficial do IFSP Câmpus Guarulhos. Ele só vale assinado pelas duas partes:</p>
+                <ol class="ui-term-steps">
+                    <li>Baixe o modelo e preencha os campos em vermelho: razão social, CNPJ, endereço completo e o representante legal da empresa.</li>
+                    <li>O representante legal assina e a empresa indica uma testemunha (Testemunha 2).</li>
+                    <li>Anexe abaixo a via assinada pela empresa.</li>
+                    <li>Durante a análise do cadastro, a Coordenação colhe as assinaturas do IFSP: o(a) Diretor(a)-Geral do câmpus e o(a) responsável pelo setor de estágio (Testemunha 1). O cadastro é aprovado junto com a via assinada por todas as partes.</li>
+                </ol>
+                <iframe class="ui-term-pdf" src="<?= e($termoOficial) ?>#view=FitH" title="Modelo do Convênio de Concessão de Estágio do IFSP Câmpus Guarulhos" loading="lazy"></iframe>
+                <a class="ui-btn ui-btn-sm" href="<?= e($termoOficial) ?>" download="convenio-concessao-estagio-ifsp-guarulhos.pdf"><?= icon('file', 15) ?> Baixar o modelo do convênio</a>
+                <p class="ui-hint" style="margin:0">Se o documento não aparecer acima, use o botão para baixá-lo.</p>
             </div>
             <?php endif; ?>
-            <div class="ui-field"><label for="termo">Termo de cooperação assinado <span class="ui-req"
+            <div class="ui-field"><label for="termo">Convênio assinado pela empresa <span class="ui-req"
                         aria-hidden="true">*</span></label>
                 <input id="termo" name="termo" type="file" accept=".pdf,.jpg,.jpeg,.png" data-file
                     data-max="<?= UPLOAD_MAX_MB ?>" required data-rev="Termo anexado">
