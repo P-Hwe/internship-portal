@@ -65,6 +65,30 @@ class CompanyAreaController
         $this->page('company/performance', ['emp' => $emp, 'periodo' => $periodo, 'resumo' => Visits::companyOverview((int) $emp['id'], $periodo)], 'desempenho', 'Desempenho');
     }
 
+    /** GET /painel/encerrar-parceria  POST /painel/encerrar-parceria */
+    public function encerrarParceria(): void
+    {
+        $emp = Auth::requireCompany();
+        if (!CompanyMember::isPrincipal($emp['usuario'])) Auth::deny('encerrar');
+        $erro = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            if (Cnpj::clean((string) ($_POST['cnpj'] ?? '')) !== (string) $emp['cnpj']) $erro = 'O CNPJ digitado não é o da empresa.';
+            elseif (!password_verify((string) ($_POST['senha'] ?? ''), (string) $emp['usuario']['senha_hash'])) $erro = 'Senha incorreta.';
+            elseif (empty($_POST['confirmo'])) $erro = 'Marque a confirmação para continuar.';
+            else {
+                $former = Company::encerrarParceria((int) $emp['id']);
+                if ($former) Notifier::parceriaEncerrada((int) $emp['id'], $former);
+                Auth::logout('empresa');
+                flash('ok', 'Parceria encerrada. As vagas saíram do mural e os dados da empresa foram apagados do portal. Para voltar, faça um novo cadastro.');
+                redirect('home');
+            }
+        }
+        $cont = Vaga::contagens((int) $emp['id']);
+        $this->page('company/end-partnership', ['emp' => $emp, 'erro' => $erro, 'cont' => $cont,
+            'membros' => (int) Database::val('SELECT COUNT(*) FROM empresa_usuarios WHERE empresa_id = :e AND excluido_em IS NULL', ['e' => $emp['id']])], 'perfil', 'Encerrar parceria');
+    }
+
     /** GET /painel/perfil  POST /painel/perfil */
     public function perfil(): void
     {

@@ -23,6 +23,12 @@
     <?= Ui::metrica('Vagas cadastradas', $e['total_vagas'], 'briefcase') ?><?= Ui::metrica('Vagas no ar', $e['vagas_abertas'], 'check') ?><?= Ui::metrica('Último acesso do recrutador', $e['ultimo_acesso'] ? date('d/m/Y', strtotime($e['ultimo_acesso'])) : 'Nunca', 'clock', null, 'mute') ?>
 </div>
 <?php require __DIR__ . '/../partials/performance-item.php'; ?>
+<?php if ($e['status'] === Status::E_ENCERRADA): ?>
+<div class="ui-alert ui-alert-info"><?= icon('shield', 22) ?><div>
+    <strong>Parceria encerrada pela empresa<?= $e['encerrada_em'] ? ' em ' . e(date('d/m/Y', strtotime($e['encerrada_em']))) : '' ?></strong>
+    <p>A empresa pediu o encerramento pela área da empresa. CNPJ, contatos, usuários e arquivos foram apagados do portal (LGPD) e as vagas saíram do mural. Fica só este registro e o histórico abaixo. O convênio assinado segue arquivado no sistema oficial do IFSP.</p>
+</div></div>
+<?php else: ?>
 <div class="ui-grid-2">
     <div class="ui-card">
         <h2>Dados cadastrais</h2>
@@ -93,6 +99,7 @@
         </tbody>
     </table></div>
 </section>
+<?php endif; ?>
 <section class="ui-section" style="margin-top:22px">
     <h2>Vagas da empresa</h2>
     <?php if (!$vagas): echo Ui::vazio('Esta empresa ainda não enviou vagas'); else: ?><div class="ui-grid">

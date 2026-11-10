@@ -260,7 +260,7 @@ class AdminController
         } else {
             fputcsv($output, ['CNPJ', 'Razão social', 'Nome fantasia', 'Segmento', 'Cidade/UF', 'Responsável', 'E-mail', 'Situação', 'Vagas', 'Cadastro'], ';');
             [$rows] = Company::listarAdmin('todas', '', 1, 100000);
-            foreach ($recent($rows) as $company) fputcsv($output, array_map($escape, [Cnpj::format($company['cnpj']), $company['razao_social'], $company['nome'], $company['segmento'], trim(($company['cidade'] ?? '') . '/' . ($company['uf'] ?? ''), '/'), $company['responsavel'], $company['email'], Status::STATUS_EMPRESA[$company['status']][0] ?? $company['status'], $company['total_vagas'], data_br(substr($company['criado_em'], 0, 10))]), ';');
+            foreach ($recent($rows) as $company) fputcsv($output, array_map($escape, [$company['cnpj'] ? Cnpj::format($company['cnpj']) : 'Removido (parceria encerrada)', $company['razao_social'], $company['nome'], $company['segmento'], trim(($company['cidade'] ?? '') . '/' . ($company['uf'] ?? ''), '/'), $company['responsavel'], $company['email'], Status::STATUS_EMPRESA[$company['status']][0] ?? $company['status'], $company['total_vagas'], data_br(substr($company['criado_em'], 0, 10))]), ';');
         }
         fclose($output); exit;
     }

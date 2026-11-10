@@ -83,6 +83,7 @@ class AuditLog
         'expirada' => 'teve o prazo encerrado:', 'excluida' => 'excluiu',
         'usuario_criado' => 'adicionou um usuário em', 'usuario_permissao' => 'mudou o cargo de um usuário em',
         'usuario_desativado' => 'desativou um usuário de', 'usuario_reativado' => 'reativou um usuário de', 'usuario_excluido' => 'excluiu um usuário de',
+        'parceria_encerrada' => 'encerrou a parceria e removeu os dados de',
     ];
 
     public static function phrase(array $entry): array
