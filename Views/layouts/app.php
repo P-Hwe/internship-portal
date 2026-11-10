@@ -43,6 +43,7 @@ $idleSeconds = (int) env('SESSION_IDLE_' . ($isAdmin ? 'ADMIN' : 'EMPRESA'), $is
       <a href="<?= url('sobre') ?>" target="_blank" rel="noopener"><?= icon('info', 18) ?> Sobre e créditos</a>
     </nav>
     <div class="app-side-foot">
+      <div class="app-ifsp"><?php $ifspMark = 'horizontal'; $ifspTone = 'auto'; require __DIR__ . '/../partials/ifsp-mark.php'; ?></div>
       <div class="app-account">
         <span class="app-avatar" aria-hidden="true"><?= e($personInitials) ?></span>
         <span class="app-account-who"><strong><?= e($person) ?></strong><small><?= e($personEmail) ?></small></span>
