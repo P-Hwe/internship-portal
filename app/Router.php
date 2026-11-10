@@ -11,7 +11,7 @@ class Router
         'empresa-vaga' => 'painel/vagas/{id}', 'vaga-editar' => 'painel/vagas/{id}/editar',
         'vaga-encerrar' => 'painel/vagas/{id}/encerrar', 'empresa-perfil' => 'painel/perfil',
         'aviso-dispensar' => 'painel/aviso-dispensar', 'empresa-usuarios' => 'painel/usuarios', 'empresa-senha' => 'painel/senha',
-        'empresa-desempenho' => 'painel/desempenho',
+        'empresa-desempenho' => 'painel/desempenho', 'empresa-encerrar' => 'painel/encerrar-parceria',
         'admin' => 'admin',
         'admin-vagas' => 'admin/vagas', 'admin-vaga' => 'admin/vagas/{id}',
         'admin-empresas' => 'admin/empresas', 'admin-empresa' => 'admin/empresas/{id}',
