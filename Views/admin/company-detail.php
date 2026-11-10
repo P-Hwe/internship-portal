@@ -23,6 +23,12 @@
     <?= Ui::metrica('Vagas cadastradas', $e['total_vagas'], 'briefcase') ?><?= Ui::metrica('Vagas no ar', $e['vagas_abertas'], 'check') ?><?= Ui::metrica('Último acesso do recrutador', $e['ultimo_acesso'] ? date('d/m/Y', strtotime($e['ultimo_acesso'])) : 'Nunca', 'clock', null, 'mute') ?>
 </div>
 <?php require __DIR__ . '/../partials/performance-item.php'; ?>
+<?php if ($e['status'] === Status::E_ENCERRADA): ?>
+<div class="ui-alert ui-alert-info"><?= icon('shield', 22) ?><div>
+    <strong>Parceria encerrada pela empresa<?= $e['encerrada_em'] ? ' em ' . e(date('d/m/Y', strtotime($e['encerrada_em']))) : '' ?></strong>
+    <p>A empresa pediu o encerramento pela área da empresa. CNPJ, contatos, usuários e arquivos foram apagados do portal (LGPD) e as vagas saíram do mural. Fica só este registro e o histórico abaixo. O convênio assinado segue arquivado no sistema oficial do IFSP.</p>
+</div></div>
+<?php else: ?>
 <div class="ui-grid-2">
     <div class="ui-card">
         <h2>Dados cadastrais</h2>
@@ -66,6 +72,23 @@
         </dl>
     </div>
 </div>
+<section class="ui-card ag-admin" style="margin-top:22px" id="convenio">
+    <h2>Convênio de Concessão de Estágio <?= $e['convenio_arquivo'] ? Ui::badge('Assinado por todas as partes', 'ok') : Ui::badge('Falta a via final', 'warn') ?></h2>
+    <dl class="ui-kv">
+        <dt>Via da empresa</dt>
+        <dd><?= $e['termo_arquivo'] ? '<a href="' . e(url('admin-termo', ['id' => $e['id']])) . '" target="_blank" rel="noopener">Baixar a via assinada pela empresa</a>' : 'Não enviada' ?></dd>
+        <dt>Via final</dt>
+        <dd><?= $e['convenio_arquivo'] ? '<a href="' . e(url('admin-convenio', ['id' => $e['id']])) . '" target="_blank" rel="noopener">Baixar o convênio assinado por todas as partes</a> · anexado em ' . e(date('d/m/Y', strtotime($e['convenio_assinado_em']))) : 'Ainda não anexada' ?></dd>
+    </dl>
+    <form method="post" action="<?= url('admin-convenio', ['id' => $e['id']]) ?>" enctype="multipart/form-data" class="ag-upload">
+        <?= csrf_field() ?>
+        <p class="ui-hint" style="margin:12px 0 8px">Baixe a via da empresa, colha as assinaturas do(a) Diretor(a)-Geral e do setor de estágio no sistema oficial do IFSP e anexe aqui o PDF final. A empresa recebe um e-mail e baixa o arquivo na aba Convênio.</p>
+        <div class="ui-actions">
+            <input type="file" name="convenio" accept="application/pdf,.pdf" required aria-label="Convênio assinado por todas as partes (PDF)">
+            <button class="ui-btn ui-btn-sm ui-btn-primary" type="submit"><?= icon('file', 15) ?> <?= $e['convenio_arquivo'] ? 'Substituir via final' : 'Anexar via final' ?></button>
+        </div>
+    </form>
+</section>
 <section class="ui-section" style="margin-top:22px">
     <h2>Usuários da empresa <span class="ui-hint" style="font-weight:400">· <?= count($membros) ?></span></h2>
     <div class="ui-table-wrap"><table class="ui-table">
@@ -93,6 +116,7 @@
         </tbody>
     </table></div>
 </section>
+<?php endif; ?>
 <section class="ui-section" style="margin-top:22px">
     <h2>Vagas da empresa</h2>
     <?php if (!$vagas): echo Ui::vazio('Esta empresa ainda não enviou vagas'); else: ?><div class="ui-grid">

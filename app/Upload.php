@@ -31,6 +31,18 @@ class Upload
         return $success ? [$filename, null] : [null, 'Não foi possível salvar o arquivo.'];
     }
 
+    /** Entrega um arquivo guardado fora da pasta pública (termos e convênios), sem cache. */
+    public static function send(string $path, string $downloadName): void
+    {
+        if (!is_file($path)) { http_response_code(404); exit('Arquivo não encontrado.'); }
+        header('Content-Type: ' . (new finfo(FILEINFO_MIME_TYPE))->file($path));
+        header('Content-Disposition: inline; filename="' . $downloadName . '.' . pathinfo($path, PATHINFO_EXTENSION) . '"');
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: private, no-store');
+        readfile($path);
+        exit;
+    }
+
     public static function salvar(?array $f, array $mimes, string $dest, bool $required, ?int $maxMb = null): array
     {
         return self::save($f, $mimes, $dest, $required, $maxMb);

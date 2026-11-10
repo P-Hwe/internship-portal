@@ -147,15 +147,18 @@ h3 {
   color: var(--text);
 }
 .app-mark {
-  width: 30px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   flex: none;
 }
-.app-mark .sq {
-  fill: var(--if-green);
+.app-mark .tile {
+  fill: var(--primary);
 }
-.app-mark .dot {
-  fill: var(--if-red);
+.app-mark .plus {
+  fill: none;
+  stroke: var(--on-primary);
+  stroke-width: 3.6;
+  stroke-linecap: round;
 }
 .app-wordmark {
   display: flex;
@@ -400,19 +403,16 @@ h3 {
 .auth-aside .app-wordmark small {
   color: #a9c7b6;
 }
-.auth-glyph {
-  width: min(250px, 60%);
-  height: auto;
+/* marca oficial do IFSP: versão vertical branca (monocromática negativa) sobre o verde, com a reserva de integridade */
+.auth-ifsp {
   align-self: flex-start;
+  padding: 18px 0;
 }
-.auth-glyph .sq {
-  fill: #1d6b46;
+.auth-ifsp img {
+  width: 168px;
 }
-.auth-glyph .sq.on {
-  fill: #3fbf7a;
-}
-.auth-glyph .dot {
-  fill: var(--if-red);
+.auth-ifsp-foot {
+  display: none;
 }
 .auth-pitch h2 {
   font-size: clamp(28px, 2.6vw, 38px);
@@ -2231,6 +2231,16 @@ a.is-active .ui-count {
   .auth-top .app-brand {
     display: flex;
   }
+  .auth-ifsp-foot {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+    padding: 28px 16px 32px;
+  }
+  .auth-ifsp-foot .ifsp-mark img {
+    height: 56px;
+    width: auto;
+  }
 }
 @media (max-width: 700px) {
   .ui-grid-2,
@@ -2390,4 +2400,94 @@ a.is-active .ui-count {
 .auth-aside footer a {
   color: inherit;
   font-weight: 600;
+}
+
+/* aba Convênio da empresa */
+.ag-steps {
+  display: grid;
+  gap: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ag-steps li {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 0 0 18px;
+}
+.ag-steps li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 26px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--border);
+}
+.ag-steps li.is-done:not(:last-child)::before {
+  background: var(--primary);
+}
+.ag-dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--on-primary);
+}
+.ag-steps li.is-done .ag-dot {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.ag-steps strong {
+  display: block;
+  font-size: 14.5px;
+}
+.ag-steps small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.ag-admin dt {
+  font-weight: 600;
+}
+/* marca oficial do IFSP (partials/ifsp-mark.php) */
+.ifsp-mark {
+  display: inline-flex;
+}
+.ifsp-mark img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.ifsp-mark.is-auto .ifsp-mark-dark,
+[data-theme="dark"] .ifsp-mark.is-auto .ifsp-mark-light {
+  display: none;
+}
+[data-theme="dark"] .ifsp-mark.is-auto .ifsp-mark-dark {
+  display: block;
+}
+.app-ifsp {
+  padding: 4px 8px 14px;
+}
+.app-ifsp img {
+  height: 42px;
+  width: auto;
+}
+/* os arquivos brancos oficiais vêm sobre fundo preto: em fundo escuro o preto some e fica a versão negativa */
+.ifsp-white {
+  mix-blend-mode: screen;
+}
+.ui-term-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text);
 }

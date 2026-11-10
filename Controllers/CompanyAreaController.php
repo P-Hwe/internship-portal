@@ -65,6 +65,47 @@ class CompanyAreaController
         $this->page('company/performance', ['emp' => $emp, 'periodo' => $periodo, 'resumo' => Visits::companyOverview((int) $emp['id'], $periodo)], 'desempenho', 'Desempenho');
     }
 
+    /** GET /painel/convenio */
+    public function convenio(): void
+    {
+        $emp = Auth::requireCompany();
+        $this->page('company/agreement', ['emp' => $emp], 'convenio', 'Convênio');
+    }
+
+    /** GET /painel/convenio/arquivo?via=final|empresa */
+    public function convenioArquivo(): void
+    {
+        $emp = Auth::requireCompany();
+        $final = ($_GET['via'] ?? 'final') === 'final';
+        $name = $final ? $emp['convenio_arquivo'] : $emp['termo_arquivo'];
+        if (!$name) Auth::deny('convenio');
+        Upload::send(ROOT_PATH . ($final ? Company::AGREEMENT_DIR : '/storage/termos/') . basename((string) $name), $final ? 'convenio-assinado-ifsp-guarulhos' : 'convenio-enviado-pela-empresa');
+    }
+
+    /** GET /painel/encerrar-parceria  POST /painel/encerrar-parceria */
+    public function encerrarParceria(): void
+    {
+        $emp = Auth::requireCompany();
+        if (!CompanyMember::isPrincipal($emp['usuario'])) Auth::deny('encerrar');
+        $erro = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            if (Cnpj::clean((string) ($_POST['cnpj'] ?? '')) !== (string) $emp['cnpj']) $erro = 'O CNPJ digitado não é o da empresa.';
+            elseif (!password_verify((string) ($_POST['senha'] ?? ''), (string) $emp['usuario']['senha_hash'])) $erro = 'Senha incorreta.';
+            elseif (empty($_POST['confirmo'])) $erro = 'Marque a confirmação para continuar.';
+            else {
+                $former = Company::encerrarParceria((int) $emp['id']);
+                if ($former) Notifier::parceriaEncerrada((int) $emp['id'], $former);
+                Auth::logout('empresa');
+                flash('ok', 'Parceria encerrada. As vagas saíram do mural e os dados da empresa foram apagados do portal. Para voltar, faça um novo cadastro.');
+                redirect('home');
+            }
+        }
+        $cont = Vaga::contagens((int) $emp['id']);
+        $this->page('company/end-partnership', ['emp' => $emp, 'erro' => $erro, 'cont' => $cont,
+            'membros' => (int) Database::val('SELECT COUNT(*) FROM empresa_usuarios WHERE empresa_id = :e AND excluido_em IS NULL', ['e' => $emp['id']])], 'perfil', 'Encerrar parceria');
+    }
+
     /** GET /painel/perfil  POST /painel/perfil */
     public function perfil(): void
     {
