@@ -11,7 +11,7 @@ class Router
         'empresa-vaga' => 'painel/vagas/{id}', 'vaga-editar' => 'painel/vagas/{id}/editar',
         'vaga-encerrar' => 'painel/vagas/{id}/encerrar', 'empresa-perfil' => 'painel/perfil',
         'aviso-dispensar' => 'painel/aviso-dispensar', 'empresa-usuarios' => 'painel/usuarios', 'empresa-senha' => 'painel/senha',
-        'empresa-desempenho' => 'painel/desempenho', 'empresa-encerrar' => 'painel/encerrar-parceria',
+        'empresa-desempenho' => 'painel/desempenho', 'empresa-encerrar' => 'painel/encerrar-parceria', 'empresa-convenio' => 'painel/convenio', 'empresa-convenio-arquivo' => 'painel/convenio/arquivo',
         'admin' => 'admin',
         'admin-vagas' => 'admin/vagas', 'admin-vaga' => 'admin/vagas/{id}',
         'admin-empresas' => 'admin/empresas', 'admin-empresa' => 'admin/empresas/{id}',
@@ -19,7 +19,7 @@ class Router
         'admin-atividade' => 'admin/atividade', 'admin-aprovacoes' => 'admin/aprovacoes',
         'admin-usuarios' => 'admin/usuarios', 'admin-desempenho' => 'admin/desempenho',
         'admin-relatorios' => 'admin/relatorios', 'admin-acao' => 'admin/acao',
-        'admin-termo' => 'admin/termo/{id}', 'admin-exportar' => 'admin/exportar',
+        'admin-termo' => 'admin/termo/{id}', 'admin-convenio' => 'admin/empresas/{id}/convenio', 'admin-exportar' => 'admin/exportar',
     ];
 
     public static function ativo(): bool { $v = env('PRETTY_URLS', '1'); return $v !== '0' && $v !== ''; }

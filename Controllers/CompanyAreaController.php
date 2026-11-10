@@ -65,6 +65,23 @@ class CompanyAreaController
         $this->page('company/performance', ['emp' => $emp, 'periodo' => $periodo, 'resumo' => Visits::companyOverview((int) $emp['id'], $periodo)], 'desempenho', 'Desempenho');
     }
 
+    /** GET /painel/convenio */
+    public function convenio(): void
+    {
+        $emp = Auth::requireCompany();
+        $this->page('company/agreement', ['emp' => $emp], 'convenio', 'Convênio');
+    }
+
+    /** GET /painel/convenio/arquivo?via=final|empresa */
+    public function convenioArquivo(): void
+    {
+        $emp = Auth::requireCompany();
+        $final = ($_GET['via'] ?? 'final') === 'final';
+        $name = $final ? $emp['convenio_arquivo'] : $emp['termo_arquivo'];
+        if (!$name) Auth::deny('convenio');
+        Upload::send(ROOT_PATH . ($final ? Company::AGREEMENT_DIR : '/storage/termos/') . basename((string) $name), $final ? 'convenio-assinado-ifsp-guarulhos' : 'convenio-enviado-pela-empresa');
+    }
+
     /** GET /painel/encerrar-parceria  POST /painel/encerrar-parceria */
     public function encerrarParceria(): void
     {
