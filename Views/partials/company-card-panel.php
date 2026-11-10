@@ -15,7 +15,7 @@ $acoes = Ui::acoesEmpresaAdmin($e, $retCard);
       <li><?= icon('clock', 15) ?> Cadastrada em <?= data_br(substr($e['criado_em'], 0, 10)) ?></li>
     </ul>
   </div>
-  <?php if ($comTermo || str_contains($acoes, '<form')): ?><div class="ui-vcard-foot">
+  <?php if ($comTermo || str_contains($acoes, 'ui-btn ')): ?><div class="ui-vcard-foot">
     <?php if ($comTermo && $e['termo_arquivo']): ?><a class="ui-btn ui-btn-sm" href="<?= url('admin-termo', ['id' => $e['id']]) ?>" target="_blank" rel="noopener"><?= icon('file', 15) ?> Ver termo</a><?php endif; ?>
     <?= $acoes ?></div><?php endif; ?>
 </article>

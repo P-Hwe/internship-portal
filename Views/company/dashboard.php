@@ -45,7 +45,8 @@ else $heroText = 'Publique a primeira vaga e ela aparece no mural depois da aná
 ?>
 <?php if ($emp['status'] === 'pendente'): ?>
 <div class="ui-alert ui-alert-warn"><?= icon('clock', 22) ?><div><strong>Cadastro em análise</strong>
-        <p>A Coordenação está conferindo os dados e o termo de cooperação. Você receberá um e-mail com o resultado.</p>
+        <p>A Coordenação está conferindo os dados e colhendo as assinaturas do IFSP no convênio. A aprovação sai junto com a via assinada por todas as partes e você recebe um e-mail com o resultado.</p>
+        <a class="ui-btn ui-btn-sm" style="margin-top:8px" href="<?= url('empresa-convenio') ?>">Acompanhar o convênio</a>
     </div>
 </div>
 <?php elseif ($emp['status'] === 'reprovada'): ?>

@@ -384,6 +384,3 @@
 .tv-info > * {
   flex: none;
 }
-.ifsp-white {
-  mix-blend-mode: screen;
-}
