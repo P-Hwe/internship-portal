@@ -12,16 +12,16 @@ function schema_sql(): array
         papel VARCHAR(20) NOT NULL DEFAULT 'admin', ativo SMALLINT NOT NULL DEFAULT 1, trocar_senha SMALLINT NOT NULL DEFAULT 0,
         criado_em $dt NOT NULL, ultimo_acesso $dt NULL, excluido_em $dt NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS empresas (
-        id $pk, cnpj VARCHAR(14) NOT NULL UNIQUE, razao_social VARCHAR(150) NULL, nome VARCHAR(120) NOT NULL,
+        id $pk, cnpj VARCHAR(14) NULL UNIQUE, razao_social VARCHAR(150) NULL, nome VARCHAR(120) NOT NULL,
         descricao TEXT NULL, segmento VARCHAR(60) NULL, porte VARCHAR(20) NULL,
         endereco VARCHAR(200) NOT NULL,
         cep VARCHAR(8) NULL, logradouro VARCHAR(120) NULL, numero VARCHAR(10) NULL, complemento VARCHAR(60) NULL, bairro VARCHAR(60) NULL, cidade VARCHAR(60) NULL, uf VARCHAR(2) NULL,
         responsavel VARCHAR(100) NOT NULL, cargo VARCHAR(60) NULL, telefone VARCHAR(20) NOT NULL, celular VARCHAR(20) NULL,
-        email VARCHAR(120) NOT NULL UNIQUE, email_contato VARCHAR(120) NULL,
+        email VARCHAR(120) NULL UNIQUE, email_contato VARCHAR(120) NULL,
         site VARCHAR(200) NULL, linkedin VARCHAR(200) NULL, link_principal VARCHAR(10) NOT NULL DEFAULT 'site', logo VARCHAR(200) NULL, banner VARCHAR(200) NULL,
         senha_hash VARCHAR(255) NOT NULL, termo_arquivo VARCHAR(80) NULL, termos_aceitos_em $dt NULL,
         status VARCHAR(12) NOT NULL DEFAULT 'pendente', motivo TEXT NULL, aprovacao_vista SMALLINT NOT NULL DEFAULT 0,
-        criado_em $dt NOT NULL, avaliado_em $dt NULL, ultimo_acesso $dt NULL)$fim";
+        criado_em $dt NOT NULL, avaliado_em $dt NULL, ultimo_acesso $dt NULL, encerrada_em $dt NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS empresa_usuarios (
         id $pk, empresa_id INT NOT NULL, nome VARCHAR(100) NOT NULL, email VARCHAR(120) NOT NULL UNIQUE, senha_hash VARCHAR(255) NOT NULL,
         papel VARCHAR(12) NOT NULL DEFAULT 'membro', ativo SMALLINT NOT NULL DEFAULT 1, trocar_senha SMALLINT NOT NULL DEFAULT 0,

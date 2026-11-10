@@ -9,6 +9,7 @@ class Status
     public const E_APROVADA   = 'aprovada';
     public const E_REPROVADA  = 'reprovada';
     public const E_BLOQUEADA  = 'bloqueada';
+    public const E_ENCERRADA  = 'encerrada';
 
     private const JOB_TRANSITIONS = [
         self::V_AGUARDANDO => [self::V_APROVADA, self::V_REJEITADA],
@@ -65,5 +66,6 @@ class Status
         'aprovada'  => ['Aprovada',  'ok'],
         'reprovada' => ['Reprovada', 'danger'],
         'bloqueada' => ['Bloqueada', 'mute'],
+        'encerrada' => ['Parceria encerrada', 'mute'],
     ];
 }
