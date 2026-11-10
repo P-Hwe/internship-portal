@@ -34,12 +34,14 @@
   align-items: center;
   gap: 14px;
 }
-.tv-brand img {
-  width: clamp(28px, 3.2vh, 44px);
-  height: auto;
-  background: #fff;
-  border-radius: 6px;
-  padding: 3px;
+.tv-brand .tv-ifsp {
+  height: clamp(44px, 6vh, 72px);
+  width: auto;
+}
+.tv-title {
+  padding-left: clamp(18px, 2.4vw, 36px);
+  margin-left: clamp(6px, 1vw, 14px);
+  border-left: 2px solid rgba(255, 255, 255, 0.35);
 }
 .tv-brand strong {
   display: block;
@@ -381,4 +383,7 @@
 }
 .tv-info > * {
   flex: none;
+}
+.ifsp-white {
+  mix-blend-mode: screen;
 }
