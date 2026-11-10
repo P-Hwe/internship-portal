@@ -162,6 +162,7 @@ class AdminController
                 $newStatus = ['aprovar' => Status::E_APROVADA, 'reprovar' => Status::E_REPROVADA, 'bloquear' => Status::E_BLOQUEADA, 'desbloquear' => Status::E_APROVADA][$action] ?? null;
                 if (!$newStatus) $goBack();
                 if (in_array($action, ['reprovar', 'bloquear'], true) && mb_strlen($reason) < 5) { flash('erro', 'Informe o motivo (ele é enviado à empresa).'); $goBack(); }
+                if ($action === 'aprovar' && empty($company['convenio_arquivo'])) { flash('erro', 'Anexe o convênio assinado por todas as partes (empresa, Diretor(a)-Geral e Coordenação de estágio) antes de aprovar o cadastro.'); redirect('admin-empresa', ['id' => $id]); }
                 if (!Company::mudarStatus($id, $newStatus, $reason ?: null, $actor[0], $actor[1])) { flash('erro', 'Essa ação não é permitida para a situação atual da empresa.'); $goBack(); }
                 $nova = Company::porId($id);
                 if ($action !== 'desbloquear') Notifier::empresaAvaliada($nova);
@@ -240,8 +241,12 @@ class AdminController
                 flash('erro', $error);
             } else {
                 Company::anexarConvenio((int) $company['id'], $file, (int) $admin['id']);
-                Notifier::convenioAssinado($company);
-                flash('ok', 'Convênio anexado. A empresa foi avisada por e-mail e já pode baixá-lo na aba Convênio.');
+                if ($company['status'] === Status::E_APROVADA) {
+                    Notifier::convenioAssinado($company);
+                    flash('ok', 'Convênio substituído. A empresa foi avisada por e-mail.');
+                } else {
+                    flash('ok', 'Convênio anexado. Agora você já pode aprovar o cadastro da empresa.');
+                }
             }
             redirect('admin-empresa', ['id' => $company['id']]);
         }

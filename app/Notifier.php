@@ -156,9 +156,9 @@ class Notifier
         }
         if ($company['status'] === Status::E_PENDENTE) return;
         if ($company['status'] === 'aprovada') {
-            Mailer::enviar($company['email'], 'Cadastro aprovado', Mailer::layout('Cadastro aprovado',
-                '<p>Olá, ' . e($company['responsavel']) . '!</p><p>O cadastro da <strong>' . e($company['nome']) . '</strong> foi <strong>aprovado</strong>.</p>'
-                . '<p>Agora a Coordenação colhe as assinaturas do IFSP no Convênio de Concessão de Estágio. Assim que a via assinada por todas as partes for anexada, você recebe um e-mail e já pode publicar vagas.</p>',
+            Mailer::enviar($company['email'], 'Cadastro aprovado: sua empresa já pode publicar vagas', Mailer::layout('Cadastro aprovado',
+                '<p>Olá, ' . e($company['responsavel']) . '!</p><p>O cadastro da <strong>' . e($company['nome']) . '</strong> foi <strong>aprovado</strong> e o Convênio de Concessão de Estágio foi assinado por todas as partes.</p>'
+                . '<p>Entre na área da empresa para publicar suas vagas. A via final do convênio está na aba <strong>Convênio</strong>.</p>',
                 ['Acessar área da empresa', url_abs('empresa-login')]));
         } else {
             Mailer::enviar($company['email'], 'Cadastro não aprovado', Mailer::layout('Cadastro não aprovado',

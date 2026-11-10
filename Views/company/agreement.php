@@ -3,9 +3,9 @@ $signed = !empty($emp['convenio_arquivo']);
 $approved = $emp['status'] === Status::E_APROVADA || $emp['status'] === Status::E_BLOQUEADA;
 $steps = [
     ['A empresa assinou e enviou o convênio', !empty($emp['termo_arquivo']), $emp['termos_aceitos_em'] ? 'Enviado em ' . date('d/m/Y', strtotime($emp['termos_aceitos_em'])) : null],
-    ['A Coordenação analisou o cadastro', $approved, $approved && $emp['avaliado_em'] ? 'Aprovado em ' . date('d/m/Y', strtotime($emp['avaliado_em'])) : ($emp['status'] === Status::E_PENDENTE ? 'Em análise' : null)],
-    ['O IFSP assinou: Diretor(a)-Geral e setor de estágio', $signed, $signed ? null : 'As assinaturas do IFSP são feitas no sistema oficial do instituto'],
-    ['Via final disponível para download', $signed, $signed ? 'Disponível desde ' . date('d/m/Y', strtotime($emp['convenio_assinado_em'])) : null],
+    ['O IFSP assinou: Diretor(a)-Geral e Coordenação de estágio', $signed, $signed ? 'Via final anexada em ' . date('d/m/Y', strtotime($emp['convenio_assinado_em'])) : 'As assinaturas do IFSP são feitas no sistema oficial do instituto'],
+    ['A Coordenação aprovou o cadastro', $approved, $approved && $emp['avaliado_em'] ? 'Aprovado em ' . date('d/m/Y', strtotime($emp['avaliado_em'])) : ($emp['status'] === Status::E_PENDENTE ? 'Em análise' : null)],
+    ['Publicação de vagas liberada', Company::podePublicar($emp), null],
 ];
 ?>
 <div class="ui-grid-2" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:start">
@@ -27,7 +27,7 @@ $steps = [
         <a class="ui-btn ui-btn-primary ui-btn-block" href="<?= url('empresa-convenio-arquivo', ['via' => 'final']) ?>" target="_blank" rel="noopener"><?= icon('file', 16) ?> Baixar convênio assinado</a>
         <?php else: ?>
         <h2>Enquanto isso</h2>
-        <p class="ui-sub" style="margin:0 0 14px">Quando o IFSP terminar as assinaturas, a via final aparece aqui e você recebe um e-mail avisando. A publicação de vagas é liberada nesse momento.</p>
+        <p class="ui-sub" style="margin:0 0 14px">Quando o IFSP terminar as assinaturas, a via final aparece aqui e você recebe um e-mail avisando. A aprovação do cadastro e a publicação de vagas acontecem nesse momento.</p>
         <?php endif; ?>
         <?php if (!empty($emp['termo_arquivo'])): ?>
         <a class="ui-btn ui-btn-block" style="margin-top:10px" href="<?= url('empresa-convenio-arquivo', ['via' => 'empresa']) ?>" target="_blank" rel="noopener"><?= icon('file', 16) ?> Ver a via enviada pela empresa</a>

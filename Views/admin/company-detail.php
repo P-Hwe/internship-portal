@@ -4,6 +4,13 @@
             href="<?= url('admin-empresas') ?>"><?= icon('arrow-left', 15) ?> Empresas</a>
         <?= Ui::statusEmpresa($e['status']) ?></div><?= Ui::acoesEmpresaAdmin($e, 'admin-empresa', (int) $e['id']) ?>
 </div>
+<?php if ($e['status'] === Status::E_PENDENTE && empty($e['convenio_arquivo'])): ?>
+<div class="ui-alert ui-alert-info"><?= icon('file', 22) ?><div><strong>Para aprovar, anexe a via final do convênio</strong>
+        <p>Baixe a via assinada pela empresa, colha as assinaturas do(a) Diretor(a)-Geral e da Coordenação de estágio e anexe o PDF assinado por todas as partes no cartão Convênio. O botão Aprovar é liberado em seguida.</p>
+    </div>
+    <div class="ui-actions"><a class="ui-btn ui-btn-sm" href="#convenio">Ir para o convênio</a></div>
+</div>
+<?php endif; ?>
 <div class="ui-card ui-cover-card" style="margin-bottom:16px">
     <div class="ui-cover"><?= empresa_banner($e) ?></div>
     <div class="ui-cover-body"><span class="ui-cover-logo"><?= Ui::logo($e, 72) ?></span>
@@ -82,7 +89,7 @@
     </dl>
     <form method="post" action="<?= url('admin-convenio', ['id' => $e['id']]) ?>" enctype="multipart/form-data" class="ag-upload">
         <?= csrf_field() ?>
-        <p class="ui-hint" style="margin:12px 0 8px">Baixe a via da empresa, colha as assinaturas do(a) Diretor(a)-Geral e do setor de estágio no sistema oficial do IFSP e anexe aqui o PDF final. A empresa recebe um e-mail, baixa o arquivo na aba Convênio e só então pode publicar vagas.</p>
+        <p class="ui-hint" style="margin:12px 0 8px">Baixe a via da empresa, colha as assinaturas do(a) Diretor(a)-Geral e do setor de estágio no sistema oficial do IFSP e anexe aqui o PDF final. Só depois disso o cadastro pode ser aprovado; com a aprovação a empresa baixa a via final na aba Convênio e já pode publicar vagas.</p>
         <div class="ui-actions">
             <input type="file" name="convenio" accept="application/pdf,.pdf" required aria-label="Convênio assinado por todas as partes (PDF)">
             <button class="ui-btn ui-btn-sm ui-btn-primary" type="submit"><?= icon('file', 15) ?> <?= $e['convenio_arquivo'] ? 'Substituir via final' : 'Anexar via final' ?></button>
