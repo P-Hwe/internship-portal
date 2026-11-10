@@ -71,7 +71,7 @@ class Notifier
     public static function convenioAssinado(array $company): void
     {
         $html = '<p>O <strong>Convênio de Concessão de Estágio</strong> da <strong>' . e($company['nome']) . '</strong> com o IFSP Câmpus Guarulhos foi assinado por todas as partes.</p>'
-            . '<p>A via final já está disponível para download na área da empresa, na aba <strong>Convênio</strong>.</p>';
+            . '<p>A via final já está disponível para download na área da empresa, na aba <strong>Convênio</strong>, e a empresa já pode publicar vagas.</p>';
         foreach (array_unique(array_filter([$company['email'], $company['email_contato']])) as $email) {
             Mailer::enviar($email, 'Convênio assinado por todas as partes', Mailer::layout('Convênio assinado', $html, ['Baixar o convênio', url_abs('empresa-convenio')]));
         }
@@ -156,8 +156,9 @@ class Notifier
         }
         if ($company['status'] === Status::E_PENDENTE) return;
         if ($company['status'] === 'aprovada') {
-            Mailer::enviar($company['email'], 'Cadastro aprovado: sua empresa já pode publicar vagas', Mailer::layout('Cadastro aprovado',
-                '<p>Olá, ' . e($company['responsavel']) . '!</p><p>O cadastro da <strong>' . e($company['nome']) . '</strong> foi <strong>aprovado</strong>. Entre na área da empresa para publicar suas vagas.</p>',
+            Mailer::enviar($company['email'], 'Cadastro aprovado', Mailer::layout('Cadastro aprovado',
+                '<p>Olá, ' . e($company['responsavel']) . '!</p><p>O cadastro da <strong>' . e($company['nome']) . '</strong> foi <strong>aprovado</strong>.</p>'
+                . '<p>Agora a Coordenação colhe as assinaturas do IFSP no Convênio de Concessão de Estágio. Assim que a via assinada por todas as partes for anexada, você recebe um e-mail e já pode publicar vagas.</p>',
                 ['Acessar área da empresa', url_abs('empresa-login')]));
         } else {
             Mailer::enviar($company['email'], 'Cadastro não aprovado', Mailer::layout('Cadastro não aprovado',
