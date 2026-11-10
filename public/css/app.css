@@ -405,11 +405,14 @@ h3 {
 }
 /* marca oficial do IFSP: versão vertical branca (monocromática negativa) sobre o verde, com a reserva de integridade */
 .auth-ifsp {
-  align-self: flex-start;
-  padding: 18px 0;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+  padding: 12px 0;
 }
-.auth-ifsp img {
-  width: 168px;
+.auth-ifsp .ifsp-mark img {
+  width: clamp(150px, 15vw, 210px);
+  height: auto;
 }
 .auth-ifsp-foot {
   display: none;
@@ -2238,8 +2241,8 @@ a.is-active .ui-count {
     padding: 28px 16px 32px;
   }
   .auth-ifsp-foot .ifsp-mark img {
-    height: 56px;
-    width: auto;
+    width: min(260px, 70vw);
+    height: auto;
   }
 }
 @media (max-width: 700px) {
@@ -2473,15 +2476,18 @@ a.is-active .ui-count {
   display: block;
 }
 .app-ifsp {
-  padding: 4px 8px 14px;
+  display: flex;
+  justify-content: center;
+  padding: 14px 10px 16px;
 }
-.app-ifsp img {
-  height: 42px;
-  width: auto;
+.app-ifsp .ifsp-mark {
+  width: 100%;
+  justify-content: center;
 }
-/* os arquivos brancos oficiais vêm sobre fundo preto: em fundo escuro o preto some e fica a versão negativa */
-.ifsp-white {
-  mix-blend-mode: screen;
+.app-ifsp .ifsp-mark img {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
 }
 .ui-term-steps {
   margin: 0;
