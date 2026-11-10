@@ -68,6 +68,19 @@ class Notifier
             $event === 'reativado' ? ['Entrar no painel', url_abs('admin-login')] : null));
     }
 
+    public static function parceriaEncerrada(int $companyId, array $former): void
+    {
+        $html = '<p>A parceria da empresa <strong>' . e($former['nome']) . '</strong> com o portal de vagas de estágio do IFSP Guarulhos foi encerrada a pedido da própria empresa.</p>'
+            . '<p>As vagas saíram do mural e os dados de cadastro, contatos, usuários e arquivos foram apagados do portal. O CNPJ ficou livre: se quiser voltar, basta fazer um novo cadastro.</p>';
+        foreach ($former['emails'] as $email) Mailer::enviar($email, 'Parceria encerrada no portal de vagas do IFSP Guarulhos', Mailer::layout('Parceria encerrada', $html, ['Ver o mural de vagas', url_abs('home')]));
+        $message = 'A empresa ' . $former['nome'] . ' encerrou a parceria e removeu os seus dados do portal';
+        self::interna('empresa', $companyId, mb_substr($message, 0, 200));
+        self::notifyAdmins($message, Mailer::layout('Parceria encerrada por uma empresa',
+            '<p>A empresa <strong>' . e($former['nome']) . '</strong> encerrou a parceria pela área da empresa.</p><p>' . ($former['vagas'] ? (int) $former['vagas'] . ' vaga(s) saíram do mural. ' : '')
+            . 'Os dados de cadastro e contato foram apagados do portal (LGPD); fica só o registro do encerramento no histórico.</p>',
+            ['Ver no painel', url_abs('admin-empresa', ['id' => $companyId])]));
+    }
+
     public static function membroCriado(array $member, array $company, string $creatorName, string $temporaryPassword, string $token): void
     {
         Mailer::enviar($member['email'], 'Você foi adicionado à área da empresa ' . $company['nome'], Mailer::layout('Acesso à área da empresa',
