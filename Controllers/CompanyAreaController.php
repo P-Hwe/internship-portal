@@ -149,6 +149,10 @@ class CompanyAreaController
             flash('info', 'Sua empresa ainda não foi aprovada pela Coordenação. Assim que for, você poderá publicar vagas.');
             redirect('painel');
         }
+        if (!Company::podePublicar($emp)) {
+            flash('info', 'Falta o convênio assinado por todas as partes. Assim que a Coordenação anexar a via final, você poderá publicar vagas.');
+            redirect('empresa-convenio');
+        }
         $id    = (int) ($_GET['id'] ?? 0);
         $atual = null;
         if ($id) {

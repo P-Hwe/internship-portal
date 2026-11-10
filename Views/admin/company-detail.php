@@ -82,7 +82,7 @@
     </dl>
     <form method="post" action="<?= url('admin-convenio', ['id' => $e['id']]) ?>" enctype="multipart/form-data" class="ag-upload">
         <?= csrf_field() ?>
-        <p class="ui-hint" style="margin:12px 0 8px">Baixe a via da empresa, colha as assinaturas do(a) Diretor(a)-Geral e do setor de estágio no sistema oficial do IFSP e anexe aqui o PDF final. A empresa recebe um e-mail e baixa o arquivo na aba Convênio.</p>
+        <p class="ui-hint" style="margin:12px 0 8px">Baixe a via da empresa, colha as assinaturas do(a) Diretor(a)-Geral e do setor de estágio no sistema oficial do IFSP e anexe aqui o PDF final. A empresa recebe um e-mail, baixa o arquivo na aba Convênio e só então pode publicar vagas.</p>
         <div class="ui-actions">
             <input type="file" name="convenio" accept="application/pdf,.pdf" required aria-label="Convênio assinado por todas as partes (PDF)">
             <button class="ui-btn ui-btn-sm ui-btn-primary" type="submit"><?= icon('file', 15) ?> <?= $e['convenio_arquivo'] ? 'Substituir via final' : 'Anexar via final' ?></button>

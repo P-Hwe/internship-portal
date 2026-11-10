@@ -6,12 +6,12 @@ $abas += ['destaque' => ['Em destaque', $cont['destaque'] ?? 0], 'expirada' => [
 $listParams = ['aba' => $aba, 'q' => $q] + ($vista === 'lista' ? ['vista' => 'lista'] : []);
 ?>
 <div class="ui-row-between"><p class="ui-sub ui-sub-flush">Vagas expiradas e encerradas ficam guardadas no histórico; nada é excluído.</p>
-  <?php if ($emp['status'] === 'aprovada'): ?><a class="ui-btn ui-btn-primary" href="<?= url('vaga-cadastro') ?>"><?= icon('plus', 16) ?> Publicar vaga</a><?php endif; ?></div>
+  <?php if (Company::podePublicar($emp)): ?><a class="ui-btn ui-btn-primary" href="<?= url('vaga-cadastro') ?>"><?= icon('plus', 16) ?> Publicar vaga</a><?php endif; ?></div>
 <?= Ui::abas($abas, $aba, 'empresa-vagas', array_diff_key($listParams, ['aba' => 1])) ?>
 <div class="ui-toolbar"><form method="get" action="<?= url('empresa-vagas') ?>" role="search"><?= campo_rota('empresa-vagas') ?><input type="hidden" name="aba" value="<?= e($aba) ?>"><?php if ($vista === 'lista'): ?><input type="hidden" name="vista" value="lista"><?php endif; ?>
   <label class="ui-sr" for="q">Buscar</label><input id="q" class="ui-input" type="search" name="q" value="<?= e($q) ?>" placeholder="Buscar por título, área ou código"><button class="ui-btn" type="submit"><?= icon('search', 16) ?> Buscar</button></form>
   <div class="ui-seg" role="group" aria-label="Modo de exibição"><a href="<?= e(url('empresa-vagas', array_diff_key($listParams, ['vista' => 1]))) ?>" class="<?= $vista === 'cards' ? 'is-active' : '' ?>"><?= icon('grid', 14) ?> Cards</a><a href="<?= e(url('empresa-vagas', array_merge($listParams, ['vista' => 'lista']))) ?>" class="<?= $vista === 'lista' ? 'is-active' : '' ?>"><?= icon('menu', 14) ?> Lista</a></div></div>
-<?php if (!$lista): echo Ui::vazio($q ? 'Nada encontrado' : 'Nenhuma vaga nesta categoria', $q ? 'Tente outro termo ou limpe a busca.' : '', $aba === 'todas' && $emp['status'] === 'aprovada' ? ['Publicar vaga', url('vaga-cadastro')] : null);
+<?php if (!$lista): echo Ui::vazio($q ? 'Nada encontrado' : 'Nenhuma vaga nesta categoria', $q ? 'Tente outro termo ou limpe a busca.' : '', $aba === 'todas' && Company::podePublicar($emp) ? ['Publicar vaga', url('vaga-cadastro')] : null);
 elseif ($vista === 'lista'): ?>
 <div class="ui-rows">
   <?php foreach ($lista as $v): ?>

@@ -175,6 +175,7 @@ class AdminController
                 $newStatus = ['aprovar' => Status::V_APROVADA, 'rejeitar' => Status::V_REJEITADA, 'encerrar' => Status::V_ENCERRADA][$action] ?? null;
                 if (!$newStatus) $goBack();
                 if ($action === 'aprovar' && $job['empresa']['status'] !== Status::E_APROVADA) { flash('erro', 'Aprove a empresa antes de aprovar a vaga.'); $goBack(); }
+                if ($action === 'aprovar' && !Company::podePublicar((array) Company::porId((int) $job['empresa']['id']))) { flash('erro', 'Anexe o convênio assinado por todas as partes antes de aprovar vagas desta empresa.'); $goBack(); }
                 if ($action === 'rejeitar' && mb_strlen($reason) < 5) { flash('erro', 'Informe o motivo (ele é enviado à empresa).'); $goBack(); }
                 if (!Vaga::mudarStatus($id, $newStatus, $reason ?: null, $actor[0], $actor[1])) { flash('erro', 'Essa ação não é permitida para a situação atual da vaga (' . Status::rotuloSituacao($job['situacao']) . ').'); $goBack(); }
                 Notifier::vagaAvaliada(Vaga::porId($id), $job['empresa']);
