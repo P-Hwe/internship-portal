@@ -151,8 +151,12 @@ class Ui
         $c = ['tipo' => 'empresa', 'id' => $e['id'], 'ret' => $ret] + ($retId ? ['ret_id' => $retId] : []);
         $a = url('admin-acao');
         $h = '<div class="ui-actions">';
-        if ($e['status'] === Status::E_PENDENTE) {
-            $h .= self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar a empresa?', $e['nome'] . ' receberá um e-mail de confirmação e poderá publicar vagas depois que o convênio assinado por todas as partes for anexado.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary');
+        if ($e['status'] === Status::E_PENDENTE && $ret !== 'admin-empresa') {
+            $h .= '<a class="ui-btn ui-btn-sm ui-btn-primary" href="' . e(url('admin-empresa', ['id' => $e['id']])) . '#convenio">' . icon('file', 15) . ' Analisar</a>';
+        } elseif ($e['status'] === Status::E_PENDENTE) {
+            $h .= !empty($e['convenio_arquivo'])
+                ? self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar a empresa?', $e['nome'] . ' receberá um e-mail de confirmação e já poderá publicar vagas.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary')
+                : '<button class="ui-btn ui-btn-sm ui-btn-primary" type="button" disabled title="Anexe a via final do convênio para aprovar">Aprovar</button>';
             $h .= self::formMotivo($a, $c + ['acao' => 'reprovar'], 'Reprovar', 'Reprovar o cadastro');
         } elseif ($e['status'] === Status::E_APROVADA) {
             $h .= self::formMotivo($a, $c + ['acao' => 'bloquear'], 'Bloquear', 'Bloquear a empresa', 'ui-btn ui-btn-sm ui-btn-danger-o');
