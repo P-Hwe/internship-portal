@@ -57,7 +57,7 @@ $inicio = $erros ? min(array_map(fn($k) => $etapaDe[$k] ?? 0, array_keys($erros)
                     <li>Baixe o modelo e preencha os campos em vermelho: razão social, CNPJ, endereço completo e o representante legal da empresa.</li>
                     <li>O representante legal assina e a empresa indica uma testemunha (Testemunha 2).</li>
                     <li>Anexe abaixo a via assinada pela empresa.</li>
-                    <li>Depois da aprovação do cadastro, a Coordenação colhe as assinaturas do IFSP: o(a) Diretor(a)-Geral do câmpus e o(a) responsável pelo setor de estágio (Testemunha 1).</li>
+                    <li>Durante a análise do cadastro, a Coordenação colhe as assinaturas do IFSP: o(a) Diretor(a)-Geral do câmpus e o(a) responsável pelo setor de estágio (Testemunha 1). O cadastro é aprovado junto com a via assinada por todas as partes.</li>
                 </ol>
                 <iframe class="ui-term-pdf" src="<?= e($termoOficial) ?>#view=FitH" title="Modelo do Convênio de Concessão de Estágio do IFSP Câmpus Guarulhos" loading="lazy"></iframe>
                 <a class="ui-btn ui-btn-sm" href="<?= e($termoOficial) ?>" download="convenio-concessao-estagio-ifsp-guarulhos.pdf"><?= icon('file', 15) ?> Baixar o modelo do convênio</a>
