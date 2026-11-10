@@ -193,6 +193,12 @@ class Company
         return Database::all('SELECT e.*, ' . self::SUBS . " FROM empresas e WHERE e.status = 'aprovada'$extra ORDER BY $ord LIMIT " . (int) $n, ['hoje' => date('Y-m-d')]);
     }
 
+    /** Só publica vagas a empresa aprovada cujo convênio assinado por todas as partes já foi anexado pela Coordenação. */
+    public static function podePublicar(array $company): bool
+    {
+        return ($company['status'] ?? '') === Status::E_APROVADA && !empty($company['convenio_arquivo']);
+    }
+
     public static function parceiraPorId(int $id): ?array
     {
         $company = self::comContagem($id);

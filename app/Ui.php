@@ -152,7 +152,7 @@ class Ui
         $a = url('admin-acao');
         $h = '<div class="ui-actions">';
         if ($e['status'] === Status::E_PENDENTE) {
-            $h .= self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar a empresa?', $e['nome'] . ' poderá publicar vagas e receberá um e-mail de confirmação.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary');
+            $h .= self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar a empresa?', $e['nome'] . ' receberá um e-mail de confirmação e poderá publicar vagas depois que o convênio assinado por todas as partes for anexado.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary');
             $h .= self::formMotivo($a, $c + ['acao' => 'reprovar'], 'Reprovar', 'Reprovar o cadastro');
         } elseif ($e['status'] === Status::E_APROVADA) {
             $h .= self::formMotivo($a, $c + ['acao' => 'bloquear'], 'Bloquear', 'Bloquear a empresa', 'ui-btn ui-btn-sm ui-btn-danger-o');
