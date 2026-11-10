@@ -68,6 +68,15 @@ class Notifier
             $event === 'reativado' ? ['Entrar no painel', url_abs('admin-login')] : null));
     }
 
+    public static function convenioAssinado(array $company): void
+    {
+        $html = '<p>O <strong>Convênio de Concessão de Estágio</strong> da <strong>' . e($company['nome']) . '</strong> com o IFSP Câmpus Guarulhos foi assinado por todas as partes.</p>'
+            . '<p>A via final já está disponível para download na área da empresa, na aba <strong>Convênio</strong>.</p>';
+        foreach (array_unique(array_filter([$company['email'], $company['email_contato']])) as $email) {
+            Mailer::enviar($email, 'Convênio assinado por todas as partes', Mailer::layout('Convênio assinado', $html, ['Baixar o convênio', url_abs('empresa-convenio')]));
+        }
+    }
+
     public static function parceriaEncerrada(int $companyId, array $former): void
     {
         $html = '<p>A parceria da empresa <strong>' . e($former['nome']) . '</strong> com o portal de vagas de estágio do IFSP Guarulhos foi encerrada a pedido da própria empresa.</p>'

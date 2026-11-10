@@ -132,6 +132,7 @@ class Company
         $emails = array_values(array_unique(array_filter(array_map('mb_strtolower', array_merge([$company['email'], $company['email_contato']], array_column($members, 'email'))))));
         $files = array_filter(array_merge([$company['logo'], $company['banner']], array_column(Database::all('SELECT imagem FROM vagas WHERE empresa_id = :e AND imagem IS NOT NULL', ['e' => $id]), 'imagem')));
         $term = $company['termo_arquivo'];
+        $agreement = $company['convenio_arquivo'] ?? null;
         $openJobs = (int) Database::val("SELECT COUNT(*) FROM vagas WHERE empresa_id = :e AND status <> 'encerrada'", ['e' => $id]);
 
         $pdo = Database::pdo();
@@ -155,7 +156,7 @@ class Company
                 'cnpj' => null, 'razao_social' => null, 'descricao' => null, 'endereco' => '', 'cep' => null, 'logradouro' => null, 'numero' => null,
                 'complemento' => null, 'bairro' => null, 'responsavel' => '', 'cargo' => null, 'telefone' => '', 'celular' => null, 'email' => null,
                 'email_contato' => null, 'site' => null, 'linkedin' => null, 'logo' => null, 'banner' => null, 'senha_hash' => '', 'termo_arquivo' => null,
-                'motivo' => null, 'status' => Status::E_ENCERRADA, 'encerrada_em' => Database::now(),
+                'convenio_arquivo' => null, 'convenio_assinado_em' => null, 'motivo' => null, 'status' => Status::E_ENCERRADA, 'encerrada_em' => Database::now(),
             ]);
             AuditLog::registrar('empresa', $id, 'parceria_encerrada', $company['status'], Status::E_ENCERRADA, 'empresa', $id, $openJobs ? $openJobs . ' vaga(s) retiradas do mural' : null);
             $pdo->commit();
@@ -165,7 +166,18 @@ class Company
         }
         foreach ($files as $f) if (url_upload($f)) @unlink(ROOT_PATH . '/' . $f);
         if ($term) @unlink(ROOT_PATH . '/storage/termos/' . basename($term));
+        if ($agreement) @unlink(ROOT_PATH . self::AGREEMENT_DIR . basename($agreement));
         return ['nome' => $company['nome'], 'emails' => $emails, 'vagas' => $openJobs];
+    }
+
+    public const AGREEMENT_DIR = '/storage/convenios/';
+
+    public static function anexarConvenio(int $id, string $file, int $adminId): void
+    {
+        $previous = Database::val('SELECT convenio_arquivo FROM empresas WHERE id = :i', ['i' => $id]);
+        Database::update('empresas', $id, ['convenio_arquivo' => $file, 'convenio_assinado_em' => Database::now()]);
+        if ($previous && $previous !== $file) @unlink(ROOT_PATH . self::AGREEMENT_DIR . basename((string) $previous));
+        AuditLog::registrar('empresa', $id, 'convenio_assinado', null, null, 'admin', $adminId, $previous ? 'nova versão' : null);
     }
 
     public static function comContagem(int $id): ?array

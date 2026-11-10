@@ -2391,3 +2391,58 @@ a.is-active .ui-count {
   color: inherit;
   font-weight: 600;
 }
+
+/* aba Convênio da empresa */
+.ag-steps {
+  display: grid;
+  gap: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ag-steps li {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 0 0 18px;
+}
+.ag-steps li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 26px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--border);
+}
+.ag-steps li.is-done:not(:last-child)::before {
+  background: var(--primary);
+}
+.ag-dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--on-primary);
+}
+.ag-steps li.is-done .ag-dot {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.ag-steps strong {
+  display: block;
+  font-size: 14.5px;
+}
+.ag-steps small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.ag-admin dt {
+  font-weight: 600;
+}

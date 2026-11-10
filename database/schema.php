@@ -21,7 +21,8 @@ function schema_sql(): array
         site VARCHAR(200) NULL, linkedin VARCHAR(200) NULL, link_principal VARCHAR(10) NOT NULL DEFAULT 'site', logo VARCHAR(200) NULL, banner VARCHAR(200) NULL,
         senha_hash VARCHAR(255) NOT NULL, termo_arquivo VARCHAR(80) NULL, termos_aceitos_em $dt NULL,
         status VARCHAR(12) NOT NULL DEFAULT 'pendente', motivo TEXT NULL, aprovacao_vista SMALLINT NOT NULL DEFAULT 0,
-        criado_em $dt NOT NULL, avaliado_em $dt NULL, ultimo_acesso $dt NULL, encerrada_em $dt NULL)$fim";
+        criado_em $dt NOT NULL, avaliado_em $dt NULL, ultimo_acesso $dt NULL, encerrada_em $dt NULL,
+        convenio_arquivo VARCHAR(80) NULL, convenio_assinado_em $dt NULL)$fim";
     $t[] = "CREATE TABLE IF NOT EXISTS empresa_usuarios (
         id $pk, empresa_id INT NOT NULL, nome VARCHAR(100) NOT NULL, email VARCHAR(120) NOT NULL UNIQUE, senha_hash VARCHAR(255) NOT NULL,
         papel VARCHAR(12) NOT NULL DEFAULT 'membro', ativo SMALLINT NOT NULL DEFAULT 1, trocar_senha SMALLINT NOT NULL DEFAULT 0,

@@ -226,6 +226,28 @@ class AdminController
         $goBack();
     }
 
+    /** GET baixa o convênio assinado por todas as partes; POST anexa (ou substitui) esse arquivo. */
+    public function convenio(): void
+    {
+        $admin = Auth::requireAdmin();
+        $company = Company::porId((int) ($_GET['id'] ?? 0));
+        if (!$company || $company['status'] === Status::E_ENCERRADA) { http_response_code(404); exit('Empresa não encontrada.'); }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::exigir();
+            [$file, $error] = Upload::save($_FILES['convenio'] ?? null, ['application/pdf'], ROOT_PATH . Company::AGREEMENT_DIR, true);
+            if ($error) {
+                flash('erro', $error);
+            } else {
+                Company::anexarConvenio((int) $company['id'], $file, (int) $admin['id']);
+                Notifier::convenioAssinado($company);
+                flash('ok', 'Convênio anexado. A empresa foi avisada por e-mail e já pode baixá-lo na aba Convênio.');
+            }
+            redirect('admin-empresa', ['id' => $company['id']]);
+        }
+        if (!$company['convenio_arquivo']) { http_response_code(404); exit('Arquivo não encontrado.'); }
+        Upload::send(ROOT_PATH . Company::AGREEMENT_DIR . basename($company['convenio_arquivo']), 'convenio-' . preg_replace('/\W/', '', (string) $company['cnpj']));
+    }
+
     public function termo(): void
     {
         Auth::requireAdmin();

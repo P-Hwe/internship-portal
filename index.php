@@ -32,6 +32,8 @@ $rotas = [
     'empresa-usuarios'  => ['CompanyAreaController',    'usuarios'],
     'empresa-senha'     => ['CompanyAreaController',    'senha'],
     'empresa-encerrar'  => ['CompanyAreaController',    'encerrarParceria'],
+    'empresa-convenio'  => ['CompanyAreaController',    'convenio'],
+    'empresa-convenio-arquivo' => ['CompanyAreaController', 'convenioArquivo'],
     'empresa-desempenho' => ['CompanyAreaController',   'desempenho'],
 
     'admin'             => ['AdminController',         'painel'],
@@ -48,6 +50,7 @@ $rotas = [
     'admin-relatorios'  => ['AdminController',         'relatorios'],
     'admin-acao'        => ['AdminController',         'acao'],
     'admin-termo'       => ['AdminController',         'termo'],
+    'admin-convenio'    => ['AdminController',         'convenio'],
     'admin-exportar'    => ['AdminController',         'exportar'],
 ];
 

@@ -15,6 +15,7 @@ $navGroups = $isAdmin ? [
     ])),
     'Empresa' => array_values(array_filter([
         ['empresa-perfil', 'Perfil da empresa', 'building', 'perfil'],
+        ['empresa-convenio', 'Convênio', 'file', 'convenio'],
         $canManage ? ['empresa-desempenho', 'Desempenho', 'trending', 'desempenho'] : null,
         $canManage ? ['empresa-usuarios', 'Usuários', 'users', 'usuarios'] : null,
     ])),
