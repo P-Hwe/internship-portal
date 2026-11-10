@@ -27,7 +27,7 @@ $steps = [
         <a class="ui-btn ui-btn-primary ui-btn-block" href="<?= url('empresa-convenio-arquivo', ['via' => 'final']) ?>" target="_blank" rel="noopener"><?= icon('file', 16) ?> Baixar convênio assinado</a>
         <?php else: ?>
         <h2>Enquanto isso</h2>
-        <p class="ui-sub" style="margin:0 0 14px">Quando o IFSP terminar as assinaturas, a via final aparece aqui e você recebe um e-mail avisando.</p>
+        <p class="ui-sub" style="margin:0 0 14px">Quando o IFSP terminar as assinaturas, a via final aparece aqui e você recebe um e-mail avisando. A publicação de vagas é liberada nesse momento.</p>
         <?php endif; ?>
         <?php if (!empty($emp['termo_arquivo'])): ?>
         <a class="ui-btn ui-btn-block" style="margin-top:10px" href="<?= url('empresa-convenio-arquivo', ['via' => 'empresa']) ?>" target="_blank" rel="noopener"><?= icon('file', 16) ?> Ver a via enviada pela empresa</a>

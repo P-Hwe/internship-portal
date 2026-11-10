@@ -11,7 +11,7 @@ $navGroups = $isAdmin ? [
     'Painel'  => [['painel', 'Visão geral', 'grid', 'painel']],
     'Vagas'   => array_values(array_filter([
         ['empresa-vagas', 'Minhas vagas', 'briefcase', 'vagas'],
-        ($emp['status'] ?? '') === 'aprovada' ? ['vaga-cadastro', 'Publicar vaga', 'plus', 'publicar'] : null,
+        Company::podePublicar($emp) ? ['vaga-cadastro', 'Publicar vaga', 'plus', 'publicar'] : null,
     ])),
     'Empresa' => array_values(array_filter([
         ['empresa-perfil', 'Perfil da empresa', 'building', 'perfil'],

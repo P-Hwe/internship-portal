@@ -1,6 +1,7 @@
 <?php
 $me = $emp['usuario'] ?? null;
 $approved = $emp['status'] === 'aprovada';
+$canPost = Company::podePublicar($emp);
 $live = (int) ($cont['publicada'] ?? 0);
 $review = (int) ($cont['aguardando'] ?? 0);
 $scheduled = (int) ($cont['agendada'] ?? 0);
@@ -37,6 +38,7 @@ $tips = [
 ];
 [$tipIcon, $tipText] = $tips[(int) date('z') % count($tips)];
 if (!$approved) $heroText = $emp['status'] === 'pendente' ? 'Assim que a Coordenação aprovar o cadastro, você poderá publicar vagas.' : 'Corrija o cadastro e reenvie para análise para voltar a publicar vagas.';
+elseif (!$canPost) $heroText = 'Falta o convênio assinado por todas as partes: assim que a Coordenação anexar a via final, você poderá publicar vagas.';
 elseif ($review) $heroText = $review . ' vaga(s) aguardando a análise da Coordenação.';
 elseif ($live) $heroText = 'Tudo em dia. Suas vagas estão visíveis para os estudantes do IFSP Guarulhos.';
 else $heroText = 'Publique a primeira vaga e ela aparece no mural depois da análise da Coordenação.';
@@ -55,6 +57,12 @@ else $heroText = 'Publique a primeira vaga e ela aparece no mural depois da aná
                 class="ui-btn ui-btn-sm ui-btn-primary" type="submit">Reenviar para análise</button>
         </form>
     </div>
+</div>
+<?php elseif ($approved && !$canPost): ?>
+<div class="ui-alert ui-alert-warn"><?= icon('file', 22) ?><div><strong>Aguardando o convênio assinado por todas as partes</strong>
+        <p>O cadastro foi aprovado. Agora o IFSP assina o Convênio de Concessão de Estágio (Diretor(a)-Geral e setor de estágio). Assim que a Coordenação anexar a via final, você recebe um e-mail e já pode publicar vagas.</p>
+    </div>
+    <div class="ui-actions"><a class="ui-btn ui-btn-sm" href="<?= url('empresa-convenio') ?>">Acompanhar o convênio</a></div>
 </div>
 <?php elseif ($aviso): ?>
 <div class="ui-alert ui-alert-ok"><?= icon('check', 22) ?><div><strong>Empresa aprovada</strong>
@@ -88,7 +96,7 @@ else $heroText = 'Publique a primeira vaga e ela aparece no mural depois da aná
     <h2><?= $live ? $live . ($live === 1 ? ' vaga no ar' : ' vagas no ar') . ' no mural do IFSP' : 'Nenhuma vaga no ar agora' ?></h2>
     <p><?= e($heroText) ?></p>
     <div class="ui-actions">
-      <?php if ($approved): ?><a class="ui-btn ui-btn-primary" href="<?= url('vaga-cadastro') ?>"><?= icon('plus', 16) ?> Publicar vaga</a><?php endif; ?>
+      <?php if ($canPost): ?><a class="ui-btn ui-btn-primary" href="<?= url('vaga-cadastro') ?>"><?= icon('plus', 16) ?> Publicar vaga</a><?php endif; ?>
       <a class="ui-btn" href="<?= url('empresa-vagas') ?>"><?= icon('briefcase', 16) ?> Minhas vagas</a>
     </div>
   </div>
@@ -145,7 +153,7 @@ else $heroText = 'Publique a primeira vaga e ela aparece no mural depois da aná
 <div class="dash-grid">
   <section class="ui-card dash-span-2">
     <div class="ui-chart-head"><h2>Vagas recentes</h2><a class="ui-link-sm" href="<?= url('empresa-vagas') ?>">Ver todas</a></div>
-    <?php if (!$recentes): echo Ui::vazio('Nenhuma vaga ainda', $approved ? 'Publique a primeira vaga da sua empresa.' : 'Você poderá publicar vagas depois que a Coordenação aprovar o cadastro.', $approved ? ['Publicar vaga', url('vaga-cadastro')] : null);
+    <?php if (!$recentes): echo Ui::vazio('Nenhuma vaga ainda', $canPost ? 'Publique a primeira vaga da sua empresa.' : 'Você poderá publicar vagas depois da aprovação do cadastro e do convênio assinado por todas as partes.', $canPost ? ['Publicar vaga', url('vaga-cadastro')] : null);
     else: ?><div class="ui-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
       <?php foreach ($recentes as $v) { $ctx = 'empresa'; require __DIR__ . '/../partials/job-card-panel.php'; } ?>
     </div><?php endif; ?>
