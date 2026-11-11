@@ -12,7 +12,6 @@ $rotas = [
     'empresa'           => ['PartnersController',       'perfil'],
     'externo'           => ['PartnersController',       'externo'],
     'sobre'             => ['PartnersController',       'sobre'],
-    'guia'              => ['PartnersController',       'guia'],
 
     'empresa-login'     => ['AuthController',          'empresaLogin'],
     'admin-login'       => ['AuthController',          'adminLogin'],
