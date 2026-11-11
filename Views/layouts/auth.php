@@ -12,6 +12,7 @@ $pitch = $authContext === 'admin'
     <div class="auth-pitch">
       <h2><?= e($pitch[0]) ?></h2>
       <p><?= e($pitch[1]) ?></p>
+      <a class="auth-guide" href="<?= e(url('guia')) ?>#<?= $authContext === 'admin' ? 'coordenacao' : 'empresa' ?>"><?= icon('info', 17) ?> Guia de primeiro acesso</a>
     </div>
     <footer>Instituto Federal de São Paulo · Câmpus Guarulhos · <a href="<?= url('sobre') ?>">Sobre e créditos</a></footer>
   </aside>
@@ -25,6 +26,7 @@ $pitch = $authContext === 'admin'
       <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="ui-alert ui-alert-<?= e($t) ?>" role="status"><div><?= e($m) ?></div></div><?php endforeach; unset($_SESSION['flash']); ?>
       <?= $conteudo ?>
     </main>
+    <a class="auth-guide-foot" href="<?= e(url('guia')) ?>#<?= $authContext === 'admin' ? 'coordenacao' : 'empresa' ?>"><?= icon('info', 15) ?> Guia de primeiro acesso</a>
     <div class="auth-ifsp-foot"><?php $ifspMark = 'horizontal'; $ifspTone = 'cor'; require __DIR__ . '/../partials/ifsp-mark.php'; ?></div>
   </div>
   <script src="<?= e(BASE_URL) ?>public/js/app.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/app.js') ?>"></script>

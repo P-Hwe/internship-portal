@@ -37,7 +37,13 @@ class PartnersController
 
     public function sobre(): void
     {
-        view('public/about', ['titulo' => 'Quem fez o ESTAGIA+', 'equipe' => Credits::TEAM, 'demandante' => Credits::DEMANDANTE]);
+        view('public/about', ['titulo' => 'Quem fez o ESTAGIA+', 'equipe' => Credits::TEAM, 'demandante' => Credits::DEMANDANTE, 'extensao' => Credits::EXTENSION]);
+    }
+
+    /** GET /guia: primeiro acesso, usuários, senhas e e-mails, para empresas e para a Coordenação. */
+    public function guia(): void
+    {
+        view('public/guide', ['titulo' => 'Guia de primeiro acesso']);
     }
 
     public function perfil(): void

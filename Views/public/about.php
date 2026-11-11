@@ -14,7 +14,17 @@
     </li>
     <?php endforeach; ?>
   </ul>
-  <p class="ab-credit-line">Projeto de extensão do IFSP Câmpus Guarulhos, idealizado por <?= e($demandante['nome']) ?> (<?= e(mb_strtolower($demandante['papel'])) ?>).</p>
+  <p class="ab-credit-line">Idealizado por <?= e($demandante['nome']) ?> (<?= e(mb_strtolower($demandante['papel'])) ?>).</p>
+</section>
+
+<section class="vb-section" aria-labelledby="ab-ext">
+  <div class="ab-ext">
+    <span class="ab-ext-kicker"><?= icon('star', 14) ?> Projeto de extensão</span>
+    <h2 id="ab-ext">O ESTAGIA+ fez parte do projeto de extensão</h2>
+    <p class="ab-ext-name"><?= e($extensao['nome']) ?></p>
+    <p>Desenvolvido por estudantes do curso de <?= e($extensao['curso']) ?> do IFSP Câmpus Guarulhos, a partir de uma demanda da Coordenadoria de Estágios.</p>
+    <a class="vb-btn vb-btn-primary" href="<?= e($extensao['url']) ?>" target="_blank" rel="noopener"><?= icon('external', 16) ?> Ver o projeto no SUAP</a>
+  </div>
 </section>
 </div>
 <?php require __DIR__ . '/../footer.php'; ?>

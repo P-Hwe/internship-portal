@@ -1540,3 +1540,163 @@ footer .vb-credit a {
     transform: none;
   }
 }
+/* botão Voltar para a página de estágios do site do câmpus */
+.vg .vb-list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.vg .vb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--vb-line, #dfe4e1);
+  background: var(--vb-surface, #fff);
+  color: var(--vb-ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.vg .vb-back:hover {
+  border-color: var(--vb-green, #2f9e41);
+  color: var(--vb-green, #2f9e41);
+}
+/* Sobre: projeto de extensão */
+.vg .ab-ext {
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid var(--vb-line, #dfe4e1);
+  background: linear-gradient(135deg, #f1f8f2, #fff);
+}
+.vg .ab-ext h2 {
+  margin: 10px 0 8px;
+  font-size: 22px;
+}
+.vg .ab-ext-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vb-green, #2f9e41);
+}
+.vg .ab-ext-name {
+  margin: 0 0 10px;
+  padding-left: 14px;
+  border-left: 3px solid var(--vb-green, #2f9e41);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--vb-ink);
+}
+.vg .ab-ext p {
+  max-width: 75ch;
+  color: var(--vb-muted);
+}
+.vg .ab-ext .vb-btn {
+  margin-top: 8px;
+}
+/* guia de primeiro acesso */
+.vg .gd-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.vg .gd-block {
+  scroll-margin-top: 90px;
+}
+.vg .gd-steps {
+  counter-reset: gd;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.vg .gd-steps > li {
+  counter-increment: gd;
+  position: relative;
+  padding: 16px 18px 16px 62px;
+  border-radius: 12px;
+  border: 1px solid var(--vb-line, #dfe4e1);
+  background: var(--vb-surface, #fff);
+}
+.vg .gd-steps > li::before {
+  content: counter(gd);
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--vb-green, #2f9e41);
+  color: #fff;
+  font-weight: 700;
+}
+.vg .gd-steps strong {
+  font-size: 16px;
+  color: var(--vb-ink);
+}
+.vg .gd-steps p {
+  margin: 6px 0 0;
+  color: var(--vb-muted);
+  line-height: 1.55;
+}
+.vg .gd-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--vb-muted);
+}
+.vg .gd-subtitle {
+  margin: 26px 0 10px;
+  font-size: 17px;
+}
+.vg .gd-mails {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+.vg .gd-mails li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f3f6f4;
+  color: var(--vb-ink);
+  font-size: 14px;
+}
+.vg .gd-note {
+  margin-top: 12px;
+  font-size: 13.5px;
+  color: var(--vb-muted);
+}
+@media (max-width: 600px) {
+  .vg .vb-list-tools {
+    width: 100%;
+  }
+  .vg .gd-steps > li {
+    padding-left: 54px;
+  }
+}
+#content.internas .vg ol.gd-steps > li,
+#content.internas .vg ul.gd-mails > li {
+  list-style: none !important;
+  background-image: none !important;
+}
+#content.internas .vg ul.gd-list > li {
+  list-style: disc !important;
+  background-image: none !important;
+  padding-left: 0 !important;
+}
