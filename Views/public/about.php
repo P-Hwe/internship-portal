@@ -22,9 +22,33 @@
     <span class="ab-ext-kicker"><?= icon('star', 14) ?> Projeto de extensão</span>
     <h2 id="ab-ext">O ESTAGIA+ fez parte do projeto de extensão</h2>
     <p class="ab-ext-name"><?= e($extensao['nome']) ?></p>
-    <p>Desenvolvido por estudantes do curso de <?= e($extensao['curso']) ?> do IFSP Câmpus Guarulhos, a partir de uma demanda da Coordenadoria de Estágios.</p>
-    <a class="vb-btn vb-btn-primary" href="<?= e($extensao['url']) ?>" target="_blank" rel="noopener"><?= icon('external', 16) ?> Ver o projeto no SUAP</a>
+    <p>O ESTAGIA+ foi desenvolvido por uma das startups acadêmicas do projeto, formada por estudantes do curso de <?= e($extensao['curso']) ?>, a partir de uma demanda da Coordenadoria de Estágios do câmpus.</p>
+    <dl class="ab-ext-facts">
+      <?php foreach ($extensao['fatos'] as [$rotulo, $valor]): ?><div><dt><?= e($rotulo) ?></dt><dd><?= e($valor) ?></dd></div><?php endforeach; ?>
+    </dl>
   </div>
+
+  <div class="ab-ext-grid">
+    <article class="ab-ext-card">
+      <h3><?= icon('info', 18) ?> Sobre o projeto</h3>
+      <p><?= e($extensao['resumo']) ?></p>
+    </article>
+    <article class="ab-ext-card">
+      <h3><?= icon('star', 18) ?> Objetivo</h3>
+      <p><?= e($extensao['objetivo']) ?></p>
+      <ul class="ab-ext-goals"><?php foreach ($extensao['objetivos'] as $o): ?><li><?= icon('check', 15) ?> <span><?= e($o) ?></span></li><?php endforeach; ?></ul>
+    </article>
+  </div>
+
+  <h3 class="ab-ext-sub">Como o projeto acontece</h3>
+  <ol class="ab-ext-phases">
+    <?php foreach ($extensao['fases'] as $i => [$titulo, $quando, $texto]): ?>
+    <li><span class="ab-ext-num"><?= $i + 1 ?></span><div><strong><?= e($titulo) ?></strong><small><?= e($quando) ?></small><p><?= e($texto) ?></p></div></li>
+    <?php endforeach; ?>
+  </ol>
+
+  <h3 class="ab-ext-sub">Objetivos de Desenvolvimento Sustentável (ONU)</h3>
+  <ul class="ab-ext-ods"><?php foreach ($extensao['ods'] as [$n, $nome]): ?><li><b>ODS <?= e($n) ?></b> <?= e($nome) ?></li><?php endforeach; ?></ul>
 </section>
 </div>
 <?php require __DIR__ . '/../footer.php'; ?>
