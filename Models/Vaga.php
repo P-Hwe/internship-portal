@@ -2,7 +2,8 @@
 class Vaga
 {
     private const SEL = 'v.*, e.nome AS e_nome, e.cnpj AS e_cnpj, e.endereco AS e_endereco, e.email AS e_email, e.telefone AS e_telefone, e.site AS e_site, e.linkedin AS e_linkedin,
-                         e.status AS e_status, e.ultimo_acesso AS e_acesso, e.logo AS e_logo, e.banner AS e_banner, e.segmento AS e_segmento, e.cidade AS e_cidade, e.uf AS e_uf, e.link_principal AS e_lp';
+                         e.status AS e_status, e.ultimo_acesso AS e_acesso, e.logo AS e_logo, e.banner AS e_banner, e.segmento AS e_segmento, e.cidade AS e_cidade, e.uf AS e_uf, e.link_principal AS e_lp,
+                         e.termo_arquivo AS e_termo, e.convenio_arquivo AS e_convenio';
     private const FROM = 'FROM vagas v JOIN empresas e ON e.id = v.empresa_id';
     /** Campos de conteúdo: qualquer mudança nelas em vaga aprovada exige nova aprovação. */
     private const CONTEUDO = ['titulo', 'tipo', 'area', 'modalidade', 'local', 'bolsa', 'carga_horas_dia', 'carga_dias', 'carga_turno', 'descricao', 'atividades', 'requisitos',
@@ -34,8 +35,8 @@ class Vaga
     {
         $r['empresa'] = ['id' => $r['empresa_id'], 'nome' => $r['e_nome'], 'cnpj' => $r['e_cnpj'], 'endereco' => $r['e_endereco'], 'email' => $r['e_email'], 'telefone' => $r['e_telefone'],
             'site' => $r['e_site'], 'linkedin' => $r['e_linkedin'], 'status' => $r['e_status'], 'ultimo_acesso' => $r['e_acesso'], 'logo' => $r['e_logo'], 'banner' => $r['e_banner'], 'segmento' => $r['e_segmento'],
-            'cidade' => $r['e_cidade'], 'uf' => $r['e_uf'], 'link_principal' => $r['e_lp']];
-        foreach (['e_nome', 'e_cnpj', 'e_endereco', 'e_email', 'e_telefone', 'e_site', 'e_linkedin', 'e_status', 'e_acesso', 'e_logo', 'e_banner', 'e_segmento', 'e_cidade', 'e_uf', 'e_lp'] as $k) unset($r[$k]);
+            'cidade' => $r['e_cidade'], 'uf' => $r['e_uf'], 'link_principal' => $r['e_lp'], 'termo_arquivo' => $r['e_termo'], 'convenio_arquivo' => $r['e_convenio']];
+        foreach (['e_nome', 'e_cnpj', 'e_endereco', 'e_email', 'e_telefone', 'e_site', 'e_linkedin', 'e_status', 'e_acesso', 'e_logo', 'e_banner', 'e_segmento', 'e_cidade', 'e_uf', 'e_lp', 'e_termo', 'e_convenio'] as $k) unset($r[$k]);
         foreach (['atividades', 'requisitos', 'requisitos_desejaveis', 'beneficios'] as $c) $r[$c] = self::linhas($r[$c] ?? '');
         $r['resumo'] = resumo_da_descricao($r['descricao']);          // breve descrição = primeiras linhas da descrição
         $r['bolsa_txt'] = $r['bolsa'] === null ? 'A combinar' : ((float)$r['bolsa'] === 0.0 ? 'A divulgar' : dinheiro($r['bolsa']));
