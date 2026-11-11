@@ -27,7 +27,7 @@ $pitch = $authContext === 'admin'
       <?= $conteudo ?>
     </main>
     <button type="button" class="auth-guide-foot" data-abrir-modal="modal-guia"><?= icon('info', 15) ?> Guia de primeiro acesso</button>
-    <div class="auth-ifsp-foot"><?php $ifspMark = 'horizontal'; $ifspTone = 'cor'; require __DIR__ . '/../partials/ifsp-mark.php'; ?></div>
+    <div class="auth-ifsp-foot"><?php $ifspMark = 'horizontal'; $ifspTone = 'auto'; require __DIR__ . '/../partials/ifsp-mark.php'; ?></div>
   </div>
   <dialog id="modal-guia" class="ui-modal ui-modal-guide" aria-labelledby="guia-title">
     <div class="ui-modal-head">
