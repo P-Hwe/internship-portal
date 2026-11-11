@@ -47,6 +47,7 @@ function demo_limpar(): void
     }
     Database::run("DELETE FROM visitas WHERE visitante LIKE 'de000%'");
     foreach (glob(ROOT_PATH . '/public/uploads/*/demo-*') ?: [] as $f) @unlink($f);
+    foreach (array_merge(glob(ROOT_PATH . '/storage/termos/demo-*') ?: [], glob(ROOT_PATH . Company::AGREEMENT_DIR . 'demo-*') ?: []) as $f) @unlink($f);
     echo 'Dados de teste removidos (' . count($emps) . " empresas).\n";
 }
 
@@ -67,6 +68,15 @@ $dia = fn(int $n): string => date('Y-m-d', $hoje + ($n * 86400));
 $quando = fn(int $dias, int $hora = 10, int $min = 0): string => date('Y-m-d H:i:s', $hoje + ($dias * 86400) + ($hora * 3600) + ($min * 60));
 $raiz = (int) Database::val("SELECT id FROM admins WHERE papel = 'raiz' ORDER BY id LIMIT 1") ?: (int) Database::val('SELECT MIN(id) FROM admins');
 $origem = __DIR__ . '/demo/img';
+
+/** Toda empresa de demonstração recebe o modelo oficial do convênio como via da empresa e, se aprovada, como via final. */
+function demo_termo(string $dir, string $prefixo, int $i): ?string
+{
+    $src = ROOT_PATH . '/public/docs/termo-de-cooperacao.pdf'; if (!is_file($src)) return null;
+    $destDir = ROOT_PATH . $dir; if (!is_dir($destDir)) @mkdir($destDir, 0775, true);
+    $nome = "demo-$prefixo-$i.pdf";
+    return @copy($src, $destDir . $nome) ? $nome : null;
+}
 
 function demo_img(string $arquivo, string $pasta, string $prefixo): ?string
 {
@@ -121,6 +131,9 @@ foreach ($E as $i => [$nome, $razao, $base, $seg, $porte, $resp, $cargo, $slug, 
         'email' => "$primeiro.$slugEmail" . DEMO_DOMINIO, 'email_contato' => "rh.$slugEmail" . DEMO_DOMINIO,
         'site' => "https://www.$slugEmail.example", 'linkedin' => "https://www.linkedin.com/company/$slugEmail", 'link_principal' => $i % 2 ? 'linkedin' : 'site',
         'logo' => $log, 'banner' => $cap, 'senha_hash' => Auth::hash(DEMO_SENHA), 'termos_aceitos_em' => $quando(-$criada), 'status' => $st,
+        'termo_arquivo' => demo_termo('/storage/termos/', 'termo', $i),
+        'convenio_arquivo' => in_array($st, ['aprovada', 'bloqueada'], true) ? demo_termo(Company::AGREEMENT_DIR, 'convenio', $i) : null,
+        'convenio_assinado_em' => in_array($st, ['aprovada', 'bloqueada'], true) ? $quando(-$criada + 1, 10, 30) : null,
         'motivo' => $st === 'reprovada' ? 'O termo de cooperação enviado está ilegível. Envie uma cópia digitalizada com boa resolução.' : ($st === 'bloqueada' ? 'Vaga divulgada sem relação com estágio.' : null),
         'aprovacao_vista' => $st === 'aprovada' ? 1 : 0, 'criado_em' => $quando(-$criada, 9, 15 + $i),
         'avaliado_em' => $st === 'pendente' ? null : $quando(-$criada + 1, 11, 5), 'ultimo_acesso' => $st === 'aprovada' ? $quando(-($i % 6), 15, 30) : null,
