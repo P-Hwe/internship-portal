@@ -12,6 +12,15 @@
     style="--bn:url('<?= e($img) ?>');max-width:520px;border-radius:8px;margin-bottom:14px"><img src="<?= e($img) ?>"
         alt="Banner da vaga"></div><?php endif; ?>
 <?php require __DIR__ . '/../partials/performance-item.php'; ?>
+<?php if ($v['status'] === 'aguardando_aprovacao' && $e['status'] === 'aprovada' && empty($e['convenio_arquivo'])): ?><div class="ui-alert ui-alert-warn"><?= icon('file', 22) ?>
+    <div><strong>Falta o convênio assinado por todas as partes</strong>
+        <p>Esta vaga só pode ser aprovada depois que o convênio da <?= e($e['nome']) ?> for assinado pela empresa, pelo(a) Diretor(a)-Geral e pela Coordenação de estágio e anexado na ficha da empresa.</p>
+    </div>
+    <div class="ui-actions">
+        <?php if (!empty($e['termo_arquivo'])): ?><a class="ui-btn ui-btn-sm" href="<?= url('admin-termo', ['id' => $e['id']]) ?>" target="_blank" rel="noopener"><?= icon('file', 15) ?> Ver termo da empresa</a><?php endif; ?>
+        <a class="ui-btn ui-btn-sm ui-btn-primary" href="<?= url('admin-empresa', ['id' => $e['id']]) ?>#convenio">Anexar convênio</a>
+    </div>
+</div><?php endif; ?>
 <?php if ($v['status'] === 'aguardando_aprovacao' && $e['status'] !== 'aprovada'): ?><div
     class="ui-alert ui-alert-warn">
     <div><strong>Empresa ainda não aprovada</strong>

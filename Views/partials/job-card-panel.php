@@ -13,7 +13,7 @@ $acoes = $ctx === 'admin' ? Ui::acoesVagaAdmin($v, $ret) : '';
     <ul class="ui-vtags" aria-label="Destaques da vaga"><?php foreach ($selos as [$txt, $cls]): ?><li class="ui-vtag <?= e($cls) ?>"><?= e($txt) ?></li><?php endforeach; ?></ul>
   </div>
   <div class="ui-vcard-body">
-    <div class="ui-vcard-emp"><?= Ui::logo($v['empresa'], 26) ?><span><?= e($v['empresa']['nome']) ?></span><?= Ui::situacao($sit) ?></div>
+    <div class="ui-vcard-emp"><?= Ui::logo($v['empresa'], 26) ?><span><?= e($v['empresa']['nome']) ?></span><?= Ui::situacao($sit) ?><?= $ctx === 'admin' && $v['status'] === 'aguardando_aprovacao' && empty($v['empresa']['convenio_arquivo']) ? Ui::badge('Convênio pendente', 'warn') : '' ?></div>
     <h3><a class="ui-stretch" href="<?= e($ver) ?>"><?= e($v['titulo']) ?></a></h3>
     <ul class="ui-vcard-meta">
       <li><?= icon('pin', 15) ?> <?= e($v['local']) ?> · <?= e($v['modalidade']) ?></li>
