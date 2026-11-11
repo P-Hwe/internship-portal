@@ -37,8 +37,9 @@ class PartnersController
 
     public function sobre(): void
     {
-        view('public/about', ['titulo' => 'Quem fez o ESTAGIA+', 'equipe' => Credits::TEAM, 'demandante' => Credits::DEMANDANTE]);
+        view('public/about', ['titulo' => 'Quem fez o ESTAGIA+', 'equipe' => Credits::TEAM, 'demandante' => Credits::DEMANDANTE, 'extensao' => Credits::EXTENSION]);
     }
+
 
     public function perfil(): void
     {

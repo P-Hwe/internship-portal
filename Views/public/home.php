@@ -68,9 +68,12 @@ $baseParams = array_filter(array_merge($filtros, ['vista' => $viewMode === 'list
 <section class="vb-section" id="todas" aria-labelledby="vb-list-title">
   <div class="vb-list-head">
     <h2 id="vb-list-title" class="vb-section-title"><?= e($listTitle) ?> <span class="vb-count"><?= (int) $totalVagas ?></span></h2>
+    <div class="vb-list-tools">
+    <a class="vb-back" href="<?= e(Credits::CAMPUS_INTERNSHIPS_URL) ?>"><?= icon('arrow-left', 16) ?> Voltar para Estágios do câmpus</a>
     <div class="vb-view" role="group" aria-label="Modo de exibição">
       <a href="<?= e(url('home', array_diff_key($baseParams, ['vista' => 1, 'pg' => 1]) + ($pagina > 1 ? ['pg' => $pagina] : []))) ?>" class="<?= $viewMode === 'cards' ? 'is-active' : '' ?>" aria-label="Ver em cards"<?= $viewMode === 'cards' ? ' aria-current="true"' : '' ?>><?= icon('grid', 16) ?> Cards</a>
       <a href="<?= e(url('home', array_merge($baseParams, ['vista' => 'lista'], $pagina > 1 ? ['pg' => $pagina] : []))) ?>" class="<?= $viewMode === 'lista' ? 'is-active' : '' ?>" aria-label="Ver em lista"<?= $viewMode === 'lista' ? ' aria-current="true"' : '' ?>><?= icon('menu', 16) ?> Lista</a>
+    </div>
     </div>
   </div>
   <nav class="vb-sort" aria-label="Ordenar vagas">

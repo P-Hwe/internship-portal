@@ -1540,3 +1540,69 @@ footer .vb-credit a {
     transform: none;
   }
 }
+/* botão Voltar para a página de estágios do site do câmpus */
+.vg .vb-list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.vg .vb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--vb-line, #dfe4e1);
+  background: var(--vb-surface, #fff);
+  color: var(--vb-ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.vg .vb-back:hover {
+  border-color: var(--vb-green, #2f9e41);
+  color: var(--vb-green, #2f9e41);
+}
+/* Sobre: projeto de extensão */
+.vg .ab-ext {
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid var(--vb-line, #dfe4e1);
+  background: linear-gradient(135deg, #f1f8f2, #fff);
+}
+.vg .ab-ext h2 {
+  margin: 10px 0 8px;
+  font-size: 22px;
+}
+.vg .ab-ext-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vb-green, #2f9e41);
+}
+.vg .ab-ext-name {
+  margin: 0 0 10px;
+  padding-left: 14px;
+  border-left: 3px solid var(--vb-green, #2f9e41);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--vb-ink);
+}
+.vg .ab-ext p {
+  max-width: 75ch;
+  color: var(--vb-muted);
+}
+.vg .ab-ext .vb-btn {
+  margin-top: 8px;
+}
+@media (max-width: 600px) {
+  .vg .vb-list-tools {
+    width: 100%;
+  }
+}
