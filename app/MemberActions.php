@@ -9,7 +9,7 @@ class MemberActions
         $errors = [];
         if (mb_strlen($name) < 3 || mb_strlen($name) > 100) $errors['nome'] = 'Informe o nome completo.';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 120) $errors['email'] = 'E-mail inválido.';
-        elseif (CompanyMember::emailTaken($email) || Company::porEmail($email)) $errors['email'] = 'Este e-mail já está em uso no portal.';
+        elseif (CompanyMember::emailTaken($email) || Company::porEmail($email) || Admin::emailTaken($email)) $errors['email'] = 'Este e-mail já está em uso no portal.';
         if (!in_array($role, [CompanyMember::MEMBER, CompanyMember::MANAGER], true)) $errors['papel'] = 'Escolha o cargo.';
         elseif ($role === CompanyMember::MANAGER && !CompanyMember::isPrincipal($actor)) $errors['papel'] = 'Só o responsável pela empresa pode tornar alguém gestor.';
         if ($errors) return [null, $errors];
