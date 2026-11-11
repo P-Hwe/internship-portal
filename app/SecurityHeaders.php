@@ -1,7 +1,7 @@
 <?php
 class SecurityHeaders
 {
-    private const PUBLIC_ROUTES = ['home', 'vaga', 'encerradas', 'tv', 'empresas', 'empresa', 'externo'];
+    private const PUBLIC_ROUTES = ['home', 'vaga', 'encerradas', 'tv', 'empresas', 'empresa', 'externo', 'sobre', 'guia'];
 
     private const PANEL_POLICY = [
         "default-src 'self'",
