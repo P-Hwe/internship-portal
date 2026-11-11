@@ -8,7 +8,36 @@ class Credits
     public const EXTENSION = [
         'nome'  => 'Projeto de Captação de Demandas oriundas da comunidade externa para ações de consultoria, capacitação e desenvolvimento de sistemas para internet pelos estudantes do curso de Tecnologia em Análise e Desenvolvimento de Sistemas',
         'curso' => 'Tecnologia em Análise e Desenvolvimento de Sistemas',
-        'url'   => 'https://suap.ifsp.edu.br/projetos/projeto/5475/',
+        'fatos' => [
+            ['Modalidade', 'Projeto de Curricularização da Extensão'],
+            ['Edital', 'nº 25/2025 · PRX: Programa de Curricularização da Extensão'],
+            ['Execução', '13/10/2025 a 11/12/2026'],
+            ['Coordenação', 'Prof. Robson Ferreira Lopes'],
+            ['Área', 'Ciência da Computação · Tecnologia e Produção'],
+            ['Câmpus', 'IFSP Guarulhos'],
+        ],
+        'resumo' => 'O projeto organiza estudantes de Análise e Desenvolvimento de Sistemas em startups acadêmicas que atendem demandas da comunidade externa, como pequenos comércios, associações, profissionais liberais e iniciativas de economia solidária que não têm condições de contratar consultoria em tecnologia. Durante 15 meses, as equipes atuam como consultorias acadêmicas, usando métodos ágeis (SCRUM e XP) e práticas DevOps para entregar soluções digitais sob medida, com entregas em sprints e uma apresentação pública dos resultados no câmpus.',
+        'objetivo' => 'Ampliar a presença digital de quem atua na comunidade, oferecendo consultoria, capacitação e desenvolvimento de sistemas com entregas incrementais, e dar aos estudantes a vivência prática de engenharia de software em problemas reais.',
+        'objetivos' => [
+            'Formar startups acadêmicas de 3 a 6 estudantes, com papéis de Product Owner, Scrum Master e time de desenvolvimento.',
+            'Mapear demandas reais da comunidade e levantar requisitos com cada parceiro.',
+            'Desenvolver as soluções em sprints, validando cada entrega com o parceiro.',
+            'Capacitar os parceiros para usar o que foi desenvolvido.',
+            'Documentar e divulgar os resultados em relatório final e cerimônia de encerramento.',
+        ],
+        'fases' => [
+            ['Formação das startups', 'Início', 'Equipes, papéis e uma página de apresentação de cada startup.'],
+            ['Captação dos parceiros', 'Até o 3º mês', 'Escolha das organizações atendidas e formalização da parceria.'],
+            ['Diagnóstico e planejamento', '3º ao 5º mês', 'Entrevistas, requisitos, épicos, histórias de usuário e Product Backlog.'],
+            ['Desenvolvimento incremental', '5º ao 14º mês', 'Sprints de 2 a 4 semanas, testes, integração contínua e oficinas com o parceiro.'],
+            ['Encerramento', '15º mês', 'Sistema publicado, apresentação pública, lições aprendidas e relatório final.'],
+        ],
+        'ods' => [
+            ['4', 'Educação de qualidade'],
+            ['8', 'Trabalho decente e crescimento econômico'],
+            ['9', 'Indústria, inovação e infraestrutura'],
+            ['10', 'Redução das desigualdades'],
+        ],
     ];
 
     /** Página de estágios do site oficial do câmpus, para onde o botão Voltar leva. */
