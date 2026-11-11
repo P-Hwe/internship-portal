@@ -134,7 +134,10 @@ class Ui
         $c = ['tipo' => 'vaga', 'id' => $v['id'], 'ret' => $ret] + ($retId ? ['ret_id' => $retId] : []);
         $a = url('admin-acao');
         $h = '<div class="ui-actions">';
-        if ($v['status'] === Status::V_AGUARDANDO) {
+        if ($v['status'] === Status::V_AGUARDANDO && empty($v['empresa']['convenio_arquivo'])) {
+            $h .= '<a class="ui-btn ui-btn-sm ui-btn-primary" href="' . e(url('admin-empresa', ['id' => $v['empresa']['id']])) . '#convenio">' . icon('file', 15) . ' Anexar convênio</a>';
+            $h .= self::formMotivo($a, $c + ['acao' => 'rejeitar'], 'Rejeitar', 'Rejeitar esta vaga');
+        } elseif ($v['status'] === Status::V_AGUARDANDO) {
             $h .= self::formConfirmar($a, $c + ['acao' => 'aprovar'], 'Aprovar', 'Aprovar esta vaga?', 'A vaga "' . $v['titulo'] . '" será publicada de ' . data_br($v['data_publicacao']) . ' até ' . data_br($v['data_limite']) . ' e a empresa receberá um e-mail.', 'primary', 'ui-btn ui-btn-sm ui-btn-primary');
             $h .= self::formMotivo($a, $c + ['acao' => 'rejeitar'], 'Rejeitar', 'Rejeitar esta vaga');
         } elseif ($v['status'] === Status::V_APROVADA) {
