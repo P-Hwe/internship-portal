@@ -30,5 +30,5 @@ $acoes = $ctx === 'admin' ? Ui::acoesVagaAdmin($v, $ret) : '';
       <?php if ($v['status'] !== 'encerrada'): ?><a class="ui-btn ui-btn-sm" href="<?= url('vaga-editar', ['id' => $v['id']]) ?>"><?= icon('edit', 15) ?> Editar</a><?php endif; ?>
       <?php if ($v['status'] === 'aprovada'): echo Ui::formConfirmar(url('vaga-encerrar'), ['id' => $v['id']], 'Encerrar vaga', 'Encerrar esta vaga?', 'A vaga "' . $v['titulo'] . '" deixa de aparecer para os estudantes imediatamente. Ela continua guardada no seu histórico e não será excluída.', 'danger', 'ui-btn ui-btn-sm ui-btn-danger-o'); endif; ?>
     </div>
-  <?php elseif (str_contains($acoes, '<form')): ?><div class="ui-vcard-foot"><?= $acoes ?></div><?php endif; ?>
+  <?php elseif (str_contains($acoes, '<form')): ?><div class="ui-vcard-foot<?= $v['status'] === 'aguardando_aprovacao' ? ' is-pinned' : '' ?>"><?= $acoes ?></div><?php endif; ?>
 </article>
