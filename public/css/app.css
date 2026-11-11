@@ -2497,3 +2497,10 @@ a.is-active .ui-count {
   font-size: 14px;
   color: var(--text);
 }
+.ui-btn:disabled,
+.ui-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+  box-shadow: none;
+}

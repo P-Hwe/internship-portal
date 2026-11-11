@@ -388,7 +388,7 @@ body.app-body {
   box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35), 0 0 0 3px var(--surface);
 }
 @media (hover: hover) and (pointer: fine) {
-  .ui-vcard-foot {
+  .ui-vcard-foot:not(.is-pinned) {
     opacity: 0;
     transform: translateY(6px);
     transition: opacity 0.25s var(--ease), transform 0.3s var(--ease);
