@@ -12,7 +12,7 @@ $pitch = $authContext === 'admin'
     <div class="auth-pitch">
       <h2><?= e($pitch[0]) ?></h2>
       <p><?= e($pitch[1]) ?></p>
-      <a class="auth-guide" href="<?= e(url('guia')) ?>#<?= $authContext === 'admin' ? 'coordenacao' : 'empresa' ?>"><?= icon('info', 17) ?> Guia de primeiro acesso</a>
+      <button type="button" class="auth-guide" data-abrir-modal="modal-guia"><?= icon('info', 17) ?> Guia de primeiro acesso</button>
     </div>
     <footer>Instituto Federal de São Paulo · Câmpus Guarulhos · <a href="<?= url('sobre') ?>">Sobre e créditos</a></footer>
   </aside>
@@ -26,8 +26,16 @@ $pitch = $authContext === 'admin'
       <?php foreach ($_SESSION['flash'] ?? [] as [$t, $m]): ?><div class="ui-alert ui-alert-<?= e($t) ?>" role="status"><div><?= e($m) ?></div></div><?php endforeach; unset($_SESSION['flash']); ?>
       <?= $conteudo ?>
     </main>
-    <a class="auth-guide-foot" href="<?= e(url('guia')) ?>#<?= $authContext === 'admin' ? 'coordenacao' : 'empresa' ?>"><?= icon('info', 15) ?> Guia de primeiro acesso</a>
+    <button type="button" class="auth-guide-foot" data-abrir-modal="modal-guia"><?= icon('info', 15) ?> Guia de primeiro acesso</button>
     <div class="auth-ifsp-foot"><?php $ifspMark = 'horizontal'; $ifspTone = 'cor'; require __DIR__ . '/../partials/ifsp-mark.php'; ?></div>
   </div>
+  <dialog id="modal-guia" class="ui-modal ui-modal-guide" aria-labelledby="guia-title">
+    <div class="ui-modal-head">
+      <div><span class="gd-kicker"><?= $authContext === 'admin' ? 'Coordenação' : 'Empresas' ?></span><h2 id="guia-title">Guia de primeiro acesso</h2></div>
+      <button type="button" class="app-icon-btn" data-fechar-modal aria-label="Fechar guia"><?= icon('x', 18) ?></button>
+    </div>
+    <div class="gd-body"><?php require __DIR__ . '/../partials/guide-' . ($authContext === 'admin' ? 'coordenacao' : 'empresa') . '.php'; ?></div>
+    <div class="ui-modal-foot"><button type="button" class="ui-btn ui-btn-primary" data-fechar-modal>Entendi</button></div>
+  </dialog>
   <script src="<?= e(BASE_URL) ?>public/js/app.js?v=<?= (int) @filemtime(ROOT_PATH . '/public/js/app.js') ?>"></script>
 </body></html>

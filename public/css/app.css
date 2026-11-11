@@ -2540,3 +2540,140 @@ a.is-active .ui-count {
     color: var(--primary);
   }
 }
+/* guia de primeiro acesso (modal das telas de login) */
+.ui-modal-guide {
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+}
+.ui-modal-guide[open] {
+  display: flex;
+}
+.ui-modal-guide .ui-modal-head {
+  padding: 20px 24px 14px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+.ui-modal-guide .ui-modal-foot {
+  padding: 14px 24px 18px;
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+.gd-kicker {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+.gd-body {
+  overflow-y: auto;
+  padding: 18px 24px 6px;
+}
+.gd-steps {
+  counter-reset: gd;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.gd-steps > li {
+  counter-increment: gd;
+  position: relative;
+  padding: 14px 16px 14px 56px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-2, var(--surface));
+}
+.gd-steps > li::before {
+  content: counter(gd);
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary, #fff);
+  font-weight: 700;
+  font-size: 14px;
+}
+.gd-steps strong {
+  font-size: 15px;
+}
+.gd-steps p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.gd-steps a {
+  color: var(--primary);
+  font-weight: 600;
+}
+.gd-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.gd-subtitle {
+  margin: 22px 0 10px;
+  font-size: 16px;
+}
+.gd-mails {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+}
+.gd-mails li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.gd-mails svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--primary);
+}
+.gd-note {
+  margin: 12px 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+button.auth-guide,
+button.auth-guide-foot {
+  font: inherit;
+  cursor: pointer;
+}
+button.auth-guide-foot {
+  border: 0;
+  background: none;
+  padding: 4px 8px;
+}
+@media (max-width: 600px) {
+  .gd-steps > li {
+    padding-left: 50px;
+  }
+  .gd-body,
+  .ui-modal-guide .ui-modal-head,
+  .ui-modal-guide .ui-modal-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
