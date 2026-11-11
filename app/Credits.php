@@ -4,6 +4,16 @@ class Credits
 {
     public const DEMANDANTE = ['nome' => 'Prof. Robson Ferreira Lopes', 'papel' => 'Demandante e idealizador do projeto', 'sobre' => 'Engenheiro, sysadmin e docente do IFSP Câmpus Guarulhos, onde foi coordenador de TI.'];
 
+    /** Projeto de extensão do qual o ESTAGIA+ fez parte (cadastro no SUAP do IFSP). */
+    public const EXTENSION = [
+        'nome'  => 'Projeto de Captação de Demandas oriundas da comunidade externa para ações de consultoria, capacitação e desenvolvimento de sistemas para internet pelos estudantes do curso de Tecnologia em Análise e Desenvolvimento de Sistemas',
+        'curso' => 'Tecnologia em Análise e Desenvolvimento de Sistemas',
+        'url'   => 'https://suap.ifsp.edu.br/projetos/projeto/5475/',
+    ];
+
+    /** Página de estágios do site oficial do câmpus, para onde o botão Voltar leva. */
+    public const CAMPUS_INTERNSHIPS_URL = 'https://gru.ifsp.edu.br/estagios.html';
+
     public const TEAM = [
         ['slug' => 'arthur', 'nome' => 'Arthur de Oliveira Mendes Sacramento', 'curto' => 'Arthur Sacramento', 'area' => 'Produto & automação', 'papel' => 'Desenvolvedor Full-Stack & IoT'],
         ['slug' => 'roberto', 'nome' => 'José Roberto Junior Alves Damasceno', 'curto' => 'José Roberto', 'area' => 'Experiências interativas', 'papel' => 'Desenvolvedor Web & Games'],
