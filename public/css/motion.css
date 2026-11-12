@@ -742,3 +742,7 @@ body.app-body {
     transition-duration: 0.01ms !important;
   }
 }
+/* modo noturno: sem o brilho que segue o cursor */
+[data-theme="dark"] .has-spot::after {
+  display: none;
+}
