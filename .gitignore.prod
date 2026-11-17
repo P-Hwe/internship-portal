@@ -93,3 +93,7 @@ public/uploads/teste/*
 *.tmp
 *.temp
 *.cache
+/.claude/
+/CLAUDE.md
+*.webm
+*.mp4
