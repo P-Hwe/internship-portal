@@ -74,3 +74,8 @@ scripts/seed-local.sh
 *.tmp
 *.temp
 *.cache
+
+/.claude/
+/CLAUDE.md
+*.webm
+*.mp4

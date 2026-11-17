@@ -72,3 +72,9 @@ database/README-SEED.md
 uploads/
 
 *.bak
+
+# Ferramentas locais (IA, IDE) e mídias
+/.claude/
+/CLAUDE.md
+*.webm
+*.mp4
