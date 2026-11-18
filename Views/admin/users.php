@@ -9,7 +9,7 @@
             <?php foreach ($admins as $a): $self = (int) $a['id'] === (int) $adm['id']; ?>
             <article class="ui-job">
                 <div class="ui-job-top">
-                    <strong><?= e($a['nome']) ?></strong><?= $a['papel'] === 'raiz' ? Ui::badge('Principal', 'info') : '' ?><?= $a['ativo'] ? Ui::badge('Ativo', 'ok') : Ui::badge('Desativado', 'mute') ?><?= !empty($a['trocar_senha']) ? Ui::badge('Aguardando 1º acesso', 'warn') : '' ?>
+                    <strong><?= e($a['nome']) ?></strong><?= $a['papel'] === 'raiz' ? Ui::badge('Principal', 'info') : Ui::badge('Padrão', 'mute') ?><?= $a['ativo'] ? Ui::badge('Ativo', 'ok') : Ui::badge('Desativado', 'mute') ?><?= !empty($a['trocar_senha']) ? Ui::badge('Aguardando 1º acesso', 'warn') : '' ?>
                 </div>
                 <ul class="ui-job-meta">
                     <li><?= icon('mail', 15) ?> <?= e($a['email']) ?></li>
@@ -23,7 +23,7 @@
                 </div>
                 <?php elseif (!$self && $ehRaiz): $f = ['tipo' => 'admin', 'id' => $a['id'], 'ret' => 'admin-usuarios']; ?>
                 <div class="ui-job-foot" style="gap:8px;flex-wrap:wrap">
-                    <?= $a['ativo'] ? Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'promover'], 'Tornar principal', 'Tornar administrador principal?', $a['nome'] . ' também poderá criar, promover, desativar e excluir administradores. Receberá um e-mail avisando.', 'primary', 'ui-btn ui-btn-sm') : '' ?>
+                    <?= $a['ativo'] ? Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'promover'], 'Tornar principal', 'Tornar administrador principal?', $a['nome'] . ' também poderá criar administradores, definir cargos e remover administradores. Receberá um e-mail avisando.', 'primary', 'ui-btn ui-btn-sm') : '' ?>
                     <?= $a['ativo']
                         ? Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'desativar'], 'Desativar', 'Desativar este administrador?', $a['nome'] . ' não conseguirá mais entrar e receberá um e-mail avisando. Você pode reativar depois.', 'danger', 'ui-btn ui-btn-sm')
                         : Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'ativar'], 'Reativar', 'Reativar este administrador?', $a['nome'] . ' volta a acessar a administração e recebe um e-mail avisando.', 'primary', 'ui-btn ui-btn-sm') ?>
@@ -42,6 +42,7 @@
                 type="hidden" name="ret" value="admin-usuarios">
             <?= $c(['name' => 'nome', 'label' => 'Nome', 'req' => true, 'attrs' => ['maxlength' => 100]]) ?>
             <?= $c(['name' => 'email', 'label' => 'E-mail institucional', 'type' => 'email', 'req' => true]) ?>
+            <?= $c(['name' => 'papel', 'label' => 'Cargo', 'type' => 'select', 'req' => true, 'opcoes' => Admin::ROLES, 'value' => 'admin', 'vazio' => 'Escolha o cargo']) ?>
             <p class="ui-hint">O portal gera uma senha provisória e envia por e-mail, junto com um link para a pessoa criar a própria senha. Só ela vê essa senha.</p>
             <button class="ui-btn ui-btn-primary ui-btn-block" type="submit">Criar administrador</button>
         </form>
