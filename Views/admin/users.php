@@ -17,8 +17,13 @@
                         <?= $a['ultimo_acesso'] ? e(date('d/m/Y H:i', strtotime($a['ultimo_acesso']))) : 'nunca' ?></li>
                     <li><?= icon('user', 15) ?> Criado em <?= data_br(substr($a['criado_em'], 0, 10)) ?></li>
                 </ul>
-                <?php if (!$self && $ehRaiz && $a['papel'] !== 'raiz'): $f = ['tipo' => 'admin', 'id' => $a['id'], 'ret' => 'admin-usuarios']; ?>
+                <?php if (!$self && $ehRaiz && $a['papel'] === 'raiz'): $f = ['tipo' => 'admin', 'id' => $a['id'], 'ret' => 'admin-usuarios']; ?>
                 <div class="ui-job-foot" style="gap:8px">
+                    <?= Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'rebaixar'], 'Remover de principal', 'Remover o papel de principal?', $a['nome'] . ' continua administrador, mas deixa de criar, desativar e excluir administradores. Receberá um e-mail avisando.', 'danger', 'ui-btn ui-btn-sm') ?>
+                </div>
+                <?php elseif (!$self && $ehRaiz): $f = ['tipo' => 'admin', 'id' => $a['id'], 'ret' => 'admin-usuarios']; ?>
+                <div class="ui-job-foot" style="gap:8px;flex-wrap:wrap">
+                    <?= $a['ativo'] ? Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'promover'], 'Tornar principal', 'Tornar administrador principal?', $a['nome'] . ' também poderá criar, promover, desativar e excluir administradores. Receberá um e-mail avisando.', 'primary', 'ui-btn ui-btn-sm') : '' ?>
                     <?= $a['ativo']
                         ? Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'desativar'], 'Desativar', 'Desativar este administrador?', $a['nome'] . ' não conseguirá mais entrar e receberá um e-mail avisando. Você pode reativar depois.', 'danger', 'ui-btn ui-btn-sm')
                         : Ui::formConfirmar(url('admin-acao'), $f + ['acao' => 'ativar'], 'Reativar', 'Reativar este administrador?', $a['nome'] . ' volta a acessar a administração e recebe um e-mail avisando.', 'primary', 'ui-btn ui-btn-sm') ?>
@@ -40,5 +45,5 @@
             <p class="ui-hint">O portal gera uma senha provisória e envia por e-mail, junto com um link para a pessoa criar a própria senha. Só ela vê essa senha.</p>
             <button class="ui-btn ui-btn-primary ui-btn-block" type="submit">Criar administrador</button>
         </form>
-    </aside><?php else: ?><aside class="ui-card"><h2>Novo administrador</h2><p class="ui-hint">Somente o administrador principal (coordenador) cria, desativa e exclui administradores.</p></aside><?php endif; ?>
+    </aside><?php else: ?><aside class="ui-card"><h2>Novo administrador</h2><p class="ui-hint">Somente administradores principais criam, promovem, desativam e excluem administradores.</p></aside><?php endif; ?>
 </div>

@@ -54,6 +54,11 @@ class Admin
         Database::update('admins', $id, ['senha_hash' => Auth::hash($newPassword), 'trocar_senha' => 0]);
     }
 
+    public static function setRole(int $id, string $role): void
+    {
+        Database::update('admins', $id, ['papel' => $role]);
+    }
+
     public static function setActive(int $id, bool $active): void
     {
         Database::update('admins', $id, ['ativo' => $active ? 1 : 0]);
