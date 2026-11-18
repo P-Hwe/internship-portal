@@ -60,12 +60,14 @@ class Notifier
             'desativado' => ['Sua conta de administrador foi desativada', 'Conta desativada', 'desativou a sua conta de administrador. Você não consegue mais entrar no painel até ela ser reativada.'],
             'reativado'  => ['Sua conta de administrador foi reativada', 'Conta reativada', 'reativou a sua conta de administrador. Você já pode entrar no painel com a sua senha.'],
             'excluido'   => ['Sua conta de administrador foi excluída', 'Conta excluída', 'excluiu a sua conta de administrador. O acesso ao painel foi encerrado.'],
+            'promovido'  => ['Você agora é administrador principal', 'Administrador principal', 'tornou você administrador principal do portal de vagas. Agora você também pode criar, desativar e excluir administradores na aba Usuários.'],
+            'rebaixado'  => ['Você deixou de ser administrador principal', 'Papel alterado', 'removeu o seu papel de administrador principal. Você continua com acesso ao painel, mas não gerencia mais os administradores.'],
         ];
         if (!isset($texts[$event])) return;
         [$subject, $title, $text] = $texts[$event];
         Mailer::enviar($admin['email'], $subject, Mailer::layout($title,
             '<p>Olá, ' . e(primeiro_nome($admin['nome'])) . '!</p><p><strong>' . e($actor['nome']) . '</strong> ' . $text . '</p><p>Em caso de dúvida, fale com a Coordenação.</p>',
-            $event === 'reativado' ? ['Entrar no painel', url_abs('admin-login')] : null));
+            in_array($event, ['reativado', 'promovido'], true) ? ['Entrar no painel', url_abs('admin-login')] : null));
     }
 
     public static function convenioAssinado(array $company): void

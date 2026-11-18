@@ -193,7 +193,7 @@ class AdminController
                 break;
 
             case 'admin':
-                if (!Admin::isRoot($admin)) { flash('erro', 'Somente o administrador principal pode criar, desativar ou excluir administradores.'); $goBack(); }
+                if (!Admin::isRoot($admin)) { flash('erro', 'Somente um administrador principal pode criar, promover, desativar ou excluir administradores.'); $goBack(); }
                 if ($action === 'criar') {
                     $formData = limpar_post($_POST); $errors = [];
                     if (mb_strlen($formData['nome'] ?? '') < 3) $errors['nome'] = 'Informe o nome.';
@@ -205,11 +205,22 @@ class AdminController
                     AuditLog::registrar('admin', $newAdmin, 'cadastro', null, null, $actor[0], $actor[1], $formData['nome']);
                     Notifier::adminCriado(Admin::findById($newAdmin), $admin, $temporaryPassword, PasswordReset::issueFirstAccess('admin', $newAdmin));
                     flash('ok', 'Administrador criado. A senha provisória e o link para criar a senha foram enviados só para o e-mail dele.');
+                } elseif (in_array($action, ['promover', 'rebaixar'], true)) {
+                    $target = Admin::findById($id);
+                    if (!$target || $target['excluido_em']) { flash('erro', 'Administrador não encontrado.'); $goBack(); }
+                    if ($id === (int) $admin['id']) { flash('erro', 'Você não pode mudar o papel da própria conta.'); $goBack(); }
+                    $promote = $action === 'promover';
+                    if ($promote && !(int) $target['ativo']) { flash('erro', 'Reative a conta antes de torná-la principal.'); $goBack(); }
+                    if ($promote === Admin::isRoot($target)) { flash('erro', $target['nome'] . ($promote ? ' já é administrador principal.' : ' não é administrador principal.')); $goBack(); }
+                    Admin::setRole($id, $promote ? 'raiz' : 'admin');
+                    AuditLog::registrar('admin', $id, 'papel_alterado', $promote ? 'admin' : 'raiz', $promote ? 'raiz' : 'admin', $actor[0], $actor[1], $target['nome']);
+                    Notifier::adminStatus($target, $promote ? 'promovido' : 'rebaixado', $admin);
+                    flash('ok', $target['nome'] . ($promote ? ' agora é administrador principal' : ' deixou de ser administrador principal') . ' e foi avisado por e-mail.');
                 } elseif (in_array($action, ['ativar', 'desativar', 'excluir'], true)) {
                     $target = Admin::findById($id);
                     if (!$target || $target['excluido_em']) { flash('erro', 'Administrador não encontrado.'); $goBack(); }
                     if ($id === (int) $admin['id']) { flash('erro', 'Você não pode desativar nem excluir a própria conta.'); $goBack(); }
-                    if (Admin::isRoot($target)) { flash('erro', 'A conta do administrador principal não pode ser desativada nem excluída.'); $goBack(); }
+                    if (Admin::isRoot($target)) { flash('erro', 'Um administrador principal não pode ser desativado nem excluído. Remova o papel de principal antes.'); $goBack(); }
                     if ($action !== 'ativar' && (int) $target['ativo'] && Stats::contasRestritas()['admins_ativos'] <= 1) { flash('erro', 'É preciso manter ao menos um administrador ativo.'); $goBack(); }
                     if ($action === 'excluir') {
                         Admin::softDelete($id);
