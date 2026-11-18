@@ -41,7 +41,8 @@ class Notifier
     public static function adminCriado(array $newAdmin, array $creator, string $temporaryPassword, string $token): void
     {
         Mailer::enviar($newAdmin['email'], 'Sua conta de administrador foi criada', Mailer::layout('Conta de administrador criada',
-            '<p>Olá, ' . e(primeiro_nome($newAdmin['nome'])) . '!</p><p><strong>' . e($creator['nome']) . '</strong> criou uma conta de administrador para você no portal de vagas de estágio.</p>'
+            '<p>Olá, ' . e(primeiro_nome($newAdmin['nome'])) . '!</p><p><strong>' . e($creator['nome']) . '</strong> criou uma conta de administrador ' . (($newAdmin['papel'] ?? '') === 'raiz' ? '<strong>principal</strong>' : '') . ' para você no portal de vagas de estágio. '
+            . (($newAdmin['papel'] ?? '') === 'raiz' ? 'Você gerencia empresas, vagas e convênios e também cria, define cargos e remove administradores.' : 'Você gerencia empresas, vagas e convênios.') . '</p>'
             . self::firstAccessBody($newAdmin['email'], $temporaryPassword),
             ['Criar minha senha', url_abs('admin-login', ['redefinir' => $token])]));
     }
