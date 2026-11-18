@@ -200,11 +200,13 @@ class AdminController
                     if (!filter_var($formData['email'] ?? '', FILTER_VALIDATE_EMAIL)) $errors['email'] = 'E-mail inválido.';
                     elseif (Admin::emailTaken($formData['email'])) $errors['email'] = 'Este e-mail já foi usado por um administrador.';
                     elseif (CompanyMember::emailTaken($formData['email']) || Company::porEmail($formData['email'])) $errors['email'] = 'Este e-mail já é usado por uma empresa no portal.';
+                    $role = (string) ($formData['papel'] ?? '');
+                    if (!isset(Admin::ROLES[$role])) $errors['papel'] = 'Escolha o cargo.';
                     if ($errors) { $_SESSION['erros_admin'] = $errors; $_SESSION['old_admin'] = $formData; $goBack(); }
-                    [$newAdmin, $temporaryPassword] = Admin::createWithTemporaryPassword($formData['nome'], $formData['email']);
+                    [$newAdmin, $temporaryPassword] = Admin::createWithTemporaryPassword($formData['nome'], $formData['email'], $role);
                     AuditLog::registrar('admin', $newAdmin, 'cadastro', null, null, $actor[0], $actor[1], $formData['nome']);
                     Notifier::adminCriado(Admin::findById($newAdmin), $admin, $temporaryPassword, PasswordReset::issueFirstAccess('admin', $newAdmin));
-                    flash('ok', 'Administrador criado. A senha provisória e o link para criar a senha foram enviados só para o e-mail dele.');
+                    flash('ok', 'Administrador ' . ($role === 'raiz' ? 'principal' : 'padrão') . ' criado. A senha provisória e o link para criar a senha foram enviados só para o e-mail dele.');
                 } elseif (in_array($action, ['promover', 'rebaixar'], true)) {
                     $target = Admin::findById($id);
                     if (!$target || $target['excluido_em']) { flash('erro', 'Administrador não encontrado.'); $goBack(); }
