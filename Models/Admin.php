@@ -1,6 +1,11 @@
 <?php
 class Admin
 {
+    public const ROLES = [
+        'admin' => 'Padrão: gerencia empresas, vagas e convênios',
+        'raiz'  => 'Principal: também cria, define cargos e remove administradores',
+    ];
+
     public static function findById(int $id): ?array        { return Database::one('SELECT * FROM admins WHERE id = :i', ['i' => $id]); }
     public static function findByEmail(string $email): ?array { return Database::one('SELECT * FROM admins WHERE email = :e AND excluido_em IS NULL', ['e' => mb_strtolower($email)]); }
     public static function emailTaken(string $email): bool   { return (bool) Database::val('SELECT 1 FROM admins WHERE email = :e', ['e' => mb_strtolower($email)]); }
@@ -29,10 +34,10 @@ class Admin
         ]);
     }
 
-    public static function createWithTemporaryPassword(string $name, string $email): array
+    public static function createWithTemporaryPassword(string $name, string $email, string $role = 'admin'): array
     {
         $password = Auth::temporaryPassword();
-        return [self::create($name, $email, $password), $password];
+        return [self::create($name, $email, $password, $role), $password];
     }
 
     public static function provisionRoot(string $email, string $name = 'Coordenação'): array
